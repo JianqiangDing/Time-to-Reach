@@ -15,10 +15,11 @@ dependencies:
   - pytest=9.1.1
   - pip
   - pip:
-      - jax==0.6.2
-      - jaxlib==0.6.2
+      - jax==0.11.2
+      - jaxlib==0.11.2
+      - flax==0.12.10
       - hj_reachability==0.7.0
       - cvxpy==1.9.3
-      - Mosek==11.0.29
+      - Mosek==11.2.6
       - portion==2.6.1
       - jsonschema==4.25.1
