@@ -1,0 +1,46 @@
+{
+  "$schema": "../schema/benchmark.schema.json",
+  "id": "CP_LQR_FIN_REA_CONVERGE",
+  "description": "Cart-pole with LQR feedback (4D), finite horizon: the state converges into a small box around the upright equilibrium.",
+  "notes": ["The initial set is a single state (degenerate box)."],
+  "system": {
+    "type": "nonlinear",
+    "equations": ["x2", "(-3.16227766016837*x1 - 6.69810360685677*x2 - 5.02657663490373*x3 - 1.6165296244068*x4 + 2*(x4^2 - 9.8065*cos(x3))*sin(x3))/(2*sin(x3)^2 + 3)", "x4", "(2*x4^2*sin(x3)*cos(x3) + (-3.16227766016837*x1 - 6.69810360685677*x2 - 5.02657663490373*x3 - 1.6165296244068*x4)*cos(x3) - 49.0325*sin(x3))/(2*sin(x3)^2 + 3)"]
+  },
+  "domain": [
+    [-5.0, 5.0],
+    [-5.0, 5.0],
+    [-3.14159, 3.14159],
+    [-10.0, 10.0]
+  ],
+  "initial_sets": [
+    {
+      "type": "box",
+      "bounds": [
+        [0.8, 0.8],
+        [0.3, 0.3],
+        [-0.785398, -0.785398],
+        [0.2, 0.2]
+      ]
+    }
+  ],
+  "target_sets": [
+    {
+      "type": "box",
+      "bounds": [
+        [-0.001, 0.001],
+        [-0.001, 0.001],
+        [-0.001, 0.001],
+        [-0.001, 0.001]
+      ]
+    }
+  ],
+  "time_horizon": [0.0, 12.0],
+  "expected_result": "reachable",
+  "visualization": {
+    "dims": [
+      [0, 1],
+      [2, 3]
+    ]
+  }
+}
