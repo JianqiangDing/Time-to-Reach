@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "benchmark": "MAS_CON_FIN_UNR_SAFE_1",
+  "tool": "hj",
+  "setting": "setting_0",
+  "verdict": "unsupported",
+  "expected_result": "unreachable",
+  "agrees_with_expected": null,
+  "detail": "16-dimensional state space; grid-based Hamilton-Jacobi reachability is infeasible (curse of dimensionality)",
+  "time_horizon": [0.0, 7.0],
+  "horizon_covered": null,
+  "reach_time_bounds": null,
+  "runtime_s": {
+    "total": 0.054315291985403746
+  },
+  "params": {
+    "grid_size": 500,
+    "accuracy": "medium",
+    "time_step_report": 0.005,
+    "margin_cells": 1.0,
+    "num_samples_initial": 2000,
+    "boundary_samples_initial": 2000,
+    "seed": 0,
+    "applicable": false,
+    "reason": "16-dimensional state space; grid-based Hamilton-Jacobi reachability is infeasible (curse of dimensionality)"
+  },
+  "provenance": {
+    "git_commit": "74b1e35eedcb16ed22408112711371941c49b1d6",
+    "git_dirty": false,
+    "timestamp": "2026-10-15T09:47:47+00:00",
+    "platform": "macOS-27.0.1-arm64-arm-64bit",
+    "machine": "arm64",
+    "versions": {
+      "python": "3.12.15",
+      "numpy": "2.2.6",
+      "sympy": "1.14.0",
+      "jax": "0.11.2",
+      "jaxlib": "0.11.2",
+      "hj_reachability": "0.7.0"
+    }
+  },
+  "extra": {}
+}

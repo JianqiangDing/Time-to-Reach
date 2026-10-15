@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "benchmark": "CP_LQR_FIN_REA_CONVERGE",
+  "tool": "hj",
+  "setting": "setting_0",
+  "verdict": "unsupported",
+  "expected_result": "reachable",
+  "agrees_with_expected": null,
+  "detail": "the target box has half-width 1e-3, far below the spacing of any feasible 4D grid over the domain (about 0.25 with 41 nodes per dimension)",
+  "time_horizon": [0.0, 12.0],
+  "horizon_covered": null,
+  "reach_time_bounds": null,
+  "runtime_s": {
+    "total": 0.046299499983433634
+  },
+  "params": {
+    "grid_size": 500,
+    "accuracy": "medium",
+    "time_step_report": 0.005,
+    "margin_cells": 1.0,
+    "num_samples_initial": 2000,
+    "boundary_samples_initial": 2000,
+    "seed": 0,
+    "applicable": false,
+    "reason": "the target box has half-width 1e-3, far below the spacing of any feasible 4D grid over the domain (about 0.25 with 41 nodes per dimension)"
+  },
+  "provenance": {
+    "git_commit": "74b1e35eedcb16ed22408112711371941c49b1d6",
+    "git_dirty": false,
+    "timestamp": "2026-10-15T09:32:38+00:00",
+    "platform": "macOS-27.0.1-arm64-arm-64bit",
+    "machine": "arm64",
+    "versions": {
+      "python": "3.12.15",
+      "numpy": "2.2.6",
+      "sympy": "1.14.0",
+      "jax": "0.11.2",
+      "jaxlib": "0.11.2",
+      "hj_reachability": "0.7.0"
+    }
+  },
+  "extra": {}
+}

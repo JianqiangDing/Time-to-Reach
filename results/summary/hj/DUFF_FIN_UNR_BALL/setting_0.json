@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "benchmark": "DUFF_FIN_UNR_BALL",
+  "tool": "hj",
+  "setting": "setting_0",
+  "verdict": "unreachable_estimated",
+  "expected_result": "unreachable",
+  "agrees_with_expected": true,
+  "detail": "min V over the initial set 0.0155 >= 0.00641",
+  "time_horizon": [0.0, 6.0],
+  "horizon_covered": true,
+  "reach_time_bounds": null,
+  "runtime_s": {
+    "setup": 0.03436137503013015,
+    "compile_and_first_step": 0.15071287500904873,
+    "solve": 27.717702249996364,
+    "total": 27.9094055420137
+  },
+  "params": {
+    "grid_size": 500,
+    "accuracy": "medium",
+    "time_step_report": 0.005,
+    "margin_cells": 1.0,
+    "num_samples_initial": 2000,
+    "boundary_samples_initial": 2000,
+    "seed": 0
+  },
+  "provenance": {
+    "git_commit": "74b1e35eedcb16ed22408112711371941c49b1d6",
+    "git_dirty": false,
+    "timestamp": "2026-10-15T09:46:23+00:00",
+    "platform": "macOS-27.0.1-arm64-arm-64bit",
+    "machine": "arm64",
+    "versions": {
+      "python": "3.12.15",
+      "numpy": "2.2.6",
+      "sympy": "1.14.0",
+      "jax": "0.11.2",
+      "jaxlib": "0.11.2",
+      "hj_reachability": "0.7.0"
+    }
+  },
+  "extra": {
+    "direction": "forward",
+    "grid_shape": [500, 500],
+    "grid_spacing": [0.006012024357914925, 0.006412826012820005],
+    "margin": 0.006412826012820005,
+    "min_value_over_initial": 0.015515992417931557,
+    "first_reach_time_estimate": null,
+    "num_initial_samples": 4000,
+    "jax_devices": ["cpu:0"]
+  }
+}
