@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "benchmark": "DUFF_FIN_REA_NONCONVEX_LEVEL_SET",
+  "tool": "sosbc",
+  "setting": "setting_0",
+  "verdict": "unknown",
+  "expected_result": "reachable",
+  "agrees_with_expected": null,
+  "detail": "no certificate of degree 8 (pinf=0, dinf=0, numerr=0, feasratio=-1.0000000000000109) (non-polynomial level sets replaced by their bounding boxes)",
+  "time_horizon": [0.0, 6.0],
+  "horizon_covered": true,
+  "reach_time_bounds": null,
+  "runtime_s": {
+    "total": 5.951511290972121,
+    "setup": 0.6954427083333333,
+    "solve": 0.3304707083333333
+  },
+  "params": {
+    "matlab_release": "R2025a",
+    "deg_B": 8,
+    "boundary_condition": true,
+    "timeout_s": 1800,
+    "versions": {
+      "matlab": "25.1.0.2973910 (R2025a) Update 1",
+      "sostools": "v4.03"
+    },
+    "field_degree": 3,
+    "denominator": "1"
+  },
+  "provenance": {
+    "git_commit": "1902bfc47358c2cb78390be8678192f28ead9249",
+    "git_dirty": false,
+    "timestamp": "2026-10-15T11:43:22+00:00",
+    "platform": "macOS-27.0.1-arm64-arm-64bit",
+    "machine": "arm64",
+    "versions": {
+      "python": "3.12.15",
+      "sympy": "1.14.0"
+    }
+  },
+  "extra": {
+    "solver": {
+      "pinf": 0,
+      "dinf": 0,
+      "numerr": 0,
+      "feasratio": -1.0000000000000109
+    },
+    "validation": []
+  }
+}

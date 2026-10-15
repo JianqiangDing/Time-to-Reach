@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "benchmark": "NL_SLC_FIN_REA_BOX",
+  "tool": "sosbc",
+  "setting": "setting_1",
+  "verdict": "unknown",
+  "expected_result": "reachable",
+  "agrees_with_expected": null,
+  "detail": "no certificate of degree 16 (pinf=0, dinf=0, numerr=0, feasratio=-1.00003291074449)",
+  "time_horizon": [0.0, 15.0],
+  "horizon_covered": true,
+  "reach_time_bounds": null,
+  "runtime_s": {
+    "total": 6.414665707969107,
+    "setup": 0.8684058333333333,
+    "solve": 0.9579007916666666
+  },
+  "params": {
+    "matlab_release": "R2025a",
+    "deg_B": 16,
+    "boundary_condition": true,
+    "timeout_s": 1800,
+    "versions": {
+      "matlab": "25.1.0.2973910 (R2025a) Update 1",
+      "sostools": "v4.03"
+    },
+    "field_degree": 3,
+    "denominator": "4*x1**2 + 4*x2**2"
+  },
+  "provenance": {
+    "git_commit": "1902bfc47358c2cb78390be8678192f28ead9249",
+    "git_dirty": false,
+    "timestamp": "2026-10-15T11:44:36+00:00",
+    "platform": "macOS-27.0.1-arm64-arm-64bit",
+    "machine": "arm64",
+    "versions": {
+      "python": "3.12.15",
+      "sympy": "1.14.0"
+    }
+  },
+  "extra": {
+    "solver": {
+      "pinf": 0,
+      "dinf": 0,
+      "numerr": 0,
+      "feasratio": -1.00003291074449
+    },
+    "validation": []
+  }
+}
