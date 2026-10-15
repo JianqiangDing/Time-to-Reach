@@ -95,7 +95,7 @@ def main(argv=None):
     out.parent.mkdir(parents=True, exist_ok=True)
     out.with_suffix(".md").write_text(text)
     with out.with_suffix(".csv").open("w", newline="") as f:
-        w = csv.writer(f)
+        w = csv.writer(f, lineterminator="\n")
         w.writerow(["benchmark", "expected"] + [f"{t}:{s}:{k}" for t, s in columns for k in ("verdict", "time_s")])
         for bid, expected, cells in rows:
             w.writerow([bid, expected] + [x for c in cells for x in (c["verdict"] or "", c["time"] or "")])
