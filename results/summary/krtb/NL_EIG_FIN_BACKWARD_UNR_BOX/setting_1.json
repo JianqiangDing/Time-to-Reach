@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "benchmark": "NL_EIG_FIN_BACKWARD_UNR_BOX",
+  "tool": "krtb",
+  "setting": "setting_1",
+  "verdict": "unreachable_estimated",
+  "expected_result": "unreachable",
+  "agrees_with_expected": true,
+  "detail": "reach-time bounds do not meet the time horizon",
+  "time_horizon": [0.0, 1.3],
+  "horizon_covered": true,
+  "reach_time_bounds": [],
+  "runtime_s": {
+    "total": 0.018263750011101365,
+    "setup": 0.012116249999962747,
+    "eigenfunctions": 6.77499920129776e-05,
+    "bounds": 0.006079083017539233,
+    "krtb": 0.006146833009552211,
+    "witness_search": 6.67001586407423e-07
+  },
+  "params": {
+    "num_samples_initial": 1000,
+    "num_samples_target": 1000,
+    "boundary_samples_initial": 1000,
+    "boundary_samples_target": 1000,
+    "num_sim_samples": 100,
+    "seed": 0,
+    "path_integral": {
+      "rtol": 1e-12,
+      "atol": 1e-14,
+      "batch": 64,
+      "dt": 0.02
+    },
+    "eigenfunctions": {
+      "method": "analytic",
+      "functions": ["x1^2 + 2*x2 + x2^3", "x1 + sin(x2) + x1^3"],
+      "eigenvalues": ["-1", "2.5"]
+    }
+  },
+  "provenance": {
+    "git_commit": "7b623bcabc8dcdab84e57cb933269112f2011f60",
+    "git_dirty": false,
+    "timestamp": "2026-10-15T09:09:16+00:00",
+    "platform": "macOS-27.0.1-arm64-arm-64bit",
+    "machine": "arm64",
+    "versions": {
+      "python": "3.12.15",
+      "numpy": "2.2.6",
+      "scipy": "1.18.1",
+      "sympy": "1.14.0",
+      "cvxpy": "1.9.3",
+      "Mosek": "11.2.6"
+    }
+  },
+  "extra": {
+    "direction": "backward",
+    "eigenvalues": [
+      [-1.0, 0.0],
+      [2.5, 0.0]
+    ],
+    "eigenfunctions": {
+      "method": "analytic",
+      "functions": ["x1^2 + 2*x2 + x2^3", "x1 + sin(x2) + x1^3"],
+      "max_relative_eigen_residual": 5.6396117194431634e-15
+    },
+    "bounds_status": "empty",
+    "bounds_unclipped": [],
+    "magnitude_interval": null,
+    "phase_window": null,
+    "period": null,
+    "bound_details": {
+      "magnitude": {
+        "growing_cone": [0.17369279164111529, "-inf"],
+        "decaying_cone": ["inf", 0.7556906361991899],
+        "lfp_status": ["optimal", "unbounded", "unbounded", "optimal"]
+      }
+    },
+    "witness": null,
+    "num_samples": {
+      "initial": 2004,
+      "target": 2004
+    }
+  }
+}
