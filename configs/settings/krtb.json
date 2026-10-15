@@ -79,6 +79,25 @@
           "num_samples_target": 2000
         }
       }
+    },
+    "setting_1": {
+      "inherits": "setting_0",
+      "description": "setting_0 plus as many samples on the boundary of the initial and target sets as inside them, so that the sampled extrema of log|psi| and arg(psi) converge (on DUFF_FIN_REA_BOX interior samples alone missed the end of the true reach-time window). Used for the paper tables.",
+      "defaults": {
+        "boundary_samples_initial": 1000,
+        "boundary_samples_target": 1000
+      },
+      "benchmarks": {
+        "CP_LQR_FIN_REA_CONVERGE": {"boundary_samples_initial": 0},
+        "CP_LQR_FIN_REA_UNSAFE": {"boundary_samples_initial": 0},
+        "CP_LQR_FIN_UNR_SAFE": {"boundary_samples_initial": 0},
+        "DUFF_FIN_REA_DISJOINT_BOX": {"boundary_samples_target": 2000},
+        "MAS_CON_FIN_REA_BOX": {"boundary_samples_initial": 100},
+        "MAS_CON_FIN_UNR_SAFE_0": {"boundary_samples_initial": 100},
+        "MAS_CON_FIN_UNR_SAFE_1": {"boundary_samples_initial": 100},
+        "NL_SLC_FIN_REA_BOX": {"boundary_samples_initial": 2000, "boundary_samples_target": 2000},
+        "NL_SLC_FIN_UNR_BOX": {"boundary_samples_initial": 2000, "boundary_samples_target": 2000}
+      }
     }
   }
 }

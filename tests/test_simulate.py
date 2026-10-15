@@ -61,3 +61,19 @@ def test_time_reversal_returns_to_start():
     y = solve_ivp(bm.problem_system.ode, (0, 0.8), x0, **kw).y[:, -1]
     back = solve_ivp(bm.system.ode, (0, 0.8), y, **kw).y[:, -1]
     np.testing.assert_allclose(back, x0, atol=1e-8)
+
+
+def test_in_target_intervals_are_exact():
+    from tools.common.sets import Union
+
+    system = System("nonlinear", 1, equations=["1"])
+    target = Union([Box([[0.2, 0.3]]), Box([[0.6, 0.65]]), Box([[0.80003, 0.80004]])])
+    r = check_trajectory(system, np.array([0.0]), target, (0.0, 1.0))
+    np.testing.assert_allclose(r.in_target, [(0.2, 0.3), (0.6, 0.65), (0.80003, 0.80004)], atol=1e-9)
+    assert r.first_hit_time == pytest.approx(0.2, abs=1e-9)
+
+
+def test_trajectory_ending_inside_target():
+    system = System("nonlinear", 1, equations=["1"])
+    r = check_trajectory(system, np.array([0.0]), Box([[0.7, 2.0]]), (0.0, 1.0))
+    np.testing.assert_allclose(r.in_target, [(0.7, 1.0)], atol=1e-9)

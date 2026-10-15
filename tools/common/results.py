@@ -34,9 +34,14 @@ _ASSERTS = {
 }
 
 
+def asserted_answer(verdict):
+    """'reachable' / 'unreachable' if the verdict asserts an answer, else None."""
+    return _ASSERTS.get(verdict)
+
+
 def agrees_with_expected(verdict, expected_result):
     """True/False if the verdict asserts an answer, None if it does not (possible, unknown, ...)."""
-    claim = _ASSERTS.get(verdict)
+    claim = asserted_answer(verdict)
     return None if claim is None else claim == expected_result
 
 

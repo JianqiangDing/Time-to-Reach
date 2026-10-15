@@ -8,7 +8,7 @@ a step that passes through the whole target shows no sign change. These are
 numerical witnesses, not proofs.
 """
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 import numpy as np
 from scipy.integrate import solve_ivp
@@ -29,6 +29,7 @@ class TrajectoryCheck:
     max_domain_violation: float  # > 0 if the trajectory leaves the domain
     success: bool
     message: str
+    in_target: list = field(default_factory=list)  # (t_enter, t_leave) intervals within the horizon
 
 
 def _sample_times(step_ends, n_dense, points_per_step):
@@ -40,9 +41,20 @@ def _sample_times(step_ends, n_dense, points_per_step):
     return np.unique(np.concatenate([grid, within, step_ends]))
 
 
+def merge_intervals(intervals, tol=0.0):
+    """Union of closed intervals, merging those that overlap or are within tol."""
+    out = []
+    for lo, hi in sorted(intervals):
+        if out and lo <= out[-1][1] + tol:
+            out[-1] = (out[-1][0], max(out[-1][1], hi))
+        else:
+            out.append((lo, hi))
+    return out
+
+
 def check_trajectory(system, x0, target, time_horizon, domain=None, n_dense=2001, method="DOP853",
                      points_per_step=POINTS_PER_STEP, max_step=np.inf):
-    """Integrate one trajectory over the horizon and report how close it gets to the target."""
+    """Integrate one trajectory over the horizon and report when it is in the target set."""
     t0, t1 = time_horizon
     sol = solve_ivp(
         system.ode, (t0, t1), np.asarray(x0, float), method=method,
@@ -54,28 +66,37 @@ def check_trajectory(system, x0, target, time_horizon, domain=None, n_dense=2001
     ts = _sample_times(sol.t, n_dense, points_per_step)
     X = sol.sol(ts).T
     gv = target.inside_function(X)
+    last = len(ts) - 1
 
     def g_of_t(t):
         return target.inside_function(sol.sol(t)[None, :])[0]
 
-    def entry_time(lo, hi):
-        """First t in [lo, hi] with g <= 0, given g(lo) > 0 and g(hi) <= 0."""
-        return float(brentq(g_of_t, lo, hi, xtol=1e-12)) if g_of_t(hi) < 0 else float(hi)
+    def crossing(outside_t, inside_t):
+        """Boundary time between a sample outside (g > 0) and one inside (g <= 0)."""
+        if g_of_t(inside_t) == 0:
+            return float(inside_t)
+        lo, hi = sorted((outside_t, inside_t))
+        return float(brentq(g_of_t, lo, hi, xtol=1e-12))
 
     k = int(np.argmin(gv))
     min_g, min_g_time = float(gv[k]), float(ts[k])
-    entries = []
+    intervals = []
 
-    inside = np.flatnonzero(gv <= 0)
-    if len(inside):
-        i = inside[0]
-        entries.append(float(ts[0]) if i == 0 else entry_time(ts[i - 1], ts[i]))
+    # Runs of samples inside the target, with refined entry and exit times.
+    inside = gv <= 0
+    if inside.any():
+        edges = np.flatnonzero(np.diff(inside.astype(int)))
+        starts = [0] if inside[0] else []
+        starts += [e + 1 for e in edges if not inside[e]]
+        ends = [e for e in edges if inside[e]] + ([last] if inside[last] else [])
+        for a, b in zip(starts, ends):
+            enter = float(ts[0]) if a == 0 else crossing(ts[a - 1], ts[a])
+            leave = float(ts[last]) if b == last else crossing(ts[b + 1], ts[b])
+            intervals.append((enter, leave))
 
     # A visit shorter than the sample spacing shows up as a local minimum of the
     # samples with g > 0; minimize g between the neighbouring samples to find it.
-    last = len(ts) - 1
-    stop = inside[0] if len(inside) else last + 1
-    for i in range(min(stop, last + 1)):
+    for i in range(last + 1):
         if gv[i] <= 0 or (i > 0 and gv[i - 1] < gv[i]) or (i < last and gv[i + 1] < gv[i]):
             continue
         # g can only dip below zero between samples if it is small compared with how
@@ -88,17 +109,20 @@ def check_trajectory(system, x0, target, time_horizon, domain=None, n_dense=2001
         if res.fun < min_g:
             min_g, min_g_time = float(res.fun), float(res.x)
         if res.fun <= 0:
-            entries.append(entry_time(lo, float(res.x)) if g_of_t(lo) > 0 else float(lo))
-            break
+            mid = float(res.x)
+            enter = crossing(lo, mid) if g_of_t(lo) > 0 else float(lo)
+            leave = crossing(hi, mid) if g_of_t(hi) > 0 else float(hi)
+            intervals.append((enter, leave))
 
-    first = min(entries) if entries else np.nan
-    hit = not np.isnan(first)
+    intervals = merge_intervals(intervals)
+    first = intervals[0][0] if intervals else np.nan
 
     viol = np.nan
     if domain is not None:
         viol = float(np.max(np.maximum(domain.inside_function(X), 0.0)))
 
-    return TrajectoryCheck(np.asarray(x0), hit, first, min_g, min_g_time, viol, True, sol.message)
+    return TrajectoryCheck(np.asarray(x0), bool(intervals), first, min_g, min_g_time, viol, True,
+                           sol.message, intervals)
 
 
 def check_many(system, X0, target, time_horizon, domain=None, stop_at_first_hit=False, **kw):

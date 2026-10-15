@@ -1,4 +1,9 @@
-"""Per-tool settings (configs/settings/<tool>.json): defaults plus per-benchmark overrides."""
+"""Per-tool settings (configs/settings/<tool>.json).
+
+Each setting has "defaults" and per-benchmark overrides under "benchmarks". A
+setting may name another one in "inherits"; its defaults and benchmark entries
+are then merged over the parent's.
+"""
 
 import copy
 
@@ -15,15 +20,34 @@ def _merge(base, override):
     return out
 
 
+def _resolve(all_settings, name, seen=()):
+    if name in seen:
+        raise ValueError(f"cyclic 'inherits' chain: {' -> '.join(seen + (name,))}")
+    block = all_settings[name]
+    defaults = block.get("defaults", {})
+    benchmarks = block.get("benchmarks", {})
+    if "inherits" in block:
+        parent = _resolve(all_settings, block["inherits"], seen + (name,))
+        defaults = _merge(parent["defaults"], defaults)
+        benchmarks = {
+            bid: _merge(parent["benchmarks"].get(bid, {}), benchmarks.get(bid, {}))
+            for bid in set(parent["benchmarks"]) | set(benchmarks)
+        }
+    return {"defaults": defaults, "benchmarks": benchmarks}
+
+
+def _setting(tool, setting):
+    data = jsonio.read_json(paths.SETTINGS_DIR / f"{tool}.json")
+    return _resolve(data["settings"], setting)
+
+
 def load_settings(tool, setting, benchmark_id):
     """Settings of `tool` for one benchmark; raises KeyError if the benchmark is not configured."""
-    data = jsonio.read_json(paths.SETTINGS_DIR / f"{tool}.json")
-    block = data["settings"][setting]
+    block = _setting(tool, setting)
     if benchmark_id not in block["benchmarks"]:
         raise KeyError(f"{tool}/{setting} has no settings for {benchmark_id}")
-    return _merge(block.get("defaults", {}), block["benchmarks"][benchmark_id])
+    return _merge(block["defaults"], block["benchmarks"][benchmark_id])
 
 
 def configured_benchmarks(tool, setting):
-    data = jsonio.read_json(paths.SETTINGS_DIR / f"{tool}.json")
-    return sorted(data["settings"][setting]["benchmarks"])
+    return sorted(_setting(tool, setting)["benchmarks"])

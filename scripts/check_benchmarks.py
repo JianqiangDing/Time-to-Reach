@@ -4,8 +4,11 @@ For every benchmark this script
   1. validates the config against configs/schema/benchmark.schema.json and builds its sets,
   2. checks that the initial and target sets lie inside the domain and are non-empty,
   3. simulates trajectories from interior and boundary samples of the initial set with
-     event detection on the target, and records
-       - for 'reachable' benchmarks: a witness (x0, first hit time) and how many samples hit,
+     dense in-step sampling and root finding on the target's inside function, and records
+       - for 'reachable' benchmarks: a witness (x0, first hit time), how many samples hit,
+         and the simulated in-target time set: the union over sampled trajectories of the
+         times at which they are inside the target (a sampled under-approximation of the
+         true set, used to judge reach-time bounds of the tools),
        - for 'unreachable' benchmarks: the closest approach to the target (no counterexample
          found is evidence, not a proof),
        - whether trajectories stay inside the domain over the horizon,
@@ -27,7 +30,7 @@ import numpy as np
 
 from tools.common import list_benchmarks, load_benchmark, make_result, write_result
 from tools.common.sets import Box, LevelSet, Union
-from tools.common.simulate import check_trajectory
+from tools.common.simulate import check_trajectory, merge_intervals
 
 DOMAIN_TOL = 1e-9
 
@@ -108,6 +111,7 @@ def check_benchmark(benchmark_id, n_interior, n_boundary, seed, jobs):
         first = min(hits, key=lambda r: r.first_hit_time)
         extra["witness"] = {"x0": first.x0, "first_hit_time": first.first_hit_time}
         extra["first_hit_time_range"] = [min(r.first_hit_time for r in hits), max(r.first_hit_time for r in hits)]
+        extra["in_target_times"] = merge_intervals([iv for r in hits for iv in r.in_target], tol=1e-9)
         verdict, detail = "reachable_witness", f"{len(hits)}/{len(ok)} sampled trajectories reach the target"
     else:
         verdict = "unreachable_estimated"
@@ -126,8 +130,8 @@ def check_benchmark(benchmark_id, n_interior, n_boundary, seed, jobs):
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("benchmarks", nargs="*", help="benchmark IDs (default: all)")
-    parser.add_argument("--interior", type=int, default=400, help="interior samples of the initial set")
-    parser.add_argument("--boundary", type=int, default=400, help="boundary samples of the initial set")
+    parser.add_argument("--interior", type=int, default=1000, help="interior samples of the initial set")
+    parser.add_argument("--boundary", type=int, default=1000, help="boundary samples of the initial set")
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--jobs", type=int, default=8)
     parser.add_argument("--no-write", action="store_true", help="do not write result summaries")
