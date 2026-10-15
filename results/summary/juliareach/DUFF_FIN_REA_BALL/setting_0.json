@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "benchmark": "DUFF_FIN_REA_BALL",
+  "tool": "juliareach",
+  "setting": "setting_0",
+  "verdict": "reachable_possible",
+  "expected_result": "reachable",
+  "agrees_with_expected": null,
+  "detail": "52 of 392 flowpipe segments may intersect the target (initial set over-approximated by 1 boxes)",
+  "time_horizon": [0.0, 6.0],
+  "horizon_covered": true,
+  "reach_time_bounds": [
+    [2.3977916876073464, 3.025363767233692]
+  ],
+  "runtime_s": {
+    "total": 11.683899875031784,
+    "compile_warmup": 4.812094875,
+    "solve": 0.0916745,
+    "check": 1.061279875
+  },
+  "params": {
+    "julia": "1.13.1",
+    "abstol": 1e-12,
+    "orderT": 7,
+    "orderQ": 1,
+    "maxsteps": 20000,
+    "taylorize": true,
+    "timeout_s": 1800,
+    "initial_splits": 1,
+    "versions": {
+      "JSON3": "1.14.3",
+      "julia": "1.13.1",
+      "TaylorModels": "0.11.1",
+      "LazySets": "7.1.0",
+      "IntervalArithmetic": "1.0.12",
+      "ReachabilityAnalysis": "0.33.0"
+    }
+  },
+  "provenance": {
+    "git_commit": "9c347960b4b6317b9f8f63d9363064cef445d8f6",
+    "git_dirty": false,
+    "timestamp": "2026-10-15T10:13:17+00:00",
+    "platform": "macOS-27.0.1-arm64-arm-64bit",
+    "machine": "arm64",
+    "versions": {
+      "python": "3.12.15"
+    }
+  },
+  "extra": {
+    "horizon_covered": true,
+    "flowpipe_end_time": 6.0,
+    "num_segments": 392,
+    "num_possible": 52,
+    "num_inside": 0,
+    "initial_set_overapproximated": true,
+    "num_initial_boxes": 1
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "benchmark": "MAS_CON_FIN_REA_BOX",
+  "tool": "juliareach",
+  "setting": "setting_1",
+  "verdict": "reachable_proven",
+  "expected_result": "reachable",
+  "agrees_with_expected": true,
+  "detail": "43 flowpipe segments lie inside the target",
+  "time_horizon": [0.0, 7.0],
+  "horizon_covered": true,
+  "reach_time_bounds": [
+    [5.684037650943238, 7.0]
+  ],
+  "runtime_s": {
+    "total": 160.80353629100136,
+    "compile_warmup": 110.218054292,
+    "solve": 43.393678709,
+    "check": 1.159843
+  },
+  "params": {
+    "julia": "1.13.1",
+    "abstol": 1e-10,
+    "orderT": 5,
+    "orderQ": 1,
+    "maxsteps": 20000,
+    "taylorize": true,
+    "timeout_s": 1800,
+    "initial_splits": 1,
+    "versions": {
+      "JSON3": "1.14.3",
+      "julia": "1.13.1",
+      "TaylorModels": "0.11.1",
+      "LazySets": "7.1.0",
+      "IntervalArithmetic": "1.0.12",
+      "ReachabilityAnalysis": "0.33.0"
+    }
+  },
+  "provenance": {
+    "git_commit": "9c347960b4b6317b9f8f63d9363064cef445d8f6",
+    "git_dirty": false,
+    "timestamp": "2026-10-15T10:29:17+00:00",
+    "platform": "macOS-27.0.1-arm64-arm-64bit",
+    "machine": "arm64",
+    "versions": {
+      "python": "3.12.15"
+    }
+  },
+  "extra": {
+    "horizon_covered": true,
+    "flowpipe_end_time": 7.0,
+    "num_segments": 519,
+    "num_possible": 15,
+    "num_inside": 43,
+    "initial_set_overapproximated": false,
+    "num_initial_boxes": 1
+  }
+}
