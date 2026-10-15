@@ -6,12 +6,12 @@
   "verdict": "reachable_witness",
   "expected_result": "reachable",
   "agrees_with_expected": true,
-  "detail": "800/800 sampled trajectories reach the target",
+  "detail": "2000/2000 sampled trajectories reach the target",
   "time_horizon": [0.0, 6.0],
   "horizon_covered": true,
   "reach_time_bounds": null,
   "runtime_s": {
-    "total": 1.4147611250518821
+    "total": 3.1819705839734524
   },
   "params": {
     "direction": "forward",
@@ -21,9 +21,9 @@
     "event_detection": true
   },
   "provenance": {
-    "git_commit": "92be6c35b44223cdb2424cbb7a30f4ab435538b0",
+    "git_commit": "48463789a2a4ca92a8193c740238cac0cd898527",
     "git_dirty": false,
-    "timestamp": "2026-10-15T07:10:17+00:00",
+    "timestamp": "2026-10-15T09:06:00+00:00",
     "platform": "macOS-27.0.1-arm64-arm-64bit",
     "machine": "arm64",
     "versions": {
@@ -35,18 +35,18 @@
   },
   "extra": {
     "samples": {
-      "interior": 400,
-      "boundary": 400,
-      "unique_initial_points": 800,
+      "interior": 1000,
+      "boundary": 1000,
+      "unique_initial_points": 2000,
       "seed": 0
     },
-    "num_hitting": 800,
-    "num_trajectories": 800,
+    "num_hitting": 2000,
+    "num_trajectories": 2000,
     "closest_approach": {
       "value": 0.0,
       "kind": "function_value",
-      "x0": [-0.8439638420672426, 1.9453469003502035],
-      "time": 5.1930000000000005
+      "x0": [-0.8445521461548942, 1.9509165093274676],
+      "time": 5.202
     },
     "max_domain_violation": 0.0,
     "problems": [],
@@ -55,6 +55,9 @@
       "x0": [-0.6374053830551238, 1.774247765464196],
       "first_hit_time": 5.050584273941884
     },
-    "first_hit_time_range": [5.050584273941884, 5.496]
+    "first_hit_time_range": [5.050584273941884, 5.496],
+    "in_target_times": [
+      [5.050584273941884, 5.808]
+    ]
   }
 }

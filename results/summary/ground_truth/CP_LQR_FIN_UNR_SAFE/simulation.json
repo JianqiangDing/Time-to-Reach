@@ -11,7 +11,7 @@
   "horizon_covered": true,
   "reach_time_bounds": null,
   "runtime_s": {
-    "total": 0.031403582950588316
+    "total": 0.05372962501132861
   },
   "params": {
     "direction": "forward",
@@ -21,9 +21,9 @@
     "event_detection": true
   },
   "provenance": {
-    "git_commit": "92be6c35b44223cdb2424cbb7a30f4ab435538b0",
+    "git_commit": "48463789a2a4ca92a8193c740238cac0cd898527",
     "git_dirty": false,
-    "timestamp": "2026-10-15T07:10:12+00:00",
+    "timestamp": "2026-10-15T09:05:47+00:00",
     "platform": "macOS-27.0.1-arm64-arm-64bit",
     "machine": "arm64",
     "versions": {
@@ -35,8 +35,8 @@
   },
   "extra": {
     "samples": {
-      "interior": 400,
-      "boundary": 400,
+      "interior": 1000,
+      "boundary": 1000,
       "unique_initial_points": 1,
       "seed": 0
     },
