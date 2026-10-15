@@ -1,0 +1,113 @@
+"""Build the comparison table from results/summary.
+
+    python -m scripts.aggregate [--columns krtb:setting_1 hj:setting_0 ...] [--out results/summary/table]
+
+Each cell shows the verdict class and the tool's core computation time; cells
+whose verdict is contradicted by the simulation baseline are marked, as are
+reach-time bounds that miss simulated in-target times. Writes <out>.md,
+<out>.csv and <out>.tex and prints the Markdown table.
+"""
+
+import argparse
+import csv
+import sys
+from pathlib import Path
+
+from scripts.evaluate_results import evaluate
+from tools.common import jsonio, list_benchmarks, paths
+
+DEFAULT_COLUMNS = ["krtb:setting_1", "hj:setting_0", "juliareach:setting_1", "cora:setting_1",
+                   "sosbc:setting_1", "dreach:setting_0"]
+NAMES = {"krtb": "KRTB", "hj": "HJ", "juliareach": "JuliaReach", "cora": "CORA", "sosbc": "SOSBC",
+         "dreach": "dReach"}
+# Runtime phases that make up each tool's core computation: everything needed for
+# the verdict, without one-off costs (JIT compilation, MATLAB start-up, CORA
+# derivative generation, container start-up, input sampling).
+CORE_TIME = {
+    "krtb": ("krtb", "witness_search"),  # reach-time bounds + simulated witness
+    "hj": ("solve",),  # includes the min over the initial set at every step
+    "juliareach": ("solve", "check"),
+    "cora": ("reach", "check"),
+    "sosbc": ("setup", "solve"),  # SOS program construction + SDP solve
+    "dreach": ("dreach",),
+}
+SYMBOL = {
+    "unreachable_proven": "UNR proven", "reachable_proven": "REA proven", "reachable_witness": "REA witness",
+    "reachable_possible": "REA possible", "reachable_estimated": "REA est.", "unreachable_estimated": "UNR est.",
+    "unknown": "unknown", "unsupported": "n/a", "set_explosion": "set explosion", "timeout": "timeout",
+    "error": "error",
+}
+
+
+def cell(tool, record, row):
+    if record is None:
+        return {"text": "-", "verdict": None, "time": None}
+    phases = [record["runtime_s"].get(k) for k in CORE_TIME[tool]]
+    t = sum(phases) if all(v is not None for v in phases) else record["runtime_s"].get("total")
+    text = SYMBOL[record["verdict"]]
+    if record["verdict"] not in ("unsupported",) and t is not None:
+        text += f" ({t:.3g} s)"
+    if row["verdict_check"] == "contradicted":
+        text += " [CONTRADICTED]"
+    if row.get("bounds_cover_simulation") is False:
+        text += " [bounds miss]"
+    return {"text": text, "verdict": record["verdict"], "time": t}
+
+
+def main(argv=None):
+    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument("--columns", nargs="+", default=DEFAULT_COLUMNS, help="tool:setting pairs")
+    parser.add_argument("--out", default=str(paths.SUMMARY_DIR / "table"))
+    args = parser.parse_args(argv)
+    columns = [tuple(c.split(":")) for c in args.columns]
+
+    rows, platforms = [], set()
+    for bid in list_benchmarks():
+        truth = jsonio.read_json(paths.SUMMARY_DIR / "ground_truth" / bid / "simulation.json")
+        cells = []
+        for tool, setting in columns:
+            path = paths.SUMMARY_DIR / tool / bid / f"{setting}.json"
+            record = jsonio.read_json(path) if path.exists() else None
+            if record is not None:
+                platforms.add(record["provenance"]["platform"])
+            cells.append(cell(tool, record, evaluate(record, truth) if record else {}))
+        rows.append((bid, truth["expected_result"], cells))
+
+    header = ["benchmark", "expected"] + [f"{NAMES[t]} ({s})" for t, s in columns]
+    md = ["| " + " | ".join(header) + " |", "|" + "---|" * len(header)]
+    for bid, expected, cells in rows:
+        md.append("| " + " | ".join([bid, expected] + [c["text"] for c in cells]) + " |")
+
+    summary = ["", "| tool | " + " | ".join(SYMBOL.values()) + " |", "|" + "---|" * (len(SYMBOL) + 1)]
+    for i, (tool, setting) in enumerate(columns):
+        counts = [sum(1 for _, _, cells in rows if cells[i]["verdict"] == v) for v in SYMBOL]
+        summary.append(f"| {NAMES[tool]} ({setting}) | " + " | ".join(str(c) for c in counts) + " |")
+    note = [
+        "",
+        "Times are each tool's core computation in seconds: everything needed for the verdict (for KRTB",
+        "including the witness simulation), excluding JIT compilation, MATLAB start-up, CORA derivative",
+        "generation and container start-up. Measured on: " + "; ".join(sorted(platforms)) + ".",
+        "Only timings from the dedicated x86_64 Linux machine are final.",
+    ]
+    text = "\n".join(md + summary + note) + "\n"
+
+    out = Path(args.out)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.with_suffix(".md").write_text(text)
+    with out.with_suffix(".csv").open("w", newline="") as f:
+        w = csv.writer(f)
+        w.writerow(["benchmark", "expected"] + [f"{t}:{s}:{k}" for t, s in columns for k in ("verdict", "time_s")])
+        for bid, expected, cells in rows:
+            w.writerow([bid, expected] + [x for c in cells for x in (c["verdict"] or "", c["time"] or "")])
+    tex = ["\\begin{tabular}{ll" + "l" * len(columns) + "}", "\\toprule",
+           " & ".join(["Benchmark", "Expected"] + [NAMES[t] for t, _ in columns]) + " \\\\", "\\midrule"]
+    for bid, expected, cells in rows:
+        tex.append(" & ".join([bid.replace("_", "\\_"), expected] + [c["text"] for c in cells]) + " \\\\")
+    tex += ["\\bottomrule", "\\end{tabular}"]
+    out.with_suffix(".tex").write_text("\n".join(tex) + "\n")
+    print(text)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
