@@ -1,0 +1,92 @@
+{
+  "schema_version": 1,
+  "benchmark": "NL_EIG_FIN_BACKWARD_REA_BOX",
+  "tool": "krtb",
+  "setting": "setting_0",
+  "verdict": "reachable_witness",
+  "expected_result": "reachable",
+  "agrees_with_expected": true,
+  "detail": "witness reaches the target at t = 0.8287",
+  "time_horizon": [0.0, 1.3],
+  "horizon_covered": true,
+  "reach_time_bounds": [
+    [0.7615381796395024, 0.8824451795085926]
+  ],
+  "runtime_s": {
+    "total": 0.3650419590412639,
+    "setup": 0.031503334001172334,
+    "eigenfunctions": 8.370802970603108e-05,
+    "bounds": 0.01136025000596419,
+    "krtb": 0.01144395803567022,
+    "witness_search": 0.32209466700442135
+  },
+  "params": {
+    "num_samples_initial": 1000,
+    "num_samples_target": 1000,
+    "boundary_samples_initial": 0,
+    "boundary_samples_target": 0,
+    "num_sim_samples": 100,
+    "seed": 0,
+    "path_integral": {
+      "rtol": 1e-12,
+      "atol": 1e-14,
+      "batch": 64,
+      "dt": 0.02
+    },
+    "eigenfunctions": {
+      "method": "analytic",
+      "functions": ["x1^2 + 2*x2 + x2^3", "x1 + sin(x2) + x1^3"],
+      "eigenvalues": ["-1", "2.5"]
+    }
+  },
+  "provenance": {
+    "git_commit": "6bce0a9e9e91719373f4cfad5a75946a05cbb6dd",
+    "git_dirty": false,
+    "timestamp": "2026-10-15T08:06:03+00:00",
+    "platform": "macOS-27.0.1-arm64-arm-64bit",
+    "machine": "arm64",
+    "versions": {
+      "python": "3.12.15",
+      "numpy": "2.2.6",
+      "scipy": "1.18.1",
+      "sympy": "1.14.0",
+      "cvxpy": "1.9.3",
+      "Mosek": "11.2.6"
+    }
+  },
+  "extra": {
+    "direction": "backward",
+    "eigenvalues": [
+      [-1.0, 0.0],
+      [2.5, 0.0]
+    ],
+    "eigenfunctions": {
+      "method": "analytic",
+      "functions": ["x1^2 + 2*x2 + x2^3", "x1 + sin(x2) + x1^3"],
+      "max_relative_eigen_residual": 1.809570702797194e-14
+    },
+    "bounds_status": "bounded",
+    "bounds_unclipped": [
+      [0.7615381796395024, 0.8824451795085926]
+    ],
+    "magnitude_interval": [0.7615381796395024, 0.8824451795085926],
+    "phase_window": null,
+    "period": null,
+    "bound_details": {
+      "magnitude": {
+        "growing_cone": [0.6414374342995269, 1.2800024605982283],
+        "decaying_cone": [0.7615381796395024, 0.8824451795085926],
+        "lfp_status": ["optimal", "optimal", "optimal", "optimal"]
+      }
+    },
+    "witness": {
+      "x0": [1.8123827923267553, -0.7],
+      "first_hit_time": 0.8286848109958047,
+      "inside_bounds": true
+    },
+    "num_samples": {
+      "initial": 1000,
+      "target": 1000
+    }
+  }
+}
