@@ -2,7 +2,7 @@
   "tool": "hj",
   "settings": {
     "setting_0": {
-      "description": "hj_reachability 0.7.0 on a uniform grid over the benchmark domain (2D: 500 nodes per dimension, as in the original runners; an even count keeps the NL_SLC singular origin off the grid). Values are reported every time_step_report; verdicts need a margin of margin_cells grid spacings. NL_SLC: the vector field is set to zero inside a disc of radius 0.5 around the singular origin; simulated trajectories from the initial set stay at |x| >= 1.0.",
+      "description": "hj_reachability 0.7.0 on a uniform grid over the benchmark domain (2D: 500 nodes per dimension, as in the original runners; an even count keeps the NL_SLC singular origin off the grid). Values are reported every time_step_report; verdicts need a margin of margin_cells grid spacings. NL_SLC: the vector field is set to zero inside a disc of radius 0.5 around the singular origin; simulated trajectories from the initial set stay at |x| >= 1.0. CP_LQR UNSAFE/SAFE: 41 nodes per dimension on the grid domain [-1.5,1.5]^3 x [-3,3] instead of the whole benchmark domain; it contains the target box and the simulated trajectory (x1 in [-0.04, 1.00], x2 in [-1.12, 0.53], x3 in [-0.79, 0.45], x4 in [-1.28, 2.20]) with a margin of at least 0.3, and gives spacings 0.075/0.15 instead of 0.25/0.5 (the 1.7 pole-tip target contained no node of the coarse grid).",
       "defaults": {
         "grid_size": 500,
         "accuracy": "medium",
@@ -19,12 +19,22 @@
         },
         "CP_LQR_FIN_REA_UNSAFE": {
           "grid_size": 41,
-          "periodic_dims": [],
+          "grid_domain": [
+            [-1.5, 1.5],
+            [-1.5, 1.5],
+            [-1.5, 1.5],
+            [-3, 3]
+          ],
           "time_step_report": 0.01
         },
         "CP_LQR_FIN_UNR_SAFE": {
           "grid_size": 41,
-          "periodic_dims": [],
+          "grid_domain": [
+            [-1.5, 1.5],
+            [-1.5, 1.5],
+            [-1.5, 1.5],
+            [-3, 3]
+          ],
           "time_step_report": 0.01
         },
         "DUFF_FIN_REA_BALL": {},
