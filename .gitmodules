@@ -3,3 +3,8 @@
 	url = https://github.com/TUMcps/CORA.git
 	shallow = true
 	ignore = untracked
+[submodule "tools/sosbc/SOSTOOLS"]
+	path = tools/sosbc/SOSTOOLS
+	url = https://github.com/oxfordcontrol/SOSTOOLS.git
+	shallow = true
+	ignore = untracked
