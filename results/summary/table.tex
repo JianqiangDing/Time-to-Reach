@@ -1,0 +1,22 @@
+\begin{tabular}{llllllll}
+\toprule
+Benchmark & Expected & KRTB & HJ & JuliaReach & CORA & SOSBC & dReach \\
+\midrule
+CP\_LQR\_FIN\_REA\_CONVERGE & reachable & REA witness (2.67 s) & n/a & REA proven (15 s) & REA proven (5.13 s) & n/a & - \\
+CP\_LQR\_FIN\_REA\_UNSAFE & reachable & REA witness (3.83 s) & unknown (468 s) & REA proven (14.2 s) & REA possible (3.49 s) & n/a & - \\
+CP\_LQR\_FIN\_UNR\_SAFE & unreachable & UNR est. (3.98 s) & UNR est. (465 s) & UNR proven (14 s) & UNR proven (3.34 s) & n/a & - \\
+DUFF\_FIN\_REA\_BALL & reachable & REA witness (6.51 s) & unknown (28.2 s) & REA possible (6.85 s) & REA possible (198 s) & unknown (1.9 s) & - \\
+DUFF\_FIN\_REA\_BOX & reachable & REA witness (7.39 s) & unknown (25.2 s) & REA possible (6.74 s) & REA possible (536 s) & unknown (2.24 s) & - \\
+DUFF\_FIN\_REA\_DISJOINT\_BOX & reachable & REA witness (7.26 s) & REA est. (22.5 s) & REA proven (7.35 s) & REA proven (309 s) & unknown (2.13 s) & - \\
+DUFF\_FIN\_REA\_NONCONVEX\_LEVEL\_SET & reachable & REA witness (4.8 s) & REA est. (19.7 s) & REA possible (2.59 s) & REA possible (46.2 s) & unknown (1.68 s) & - \\
+DUFF\_FIN\_UNR\_BALL & unreachable & unknown (5.27 s) & UNR est. (27.7 s) & REA possible (6.81 s) & REA possible (215 s) & UNR proven (1.54 s) & - \\
+DUFF\_FIN\_UNR\_BOX & unreachable & unknown (5.68 s) & UNR est. (83 s) & UNR proven (13.3 s) & UNR proven (846 s) & UNR proven (1.96 s) & - \\
+MAS\_CON\_FIN\_REA\_BOX & reachable & REA witness (22.3 s) & n/a & REA proven (44.6 s) & REA proven (56.2 s) & n/a & - \\
+MAS\_CON\_FIN\_UNR\_SAFE\_0 & unreachable & UNR est. (22.9 s) & n/a & UNR proven (46.4 s) & UNR proven (54.2 s) & n/a & - \\
+MAS\_CON\_FIN\_UNR\_SAFE\_1 & unreachable & UNR est. (22.4 s) & n/a & UNR proven (44.5 s) & UNR proven (54.2 s) & n/a & - \\
+NL\_EIG\_FIN\_BACKWARD\_REA\_BOX & reachable & REA witness (0.289 s) & REA est. (8.8 s) & REA proven (129 s) & REA proven (505 s) & n/a & - \\
+NL\_EIG\_FIN\_BACKWARD\_UNR\_BOX & unreachable & UNR est. (0.00615 s) & UNR est. (8.81 s) & UNR proven (113 s) & UNR proven (493 s) & n/a & - \\
+NL\_SLC\_FIN\_REA\_BOX & reachable & REA witness (0.0191 s) & REA est. (33.2 s) & REA proven (87.4 s) & REA proven (866 s) & unknown (1.83 s) & - \\
+NL\_SLC\_FIN\_UNR\_BOX & unreachable & UNR est. (0.0141 s) & UNR est. (33.1 s) & UNR proven (87.2 s) & UNR proven (824 s) & UNR proven (1.67 s) & - \\
+\bottomrule
+\end{tabular}
