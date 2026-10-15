@@ -1,0 +1,65 @@
+{
+  "tool": "hj",
+  "settings": {
+    "setting_0": {
+      "description": "hj_reachability 0.7.0 on a uniform grid over the benchmark domain (2D: 500 nodes per dimension, as in the original runners; an even count keeps the NL_SLC singular origin off the grid). Values are reported every time_step_report; verdicts need a margin of margin_cells grid spacings. NL_SLC: the vector field is set to zero inside a disc of radius 0.5 around the singular origin; simulated trajectories from the initial set stay at |x| >= 1.0.",
+      "defaults": {
+        "grid_size": 500,
+        "accuracy": "medium",
+        "time_step_report": 0.005,
+        "margin_cells": 1.0,
+        "num_samples_initial": 2000,
+        "boundary_samples_initial": 2000,
+        "seed": 0
+      },
+      "benchmarks": {
+        "CP_LQR_FIN_REA_CONVERGE": {
+          "applicable": false,
+          "reason": "the target box has half-width 1e-3, far below the spacing of any feasible 4D grid over the domain (about 0.25 with 41 nodes per dimension)"
+        },
+        "CP_LQR_FIN_REA_UNSAFE": {
+          "grid_size": 41,
+          "periodic_dims": [],
+          "time_step_report": 0.01
+        },
+        "CP_LQR_FIN_UNR_SAFE": {
+          "grid_size": 41,
+          "periodic_dims": [],
+          "time_step_report": 0.01
+        },
+        "DUFF_FIN_REA_BALL": {},
+        "DUFF_FIN_REA_BOX": {},
+        "DUFF_FIN_REA_DISJOINT_BOX": {},
+        "DUFF_FIN_REA_NONCONVEX_LEVEL_SET": {},
+        "DUFF_FIN_UNR_BALL": {},
+        "DUFF_FIN_UNR_BOX": {},
+        "MAS_CON_FIN_REA_BOX": {
+          "applicable": false,
+          "reason": "16-dimensional state space; grid-based Hamilton-Jacobi reachability is infeasible (curse of dimensionality)"
+        },
+        "MAS_CON_FIN_UNR_SAFE_0": {
+          "applicable": false,
+          "reason": "16-dimensional state space; grid-based Hamilton-Jacobi reachability is infeasible (curse of dimensionality)"
+        },
+        "MAS_CON_FIN_UNR_SAFE_1": {
+          "applicable": false,
+          "reason": "16-dimensional state space; grid-based Hamilton-Jacobi reachability is infeasible (curse of dimensionality)"
+        },
+        "NL_EIG_FIN_BACKWARD_REA_BOX": {},
+        "NL_EIG_FIN_BACKWARD_UNR_BOX": {},
+        "NL_SLC_FIN_REA_BOX": {
+          "exclude_ball": {
+            "center": [0, 0],
+            "radius": 0.5
+          }
+        },
+        "NL_SLC_FIN_UNR_BOX": {
+          "exclude_ball": {
+            "center": [0, 0],
+            "radius": 0.5
+          }
+        }
+      }
+    }
+  }
+}
