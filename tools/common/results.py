@@ -44,7 +44,9 @@ def git_state(repo=paths.REPO_ROOT):
     try:
         commit = subprocess.run(["git", "rev-parse", "HEAD"], cwd=repo, capture_output=True,
                                 text=True, check=True).stdout.strip()
-        dirty = bool(subprocess.run(["git", "status", "--porcelain", "--untracked-files=no"], cwd=repo,
+        # Result files written during a run must not mark the code as modified.
+        dirty = bool(subprocess.run(["git", "status", "--porcelain", "--untracked-files=no", "--", ".",
+                                     ":(exclude)results"], cwd=repo,
                                     capture_output=True, text=True, check=True).stdout.strip())
         return commit, dirty
     except (OSError, subprocess.CalledProcessError):
