@@ -23,6 +23,7 @@ FUNCTIONS = {
     "abs": sp.Abs,
     "Abs": sp.Abs,
     "pi": sp.pi,
+    "I": sp.I,  # imaginary unit, for complex eigenfunctions
 }
 
 

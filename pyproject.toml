@@ -7,6 +7,10 @@ requires-python = ">=3.11"
 [tool.pytest.ini_options]
 pythonpath = ["."]
 testpaths = ["tests"]
+filterwarnings = [
+    # raised inside mpmath when sympy evaluates complex expressions
+    "ignore:bitcount function is deprecated:DeprecationWarning",
+]
 markers = [
     "slow: long-running tests",
     "matlab: requires MATLAB",
