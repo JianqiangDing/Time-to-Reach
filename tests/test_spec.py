@@ -57,6 +57,7 @@ def _base():
         lambda c: c["initial_sets"][0].update(bounds=[[0, 1]]),  # wrong dimension
         lambda c: c.update(time_horizon=[1, 1]),
         lambda c: c["system"].update(equations=["x2", "x1 + p"]),  # free parameter
+        lambda c: c.update(direction="reverse"),
     ],
 )
 def test_invalid_configs_are_rejected(tmp_path, mutate):
@@ -66,3 +67,9 @@ def test_invalid_configs_are_rejected(tmp_path, mutate):
     jsonio.write_json(path, cfg)
     with pytest.raises((ValueError, jsonschema.ValidationError)):
         load_benchmark(path)
+
+
+@pytest.mark.parametrize("bid", BENCHMARKS)
+def test_direction_matches_name(bid):
+    bm = load_benchmark(bid)
+    assert bm.direction == ("backward" if "_BACKWARD_" in bid else "forward")

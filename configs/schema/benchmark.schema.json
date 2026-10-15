@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "benchmark.schema.json",
   "title": "Time-to-reach benchmark",
-  "description": "Single source of truth for one benchmark. Semantics: the benchmark is 'reachable' iff there exist x0 in the union of initial_sets and t in [time_horizon[0], time_horizon[1]] such that the solution x(t) of dx/dt = f(x), x(0) = x0, lies in the union of target_sets. State variables are named x1..xn.",
+  "description": "Single source of truth for one benchmark. Semantics: with s = +1 for direction 'forward' (default) and s = -1 for 'backward', the benchmark is 'reachable' iff there exist x0 in the union of initial_sets and t in [time_horizon[0], time_horizon[1]] such that the solution x(t) of dx/dt = s*f(x), x(0) = x0, lies in the union of target_sets. A backward problem therefore follows the time-reversed flow of f from initial_sets. State variables are named x1..xn.",
   "type": "object",
   "additionalProperties": false,
   "required": ["id", "description", "system", "domain", "initial_sets", "target_sets", "time_horizon", "expected_result"],
@@ -45,6 +45,11 @@
           }
         }
       ]
+    },
+    "direction": {
+      "description": "'forward': trajectories of dx/dt = f(x). 'backward': trajectories of the time-reversed system dx/dt = -f(x), i.e. backward reachability from initial_sets. 'system' always states the forward vector field f.",
+      "enum": ["forward", "backward"],
+      "default": "forward"
     },
     "domain": {
       "description": "Axis-aligned box that contains every initial set, every target set and all trajectories from the initial sets over the time horizon. Grid- and region-based tools use it as their computational domain.",

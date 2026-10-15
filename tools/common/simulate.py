@@ -1,17 +1,22 @@
 """Numerical simulation with target-hit detection.
 
-Reach checks use event detection on the target's inside function g (g <= 0 on
-the target) instead of testing a fixed time grid, so short visits to the target
-are not missed. These are numerical witnesses, not proofs.
+The target's inside function g (g <= 0 exactly on the target) is evaluated on
+the solver's dense output at many points inside every integration step, not on
+a fixed time grid, and the first entry time is refined by root finding. A plain
+step-endpoint event test is not enough: g is positive on both sides of a box, so
+a step that passes through the whole target shows no sign change. These are
+numerical witnesses, not proofs.
 """
 
 from dataclasses import dataclass
 
 import numpy as np
 from scipy.integrate import solve_ivp
+from scipy.optimize import brentq, minimize_scalar
 
 RTOL = 1e-9
 ATOL = 1e-11
+POINTS_PER_STEP = 32
 
 
 @dataclass
@@ -26,39 +31,67 @@ class TrajectoryCheck:
     message: str
 
 
-def check_trajectory(system, x0, target, time_horizon, domain=None, n_dense=2001, method="DOP853"):
+def _sample_times(step_ends, n_dense, points_per_step):
+    """Uniform grid plus points_per_step points inside every integration step."""
+    frac = np.linspace(0.0, 1.0, points_per_step, endpoint=False)
+    starts, lengths = step_ends[:-1], np.diff(step_ends)
+    within = (starts[:, None] + lengths[:, None] * frac[None, :]).ravel()
+    grid = np.linspace(step_ends[0], step_ends[-1], n_dense)
+    return np.unique(np.concatenate([grid, within, step_ends]))
+
+
+def check_trajectory(system, x0, target, time_horizon, domain=None, n_dense=2001, method="DOP853",
+                     points_per_step=POINTS_PER_STEP, max_step=np.inf):
     """Integrate one trajectory over the horizon and report how close it gets to the target."""
     t0, t1 = time_horizon
-
-    def g(t, x):
-        return target.inside_function(x[None, :])[0]
-
-    g.terminal = False
-    g.direction = -1  # entering the target
-
     sol = solve_ivp(
         system.ode, (t0, t1), np.asarray(x0, float), method=method,
-        rtol=RTOL, atol=ATOL, dense_output=True, events=g,
+        rtol=RTOL, atol=ATOL, dense_output=True, max_step=max_step,
     )
     if sol.status < 0:
         return TrajectoryCheck(np.asarray(x0), False, np.nan, np.nan, np.nan, np.nan, False, sol.message)
 
-    ts = np.unique(np.concatenate([np.linspace(t0, sol.t[-1], n_dense), sol.t, sol.t_events[0]]))
+    ts = _sample_times(sol.t, n_dense, points_per_step)
     X = sol.sol(ts).T
     gv = target.inside_function(X)
+
+    def g_of_t(t):
+        return target.inside_function(sol.sol(t)[None, :])[0]
+
+    def entry_time(lo, hi):
+        """First t in [lo, hi] with g <= 0, given g(lo) > 0 and g(hi) <= 0."""
+        return float(brentq(g_of_t, lo, hi, xtol=1e-12)) if g_of_t(hi) < 0 else float(hi)
+
     k = int(np.argmin(gv))
     min_g, min_g_time = float(gv[k]), float(ts[k])
+    entries = []
 
-    inside0 = gv[0] <= 0
-    event_times = sol.t_events[0]
-    if inside0:
-        first = t0
-    elif len(event_times):
-        first = float(event_times[0])
-    elif min_g <= 0:
-        first = float(ts[np.argmax(gv <= 0)])
-    else:
-        first = np.nan
+    inside = np.flatnonzero(gv <= 0)
+    if len(inside):
+        i = inside[0]
+        entries.append(float(ts[0]) if i == 0 else entry_time(ts[i - 1], ts[i]))
+
+    # A visit shorter than the sample spacing shows up as a local minimum of the
+    # samples with g > 0; minimize g between the neighbouring samples to find it.
+    last = len(ts) - 1
+    stop = inside[0] if len(inside) else last + 1
+    for i in range(min(stop, last + 1)):
+        if gv[i] <= 0 or (i > 0 and gv[i - 1] < gv[i]) or (i < last and gv[i + 1] < gv[i]):
+            continue
+        # g can only dip below zero between samples if it is small compared with how
+        # much it changes from one sample to the next.
+        change = max(abs(gv[i] - gv[max(i - 1, 0)]), abs(gv[min(i + 1, last)] - gv[i]))
+        if gv[i] > 2.0 * change:
+            continue
+        lo, hi = ts[max(i - 1, 0)], ts[min(i + 1, last)]
+        res = minimize_scalar(g_of_t, bounds=(lo, hi), method="bounded", options={"xatol": 1e-13})
+        if res.fun < min_g:
+            min_g, min_g_time = float(res.fun), float(res.x)
+        if res.fun <= 0:
+            entries.append(entry_time(lo, float(res.x)) if g_of_t(lo) > 0 else float(lo))
+            break
+
+    first = min(entries) if entries else np.nan
     hit = not np.isnan(first)
 
     viol = np.nan

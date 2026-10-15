@@ -41,7 +41,7 @@ def _init_worker(benchmark_id):
 
 def _check_one(x0):
     bm = _worker_benchmark
-    return check_trajectory(bm.system, x0, bm.target_set, bm.time_horizon, domain=bm.domain)
+    return check_trajectory(bm.problem_system, x0, bm.target_set, bm.time_horizon, domain=bm.domain)
 
 
 def initial_samples(bm, n_interior, n_boundary, seed):
@@ -116,7 +116,7 @@ def check_benchmark(benchmark_id, n_interior, n_boundary, seed, jobs):
     record = make_result(
         bm, "ground_truth", "simulation", verdict,
         runtime_s={"total": time.perf_counter() - t_start},
-        params={"integrator": "DOP853", "rtol": 1e-9, "atol": 1e-11, "event_detection": True},
+        params={"direction": bm.direction, "integrator": "DOP853", "rtol": 1e-9, "atol": 1e-11, "event_detection": True},
         detail=detail, horizon_covered=True, extra=extra,
     )
     passed = record["agrees_with_expected"] and not problems

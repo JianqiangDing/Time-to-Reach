@@ -44,12 +44,26 @@ class System:
         """f(t, x) for scipy.integrate.solve_ivp (autonomous)."""
         return self._F(x[None, :])[0]
 
+    def time_reversed(self):
+        """The system dx/dt = -f(x)."""
+        if self.kind == "nonlinear":
+            return System("nonlinear", self.dim, equations=[f"-({e})" for e in self.equations])
+        return System("linear", self.dim, A=-self.A)
+
 
 @dataclass
 class Benchmark:
+    """A loaded benchmark.
+
+    `system` is always the forward vector field f as written in the config. For a
+    backward benchmark the trajectories that define reachability follow -f; use
+    `problem_system` to simulate them.
+    """
+
     id: str
     description: str
     system: System
+    direction: str
     domain: Box
     initial_set: object  # Set (Union if several)
     target_set: object
@@ -63,6 +77,15 @@ class Benchmark:
     @property
     def dim(self):
         return self.system.dim
+
+    @property
+    def problem_system(self):
+        """The vector field along which the benchmark's trajectories evolve (f or -f)."""
+        if self.direction == "forward":
+            return self.system
+        if not hasattr(self, "_reversed"):
+            self._reversed = self.system.time_reversed()
+        return self._reversed
 
 
 def benchmark_path(benchmark_id):
@@ -112,6 +135,7 @@ def load_benchmark(id_or_path):
         id=data["id"],
         description=data["description"],
         system=system,
+        direction=data.get("direction", "forward"),
         domain=domain,
         initial_set=make_union(data["initial_sets"], n),
         target_set=make_union(data["target_sets"], n),

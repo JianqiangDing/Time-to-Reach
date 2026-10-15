@@ -6,14 +6,23 @@ from tools.common.simulate import check_trajectory
 from tools.common.spec import System
 
 
-def test_short_visit_is_detected():
-    # x1' = 1 crosses a target of width 1e-5 at t = 0.5; a 1000-point time grid
-    # (what util_global used) cannot see it.
+@pytest.mark.parametrize("lo", [0.5, 0.50003, 0.123457])
+def test_short_visit_is_detected(lo):
+    # x1' = 1 crosses a target of width 1e-5; a 1000-point time grid (what
+    # util_global used) cannot see it, and neither can sampling alone when the
+    # target is not aligned with the sample times.
     system = System("nonlinear", 1, equations=["1"])
-    target = Box([[0.5, 0.50001]])
+    target = Box([[lo, lo + 1e-5]])
     r = check_trajectory(system, np.array([0.0]), target, (0.0, 1.0))
     assert r.hit
-    assert r.first_hit_time == pytest.approx(0.5, abs=1e-6)
+    assert r.first_hit_time == pytest.approx(lo, abs=1e-9)
+
+
+def test_step_jumping_over_target_is_detected():
+    # Exponential growth crosses [0.9, 1.0] within one large solver step.
+    system = System("nonlinear", 1, equations=["x1"])
+    r = check_trajectory(system, np.array([0.5]), Box([[0.9, 1.0]]), (0.0, 1.0), n_dense=2)
+    assert r.hit and r.first_hit_time == pytest.approx(np.log(1.8), rel=1e-9)
 
 
 def test_miss_reports_distance_and_domain_violation():
@@ -30,3 +39,25 @@ def test_start_inside_target_hits_at_t0():
     system = System("nonlinear", 1, equations=["-x1"])
     r = check_trajectory(system, np.array([0.1]), Box([[0, 1]]), (0.0, 1.0))
     assert r.hit and r.first_hit_time == 0.0
+
+
+def test_backward_direction_follows_time_reversed_flow():
+    # x1' = -x1 decays forward; backward (x1' = +x1) from 0.5 reaches [0.9, 1] at t = ln(1.8).
+    forward = System("nonlinear", 1, equations=["-x1"])
+    target = Box([[0.9, 1.0]])
+    assert not check_trajectory(forward, np.array([0.5]), target, (0.0, 1.0)).hit
+    r = check_trajectory(forward.time_reversed(), np.array([0.5]), target, (0.0, 1.0))
+    assert r.hit and r.first_hit_time == pytest.approx(np.log(1.8), rel=1e-6)
+
+
+def test_time_reversal_returns_to_start():
+    from scipy.integrate import solve_ivp
+
+    from tools.common import load_benchmark
+
+    bm = load_benchmark("NL_EIG_FIN_BACKWARD_REA_BOX")
+    x0 = bm.initial_set.sample(1, np.random.default_rng(0))[0]
+    kw = dict(method="DOP853", rtol=1e-11, atol=1e-13)
+    y = solve_ivp(bm.problem_system.ode, (0, 0.8), x0, **kw).y[:, -1]
+    back = solve_ivp(bm.system.ode, (0, 0.8), y, **kw).y[:, -1]
+    np.testing.assert_allclose(back, x0, atol=1e-8)
