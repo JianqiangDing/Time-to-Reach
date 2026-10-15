@@ -42,6 +42,47 @@
         "NL_SLC_FIN_REA_BOX": {},
         "NL_SLC_FIN_UNR_BOX": {}
       }
+    },
+    "setting_1": {
+      "inherits": "setting_0",
+      "description": "setting_0 with 2D initial sets split into 8 x 8 boxes (as for JuliaReach setting_1) and timeStep 0.002 for NL_EIG. Without splitting, NL_EIG exploded at t = 0.08 and NL_SLC at t = 1.7; tried on NL_EIG_FIN_BACKWARD_REA_BOX: splitting alone explodes at t = 0.69, timeStep 0.002 alone at t = 0.12, both together prove reachability; on NL_SLC_FIN_REA_BOX splitting alone proves it.",
+      "defaults": {
+        "timeout_s": 3600
+      },
+      "benchmarks": {
+        "DUFF_FIN_REA_BALL": {
+          "initial_splits": 8
+        },
+        "DUFF_FIN_REA_BOX": {
+          "initial_splits": 8
+        },
+        "DUFF_FIN_REA_DISJOINT_BOX": {
+          "initial_splits": 8
+        },
+        "DUFF_FIN_REA_NONCONVEX_LEVEL_SET": {
+          "initial_splits": 8
+        },
+        "DUFF_FIN_UNR_BALL": {
+          "initial_splits": 8
+        },
+        "DUFF_FIN_UNR_BOX": {
+          "initial_splits": 8
+        },
+        "NL_EIG_FIN_BACKWARD_REA_BOX": {
+          "initial_splits": 8,
+          "timeStep": 0.002
+        },
+        "NL_EIG_FIN_BACKWARD_UNR_BOX": {
+          "initial_splits": 8,
+          "timeStep": 0.002
+        },
+        "NL_SLC_FIN_REA_BOX": {
+          "initial_splits": 8
+        },
+        "NL_SLC_FIN_UNR_BOX": {
+          "initial_splits": 8
+        }
+      }
     }
   }
 }
