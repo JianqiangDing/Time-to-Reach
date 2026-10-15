@@ -11,18 +11,19 @@
   "horizon_covered": true,
   "reach_time_bounds": null,
   "runtime_s": {
-    "total": 1.8825167919858359
+    "total": 1.7408801250276156
   },
   "params": {
+    "direction": "forward",
     "integrator": "DOP853",
     "rtol": 1e-09,
     "atol": 1e-11,
     "event_detection": true
   },
   "provenance": {
-    "git_commit": "39ca36683c521472e929ff667326a0aea933e5b5",
+    "git_commit": "92be6c35b44223cdb2424cbb7a30f4ab435538b0",
     "git_dirty": false,
-    "timestamp": "2026-10-14T17:27:31+00:00",
+    "timestamp": "2026-10-15T07:10:42+00:00",
     "platform": "macOS-27.0.1-arm64-arm-64bit",
     "machine": "arm64",
     "versions": {
@@ -54,6 +55,6 @@
       "x0": [1.4, 1.3],
       "first_hit_time": 6.427943147152325
     },
-    "first_hit_time_range": [6.427943147152325, 6.504621479883997]
+    "first_hit_time_range": [6.427943147152325, 6.504621479883996]
   }
 }
