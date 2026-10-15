@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "benchmark": "DUFF_FIN_REA_BALL",
+  "tool": "cora",
+  "setting": "setting_0",
+  "verdict": "set_explosion",
+  "expected_result": "reachable",
+  "agrees_with_expected": null,
+  "detail": "reachable set stops at t = 4.89 before the end of the horizon (initial set over-approximated by 1 boxes)",
+  "time_horizon": [0.0, 6.0],
+  "horizon_covered": false,
+  "reach_time_bounds": null,
+  "runtime_s": {
+    "total": 8.032963750010822,
+    "warmup": 0.8974773333333333,
+    "reach": 2.8755465416666666,
+    "check": 0.03729195833333333
+  },
+  "params": {
+    "matlab_release": "R2025a",
+    "alg": "lin",
+    "tensorOrder": 2,
+    "taylorTerms": 4,
+    "zonotopeOrder": 50,
+    "timeStep": 0.01,
+    "initial_splits": 1,
+    "timeout_s": 1800,
+    "versions": {
+      "matlab": "25.1.0.2973910 (R2025a) Update 1",
+      "cora": "CORA v2026.1.0"
+    }
+  },
+  "provenance": {
+    "git_commit": "d9906e0ce47fa62562a8e81bfb0e80fca4033f13",
+    "git_dirty": false,
+    "timestamp": "2026-10-15T11:24:37+00:00",
+    "platform": "macOS-27.0.1-arm64-arm-64bit",
+    "machine": "arm64",
+    "versions": {
+      "python": "3.12.15"
+    }
+  },
+  "extra": {
+    "horizon_covered": false,
+    "reachable_set_end_time": 4.89,
+    "num_segments": 489,
+    "num_possible": 272,
+    "num_inside": 0,
+    "initial_set_overapproximated": true,
+    "num_initial_boxes": 1
+  }
+}

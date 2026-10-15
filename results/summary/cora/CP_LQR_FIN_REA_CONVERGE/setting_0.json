@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "benchmark": "CP_LQR_FIN_REA_CONVERGE",
+  "tool": "cora",
+  "setting": "setting_0",
+  "verdict": "reachable_proven",
+  "expected_result": "reachable",
+  "agrees_with_expected": true,
+  "detail": "29 reachable sets lie inside the target",
+  "time_horizon": [0.0, 12.0],
+  "horizon_covered": true,
+  "reach_time_bounds": [
+    [10.15, 12]
+  ],
+  "runtime_s": {
+    "total": 9.979310541995801,
+    "warmup": 1.0750651666666666,
+    "reach": 3.394068625,
+    "check": 1.4014060833333333
+  },
+  "params": {
+    "matlab_release": "R2025a",
+    "alg": "lin",
+    "tensorOrder": 2,
+    "taylorTerms": 3,
+    "zonotopeOrder": 50,
+    "timeStep": 0.05,
+    "initial_splits": 1,
+    "timeout_s": 1800,
+    "versions": {
+      "matlab": "25.1.0.2973910 (R2025a) Update 1",
+      "cora": "CORA v2026.1.0"
+    }
+  },
+  "provenance": {
+    "git_commit": "d9906e0ce47fa62562a8e81bfb0e80fca4033f13",
+    "git_dirty": false,
+    "timestamp": "2026-10-15T11:24:11+00:00",
+    "platform": "macOS-27.0.1-arm64-arm-64bit",
+    "machine": "arm64",
+    "versions": {
+      "python": "3.12.15"
+    }
+  },
+  "extra": {
+    "horizon_covered": true,
+    "reachable_set_end_time": 12,
+    "num_segments": 240,
+    "num_possible": 8,
+    "num_inside": 29,
+    "initial_set_overapproximated": false,
+    "num_initial_boxes": 1
+  }
+}
