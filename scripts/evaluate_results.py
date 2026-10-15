@@ -73,8 +73,8 @@ def evaluate(record, truth):
         "runtime_s": record["runtime_s"].get("total"),
     }
     bounds = record.get("reach_time_bounds")
-    if bounds is not None:
-        sim = _intervals(truth.get("extra", {}).get("in_target_times"))
+    sim = _intervals(truth.get("extra", {}).get("in_target_times"))
+    if bounds is not None and sim:
         missed = uncovered(sim, _intervals(bounds))
         row["bounds"] = bounds
         row["simulated_in_target_times"] = sim

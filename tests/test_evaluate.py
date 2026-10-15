@@ -48,3 +48,7 @@ def test_bounds_check():
     row = evaluate(_record("reachable_witness", [[5.41, 5.627]]), REACHED)
     assert row["bounds_cover_simulation"] is False
     assert row["missed_times"] == pytest.approx([(5.627, 5.64)])
+
+
+def test_no_bounds_check_without_simulated_hits():
+    assert "bounds_cover_simulation" not in evaluate(_record("unreachable_estimated", []), MISSED)
