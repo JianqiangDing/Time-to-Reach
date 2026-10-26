@@ -31,7 +31,7 @@ import jax
 import jax.numpy as jnp
 import numpy as np
 
-from tools.common import load_benchmark, make_result, write_result
+from tools.common import load_benchmark, make_result, paths, write_result
 from tools.common.settings import configured_benchmarks, load_settings
 
 from .model import Autonomous, target_values, vector_field
@@ -47,14 +47,37 @@ def run(benchmark_id, setting="setting_0"):
     if not cfg.get("applicable", True):
         return make_result(bm, TOOL, setting, "unsupported", {"total": time.perf_counter() - t_start}, cfg,
                            detail=cfg["reason"], packages=PACKAGES)
-    verdict, detail, runtime, extra = analyze(bm, cfg)
+    verdict, detail, runtime, extra = analyze(bm, cfg, save_to=paths.RAW_DIR / TOOL / benchmark_id / setting)
     runtime["total"] = time.perf_counter() - t_start
     return make_result(bm, TOOL, setting, verdict, runtime, cfg, detail=detail, horizon_covered=True,
                        extra=extra, packages=PACKAGES)
 
 
-def analyze(bm, cfg):
-    """Compute the reachable tube for a loaded benchmark; returns (verdict, detail, runtime, extra)."""
+def save_values(folder, grid, V, bm, taus, minima):
+    folder.mkdir(parents=True, exist_ok=True)
+    coords = [np.asarray(c) for c in grid.coordinate_vectors]
+    data = {f"coords_{i}": c for i, c in enumerate(coords)}
+    data.update(taus=taus, min_over_initial=minima)
+    if V.ndim == 2:
+        data["values"] = V.astype(np.float32)
+    else:
+        center = bm.initial_set.bounding_box().mean(axis=1)
+        idx = [int(np.argmin(np.abs(c - x))) for c, x in zip(coords, center)]
+        data["slice_center"] = np.array([c[k] for c, k in zip(coords, idx)])
+        for i in range(V.ndim):
+            for j in range(i + 1, V.ndim):
+                index = tuple(slice(None) if d in (i, j) else idx[d] for d in range(V.ndim))
+                data[f"slice_{i}_{j}"] = V[index].astype(np.float32)
+    np.savez_compressed(folder / "values.npz", **data)
+
+
+def analyze(bm, cfg, save_to=None):
+    """Compute the reachable tube for a loaded benchmark; returns (verdict, detail, runtime, extra).
+
+    With save_to (a directory), the final value function is written to values.npz for plotting:
+    the whole grid in 2D, otherwise the 2D slices through the grid node nearest to the centre of
+    the initial set; together with min V over the initial set at every reported time.
+    """
     t_start = time.perf_counter()
     n = bm.dim
     bounds = np.asarray(cfg.get("grid_domain", bm.domain.bounds.tolist()), dtype=float)
@@ -101,6 +124,8 @@ def analyze(bm, cfg):
     else:
         verdict, detail = "unknown", f"min V over the initial set {m:.3g} within the grid margin +-{margin:.3g}"
     reached = np.flatnonzero(minima <= 0)
+    if save_to is not None:
+        save_values(save_to, grid, np.asarray(values), bm, taus, minima)
 
     runtime = {
         "setup": t_setup - t_start,

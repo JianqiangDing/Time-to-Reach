@@ -124,6 +124,8 @@ warmup = @elapsed Base.invokelatest(solve_from, first(boxes0[1]), min(t1, 1e-3))
 
 statuses = Symbol[]
 segments = Tuple{Float64,Float64}[]
+const status_code = Dict(:disjoint => 0, :possible => 1, :inside => 2)
+flowpipe = Vector{Vector{Float64}}()  # per segment: t0, t1, box lower bounds, upper bounds, status code
 proven_inside = false
 covered = true
 reached_until = Inf
@@ -145,6 +147,7 @@ for (X0, meets_initial_set) in boxes0
         s == :inside && !meets_initial_set && (s = :possible)
         proven_inside |= s == :inside
         push!(statuses, s)
+        push!(flowpipe, [a; b; low(B); high(B); status_code[s]])
         s != :disjoint && push!(segments, (max(a, t0), min(b, t1)))
     end
 end
@@ -190,4 +193,9 @@ result = Dict(
 )
 open(out_path, "w") do io
     JSON3.write(io, result)
+end
+# the segment boxes behind the verdict, for plotting (scripts/report.py)
+open(joinpath(dirname(out_path), "flowpipe.json"), "w") do io
+    JSON3.write(io, Dict("n" => n, "status_codes" => ["disjoint", "possible", "inside"],
+                         "segments" => [round.(r; sigdigits=6) for r in flowpipe]))
 end

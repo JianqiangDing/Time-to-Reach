@@ -60,6 +60,9 @@ warmup = toc(tw);
 
 statuses = {};
 segments = zeros(0, 2);
+codes = {'disjoint', 'possible', 'inside'};
+flow = zeros(1024, 2 + 2 * n + 1);  % per segment: t0, t1, box lower bounds, upper bounds, status code
+m = 0;
 covered = true;
 reachedUntil = Inf;
 provenInside = false;
@@ -83,10 +86,15 @@ for b = 1:numel(boxes)
             a = infimum(T);
             e = supremum(T);
             tEnd = max(tEnd, e);
-            s = aux_check(S, targetSets, n);
+            [s, H] = aux_check(S, targetSets, n);
             if strcmp(s, 'inside') && ~meets(b)
                 s = 'possible';
             end
+            m = m + 1;
+            if m > size(flow, 1)
+                flow = [flow; zeros(size(flow))]; %#ok<AGROW>
+            end
+            flow(m, :) = [a, e, infimum(H)', supremum(H)', find(strcmp(s, codes)) - 1];
             provenInside = provenInside || strcmp(s, 'inside');
             statuses{end + 1} = s; %#ok<AGROW>
             if ~strcmp(s, 'disjoint')
@@ -123,6 +131,12 @@ out.times = struct('warmup', warmup, 'reach', reachTime, 'check', checkTime);
 out.versions = struct('matlab', version, 'cora', CORAVERSION());
 fid = fopen(outPath, 'w');
 fprintf(fid, '%s', jsonencode(out));
+fclose(fid);
+
+% the interval hulls of the reachable sets behind the verdict, for plotting (scripts/report.py)
+fp = struct('n', n, 'status_codes', {codes}, 'segments', round(flow(1:m, :), 6, 'significant'));
+fid = fopen(fullfile(fileparts(outPath), 'flowpipe.json'), 'w');
+fprintf(fid, '%s', jsonencode(fp));
 fclose(fid);
 end
 
@@ -198,7 +212,7 @@ while true
 end
 end
 
-function s = aux_check(S, targets, n)
+function [s, H] = aux_check(S, targets, n)
 statuses = cell(1, numel(targets));
 H = interval(S);
 for k = 1:numel(targets)
