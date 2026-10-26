@@ -11,7 +11,7 @@
   "horizon_covered": null,
   "reach_time_bounds": null,
   "runtime_s": {
-    "total": 0.08211058296728879
+    "total": 0.09241354200639762
   },
   "params": {
     "grid_size": 500,
@@ -25,9 +25,9 @@
     "reason": "16-dimensional state space; grid-based Hamilton-Jacobi reachability is infeasible (curse of dimensionality)"
   },
   "provenance": {
-    "git_commit": "74b1e35eedcb16ed22408112711371941c49b1d6",
-    "git_dirty": false,
-    "timestamp": "2026-10-15T09:47:46+00:00",
+    "git_commit": "f343df849dabd991bb9795c662d80ecb86e3c855",
+    "git_dirty": true,
+    "timestamp": "2026-10-25T17:59:40+00:00",
     "platform": "macOS-27.0.1-arm64-arm-64bit",
     "machine": "arm64",
     "versions": {

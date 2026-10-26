@@ -11,10 +11,10 @@
   "horizon_covered": true,
   "reach_time_bounds": [],
   "runtime_s": {
-    "total": 161.9930661249673,
-    "compile_warmup": 109.612295541,
-    "solve": 45.209769166,
-    "check": 1.162108209
+    "total": 166.85243383300258,
+    "compile_warmup": 112.254725083,
+    "solve": 46.646884375,
+    "check": 1.339687666
   },
   "params": {
     "julia": "1.13.1",
@@ -35,9 +35,9 @@
     }
   },
   "provenance": {
-    "git_commit": "9c347960b4b6317b9f8f63d9363064cef445d8f6",
-    "git_dirty": false,
-    "timestamp": "2026-10-15T10:31:59+00:00",
+    "git_commit": "f343df849dabd991bb9795c662d80ecb86e3c855",
+    "git_dirty": true,
+    "timestamp": "2026-10-25T18:09:37+00:00",
     "platform": "macOS-27.0.1-arm64-arm-64bit",
     "machine": "arm64",
     "versions": {

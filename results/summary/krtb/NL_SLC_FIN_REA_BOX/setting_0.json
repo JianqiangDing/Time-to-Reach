@@ -14,12 +14,12 @@
     [12.712414245745357, 12.909583816408299]
   ],
   "runtime_s": {
-    "total": 0.07104379200609401,
-    "setup": 0.042850667028687894,
-    "eigenfunctions": 0.00028325000312179327,
-    "bounds": 0.015661749988794327,
-    "krtb": 0.01594499999191612,
-    "witness_search": 0.012248124985489994
+    "total": 0.039283833000808954,
+    "setup": 0.010361458000261337,
+    "eigenpairs": 0.013504458009265363,
+    "bounds": 0.008304249990032986,
+    "krtb": 0.02180870799929835,
+    "witness_search": 0.007113667001249269
   },
   "params": {
     "num_samples_initial": 2000,
@@ -41,9 +41,9 @@
     }
   },
   "provenance": {
-    "git_commit": "6bce0a9e9e91719373f4cfad5a75946a05cbb6dd",
-    "git_dirty": false,
-    "timestamp": "2026-10-15T08:06:03+00:00",
+    "git_commit": "f343df849dabd991bb9795c662d80ecb86e3c855",
+    "git_dirty": true,
+    "timestamp": "2026-10-25T19:41:26+00:00",
     "platform": "macOS-27.0.1-arm64-arm-64bit",
     "machine": "arm64",
     "versions": {

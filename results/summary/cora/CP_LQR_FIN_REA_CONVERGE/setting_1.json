@@ -13,10 +13,10 @@
     [10.15, 12]
   ],
   "runtime_s": {
-    "total": 11.873307125002611,
-    "warmup": 0.9697871666666666,
-    "reach": 3.654905416666667,
-    "check": 1.4701065416666668
+    "total": 10.906391374999657,
+    "warmup": 1.569438125,
+    "reach": 2.8597824583333336,
+    "check": 1.30270975
   },
   "params": {
     "matlab_release": "R2025a",
@@ -33,9 +33,9 @@
     }
   },
   "provenance": {
-    "git_commit": "89a388dedf76e5fc9369886d60284bc39563ca8c",
-    "git_dirty": false,
-    "timestamp": "2026-10-15T12:20:53+00:00",
+    "git_commit": "f343df849dabd991bb9795c662d80ecb86e3c855",
+    "git_dirty": true,
+    "timestamp": "2026-10-25T18:20:25+00:00",
     "platform": "macOS-27.0.1-arm64-arm-64bit",
     "machine": "arm64",
     "versions": {

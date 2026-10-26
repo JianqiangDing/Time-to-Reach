@@ -10,15 +10,15 @@
   "time_horizon": [0.0, 10.0],
   "horizon_covered": true,
   "reach_time_bounds": [
-    [0.0, 0.9807721296913402]
+    [0.0, 0.98077212969134]
   ],
   "runtime_s": {
-    "total": 2.065243124961853,
-    "setup": 0.0399711659993045,
-    "eigenfunctions": 1.9883495419635437,
-    "bounds": 0.03338191704824567,
-    "krtb": 2.0217314590117894,
-    "witness_search": 0.003540499950759113
+    "total": 2.058707875024993,
+    "setup": 0.01085837502614595,
+    "eigenpairs": 2.0356073750008363,
+    "bounds": 0.008575416984967887,
+    "krtb": 2.044182791985804,
+    "witness_search": 0.0036667080130428076
   },
   "params": {
     "num_samples_initial": 1,
@@ -40,9 +40,9 @@
     }
   },
   "provenance": {
-    "git_commit": "7b623bcabc8dcdab84e57cb933269112f2011f60",
-    "git_dirty": false,
-    "timestamp": "2026-10-15T09:07:10+00:00",
+    "git_commit": "f343df849dabd991bb9795c662d80ecb86e3c855",
+    "git_dirty": true,
+    "timestamp": "2026-10-25T19:40:33+00:00",
     "platform": "macOS-27.0.1-arm64-arm-64bit",
     "machine": "arm64",
     "versions": {
@@ -70,20 +70,20 @@
       "atol": 1e-14,
       "quadrature_points": 2501,
       "spectral_margin": 0.5142758402651992,
-      "min_truncation_time": 23.14,
-      "max_relative_integrand_at_truncation": 3.6456520382535615e-14
+      "min_truncation_time": 23.16,
+      "max_relative_integrand_at_truncation": 3.5343766065531276e-14
     },
     "bounds_status": "bounded",
     "bounds_unclipped": [
-      [0.0, 0.9807721296913402]
+      [0.0, 0.98077212969134]
     ],
-    "magnitude_interval": [-2.044223584399994, 0.9807721296913402],
-    "phase_window": [-0.6376094775648175, 0.9333704195901866],
+    "magnitude_interval": [-2.0442235844000014, 0.98077212969134],
+    "phase_window": [-0.6376094775648176, 0.9333704195901871],
     "period": 1.5719465011332445,
     "bound_details": {
       "magnitude": {
         "growing_cone": ["-inf", "inf"],
-        "decaying_cone": [-2.044223584399994, 0.9807721296913402],
+        "decaying_cone": [-2.0442235844000014, 0.98077212969134],
         "lfp_status": ["infeasible", "infeasible", "optimal", "optimal"]
       },
       "phase": {
@@ -93,7 +93,7 @@
     },
     "witness": {
       "x0": [0.8, 0.3, -0.785398, 0.2],
-      "first_hit_time": 0.6788462101513657,
+      "first_hit_time": 0.6788462103709884,
       "inside_bounds": true
     },
     "num_samples": {

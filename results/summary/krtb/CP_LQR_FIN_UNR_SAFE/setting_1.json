@@ -11,12 +11,12 @@
   "horizon_covered": true,
   "reach_time_bounds": [],
   "runtime_s": {
-    "total": 4.008420665981248,
-    "setup": 0.032145290984772146,
-    "eigenfunctions": 3.9701716249692254,
-    "bounds": 0.006103042047470808,
-    "krtb": 3.976274667016696,
-    "witness_search": 7.079797796905041e-07
+    "total": 3.8994922080019023,
+    "setup": 0.020822999998927116,
+    "eigenpairs": 3.8727356669842266,
+    "bounds": 0.005932041007326916,
+    "krtb": 3.8786677079915535,
+    "witness_search": 1.500011421740055e-06
   },
   "params": {
     "num_samples_initial": 1,
@@ -38,9 +38,9 @@
     }
   },
   "provenance": {
-    "git_commit": "7b623bcabc8dcdab84e57cb933269112f2011f60",
-    "git_dirty": false,
-    "timestamp": "2026-10-15T09:07:29+00:00",
+    "git_commit": "f343df849dabd991bb9795c662d80ecb86e3c855",
+    "git_dirty": true,
+    "timestamp": "2026-10-25T19:41:38+00:00",
     "platform": "macOS-27.0.1-arm64-arm-64bit",
     "machine": "arm64",
     "versions": {
@@ -68,18 +68,18 @@
       "atol": 1e-14,
       "quadrature_points": 2501,
       "spectral_margin": 0.5142758402651992,
-      "min_truncation_time": 24.080000000000002,
-      "max_relative_integrand_at_truncation": 1.6991807283723207e-14
+      "min_truncation_time": 24.060000000000002,
+      "max_relative_integrand_at_truncation": 1.6999696366791257e-14
     },
     "bounds_status": "empty",
     "bounds_unclipped": [],
-    "magnitude_interval": [-2.0022266361189978, -0.0761052550073877],
+    "magnitude_interval": [-2.0022266361189964, -0.07610525500738541],
     "phase_window": null,
     "period": null,
     "bound_details": {
       "magnitude": {
         "growing_cone": ["-inf", "inf"],
-        "decaying_cone": [-2.0022266361189978, -0.0761052550073877],
+        "decaying_cone": [-2.0022266361189964, -0.07610525500738541],
         "lfp_status": ["infeasible", "infeasible", "optimal", "optimal"]
       }
     },

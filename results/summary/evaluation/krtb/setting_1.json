@@ -8,7 +8,7 @@
       "expected_result": "reachable",
       "simulation": "reachable_witness",
       "verdict_check": "consistent",
-      "runtime_s": 2.707303542003501,
+      "runtime_s": 2.621497290994739,
       "bounds": [
         [8.550381588077649, 12.0]
       ],
@@ -25,9 +25,9 @@
       "expected_result": "reachable",
       "simulation": "reachable_witness",
       "verdict_check": "consistent",
-      "runtime_s": 3.846881499979645,
+      "runtime_s": 3.8367078750161454,
       "bounds": [
-        [0.0, 1.1743425447500935]
+        [0.0, 1.1743425447500944]
       ],
       "simulated_in_target_times": [
         [0.6788462101513657, 0.855]
@@ -41,7 +41,7 @@
       "expected_result": "unreachable",
       "simulation": "unreachable_estimated",
       "verdict_check": "consistent",
-      "runtime_s": 4.008420665981248
+      "runtime_s": 3.8994922080019023
     },
     {
       "benchmark": "DUFF_FIN_REA_BALL",
@@ -49,7 +49,7 @@
       "expected_result": "reachable",
       "simulation": "reachable_witness",
       "verdict_check": "consistent",
-      "runtime_s": 6.516441624960862,
+      "runtime_s": 6.21811295801308,
       "bounds": [
         [1.5297997081081465, 2.6135562324354797]
       ],
@@ -65,7 +65,7 @@
       "expected_result": "reachable",
       "simulation": "reachable_witness",
       "verdict_check": "consistent",
-      "runtime_s": 7.401015208975878,
+      "runtime_s": 7.12412462499924,
       "bounds": [
         [5.396268702078449, 5.657547063076689]
       ],
@@ -81,7 +81,7 @@
       "expected_result": "reachable",
       "simulation": "reachable_witness",
       "verdict_check": "consistent",
-      "runtime_s": 7.265782041999046,
+      "runtime_s": 6.998369000008097,
       "bounds": [
         [0.6917001555331505, 1.448665070684318],
         [4.959538363133109, 5.962638649829056]
@@ -99,7 +99,7 @@
       "expected_result": "reachable",
       "simulation": "reachable_witness",
       "verdict_check": "consistent",
-      "runtime_s": 4.826125415973365,
+      "runtime_s": 4.653975541004911,
       "bounds": [
         [5.048379116659507, 5.830674297735419]
       ],
@@ -115,7 +115,7 @@
       "expected_result": "unreachable",
       "simulation": "unreachable_estimated",
       "verdict_check": "no claim",
-      "runtime_s": 5.281295042019337
+      "runtime_s": 4.887839750008425
     },
     {
       "benchmark": "DUFF_FIN_UNR_BOX",
@@ -123,7 +123,7 @@
       "expected_result": "unreachable",
       "simulation": "unreachable_estimated",
       "verdict_check": "no claim",
-      "runtime_s": 5.692582041956484
+      "runtime_s": 4.902327332994901
     },
     {
       "benchmark": "MAS_CON_FIN_REA_BOX",
@@ -131,7 +131,7 @@
       "expected_result": "reachable",
       "simulation": "reachable_witness",
       "verdict_check": "consistent",
-      "runtime_s": 22.82386912498623,
+      "runtime_s": 19.453721541998675,
       "bounds": [
         [5.442077237267785, 7.0]
       ],
@@ -147,7 +147,7 @@
       "expected_result": "unreachable",
       "simulation": "unreachable_estimated",
       "verdict_check": "consistent",
-      "runtime_s": 23.03896162501769
+      "runtime_s": 19.74941304200911
     },
     {
       "benchmark": "MAS_CON_FIN_UNR_SAFE_1",
@@ -155,7 +155,7 @@
       "expected_result": "unreachable",
       "simulation": "unreachable_estimated",
       "verdict_check": "consistent",
-      "runtime_s": 22.502032249991316
+      "runtime_s": 19.658503416983876
     },
     {
       "benchmark": "NL_EIG_FIN_BACKWARD_REA_BOX",
@@ -163,7 +163,7 @@
       "expected_result": "reachable",
       "simulation": "reachable_witness",
       "verdict_check": "consistent",
-      "runtime_s": 0.3082040829467587,
+      "runtime_s": 0.25099308299832046,
       "bounds": [
         [0.7604545766415112, 0.883546210624822]
       ],
@@ -179,7 +179,7 @@
       "expected_result": "unreachable",
       "simulation": "unreachable_estimated",
       "verdict_check": "consistent",
-      "runtime_s": 0.018263750011101365
+      "runtime_s": 0.01812070800224319
     },
     {
       "benchmark": "NL_SLC_FIN_REA_BOX",
@@ -187,7 +187,7 @@
       "expected_result": "reachable",
       "simulation": "reachable_witness",
       "verdict_check": "consistent",
-      "runtime_s": 0.045615124981850386,
+      "runtime_s": 0.03834129101596773,
       "bounds": [
         [6.425672235863621, 6.62798736036857],
         [12.708857543043207, 12.911172667548156]
@@ -205,7 +205,7 @@
       "expected_result": "unreachable",
       "simulation": "unreachable_estimated",
       "verdict_check": "consistent",
-      "runtime_s": 0.02976333402330056
+      "runtime_s": 0.022178082988830283
     }
   ]
 }

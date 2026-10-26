@@ -11,10 +11,10 @@
   "horizon_covered": true,
   "reach_time_bounds": null,
   "runtime_s": {
-    "setup": 0.13204600004246458,
-    "compile_and_first_step": 0.14793795795412734,
-    "solve": 25.204178792017046,
-    "total": 25.491961291001644
+    "setup": 0.2001097500033211,
+    "compile_and_first_step": 0.2011822090134956,
+    "solve": 20.486971207981696,
+    "total": 20.92156258400064
   },
   "params": {
     "grid_size": 500,
@@ -26,9 +26,9 @@
     "seed": 0
   },
   "provenance": {
-    "git_commit": "74b1e35eedcb16ed22408112711371941c49b1d6",
-    "git_dirty": false,
-    "timestamp": "2026-10-15T09:45:12+00:00",
+    "git_commit": "f343df849dabd991bb9795c662d80ecb86e3c855",
+    "git_dirty": true,
+    "timestamp": "2026-10-25T17:57:30+00:00",
     "platform": "macOS-27.0.1-arm64-arm-64bit",
     "machine": "arm64",
     "versions": {

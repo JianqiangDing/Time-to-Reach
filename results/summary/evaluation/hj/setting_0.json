@@ -8,7 +8,7 @@
       "expected_result": "reachable",
       "simulation": "reachable_witness",
       "verdict_check": "no claim",
-      "runtime_s": 0.046299499983433634
+      "runtime_s": 0.035422832996118814
     },
     {
       "benchmark": "CP_LQR_FIN_REA_UNSAFE",
@@ -16,7 +16,7 @@
       "expected_result": "reachable",
       "simulation": "reachable_witness",
       "verdict_check": "no claim",
-      "runtime_s": 470.206618208962
+      "runtime_s": 395.6155855410034
     },
     {
       "benchmark": "CP_LQR_FIN_UNR_SAFE",
@@ -24,7 +24,7 @@
       "expected_result": "unreachable",
       "simulation": "unreachable_estimated",
       "verdict_check": "consistent",
-      "runtime_s": 466.1288000419736
+      "runtime_s": 400.1282963750127
     },
     {
       "benchmark": "DUFF_FIN_REA_BALL",
@@ -32,7 +32,7 @@
       "expected_result": "reachable",
       "simulation": "reachable_witness",
       "verdict_check": "no claim",
-      "runtime_s": 28.494832375028636
+      "runtime_s": 23.03318916700664
     },
     {
       "benchmark": "DUFF_FIN_REA_BOX",
@@ -40,7 +40,7 @@
       "expected_result": "reachable",
       "simulation": "reachable_witness",
       "verdict_check": "no claim",
-      "runtime_s": 25.491961291001644
+      "runtime_s": 20.92156258400064
     },
     {
       "benchmark": "DUFF_FIN_REA_DISJOINT_BOX",
@@ -48,7 +48,7 @@
       "expected_result": "reachable",
       "simulation": "reachable_witness",
       "verdict_check": "consistent",
-      "runtime_s": 22.700857957999688
+      "runtime_s": 18.667900833999738
     },
     {
       "benchmark": "DUFF_FIN_REA_NONCONVEX_LEVEL_SET",
@@ -56,7 +56,7 @@
       "expected_result": "reachable",
       "simulation": "reachable_witness",
       "verdict_check": "consistent",
-      "runtime_s": 20.113663040974643
+      "runtime_s": 16.825321000011172
     },
     {
       "benchmark": "DUFF_FIN_UNR_BALL",
@@ -64,7 +64,7 @@
       "expected_result": "unreachable",
       "simulation": "unreachable_estimated",
       "verdict_check": "consistent",
-      "runtime_s": 27.9094055420137
+      "runtime_s": 23.590727583010448
     },
     {
       "benchmark": "DUFF_FIN_UNR_BOX",
@@ -72,7 +72,7 @@
       "expected_result": "unreachable",
       "simulation": "unreachable_estimated",
       "verdict_check": "consistent",
-      "runtime_s": 83.21855333296116
+      "runtime_s": 70.37426300000516
     },
     {
       "benchmark": "MAS_CON_FIN_REA_BOX",
@@ -80,7 +80,7 @@
       "expected_result": "reachable",
       "simulation": "reachable_witness",
       "verdict_check": "no claim",
-      "runtime_s": 0.08211058296728879
+      "runtime_s": 0.09241354200639762
     },
     {
       "benchmark": "MAS_CON_FIN_UNR_SAFE_0",
@@ -88,7 +88,7 @@
       "expected_result": "unreachable",
       "simulation": "unreachable_estimated",
       "verdict_check": "no claim",
-      "runtime_s": 0.053375916031654924
+      "runtime_s": 0.08548762500868179
     },
     {
       "benchmark": "MAS_CON_FIN_UNR_SAFE_1",
@@ -96,7 +96,7 @@
       "expected_result": "unreachable",
       "simulation": "unreachable_estimated",
       "verdict_check": "no claim",
-      "runtime_s": 0.054315291985403746
+      "runtime_s": 0.07076008399599232
     },
     {
       "benchmark": "NL_EIG_FIN_BACKWARD_REA_BOX",
@@ -104,7 +104,7 @@
       "expected_result": "reachable",
       "simulation": "reachable_witness",
       "verdict_check": "consistent",
-      "runtime_s": 9.027999040961731
+      "runtime_s": 7.356694957998116
     },
     {
       "benchmark": "NL_EIG_FIN_BACKWARD_UNR_BOX",
@@ -112,7 +112,7 @@
       "expected_result": "unreachable",
       "simulation": "unreachable_estimated",
       "verdict_check": "consistent",
-      "runtime_s": 9.030545999994501
+      "runtime_s": 7.751025250006933
     },
     {
       "benchmark": "NL_SLC_FIN_REA_BOX",
@@ -120,7 +120,7 @@
       "expected_result": "reachable",
       "simulation": "reachable_witness",
       "verdict_check": "consistent",
-      "runtime_s": 33.41971233399818
+      "runtime_s": 29.361354459018912
     },
     {
       "benchmark": "NL_SLC_FIN_UNR_BOX",
@@ -128,7 +128,7 @@
       "expected_result": "unreachable",
       "simulation": "unreachable_estimated",
       "verdict_check": "consistent",
-      "runtime_s": 33.276728124998044
+      "runtime_s": 29.661591500014765
     }
   ]
 }

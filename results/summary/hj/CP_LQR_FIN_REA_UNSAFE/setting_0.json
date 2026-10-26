@@ -11,10 +11,10 @@
   "horizon_covered": true,
   "reach_time_bounds": null,
   "runtime_s": {
-    "setup": 1.193028207984753,
-    "compile_and_first_step": 0.8928849169751629,
-    "solve": 468.0538512910134,
-    "total": 470.206618208962
+    "setup": 1.3604723750031553,
+    "compile_and_first_step": 0.9993072910001501,
+    "solve": 393.2303582499735,
+    "total": 395.6155855410034
   },
   "params": {
     "grid_size": 41,
@@ -32,9 +32,9 @@
     ]
   },
   "provenance": {
-    "git_commit": "9ad0acf171b42800d9c08319ab09ca43154841c8",
-    "git_dirty": false,
-    "timestamp": "2026-10-15T09:57:46+00:00",
+    "git_commit": "f343df849dabd991bb9795c662d80ecb86e3c855",
+    "git_dirty": true,
+    "timestamp": "2026-10-25T17:50:06+00:00",
     "platform": "macOS-27.0.1-arm64-arm-64bit",
     "machine": "arm64",
     "versions": {
@@ -51,7 +51,7 @@
     "grid_shape": [41, 41, 41, 41],
     "grid_spacing": [0.07500000298023224, 0.07500000298023224, 0.07500000298023224, 0.15000000596046448],
     "margin": 0.15000000596046448,
-    "min_value_over_initial": -0.01272299699485302,
+    "min_value_over_initial": -0.012723310850560665,
     "first_reach_time_estimate": 0.84,
     "num_initial_samples": 1,
     "jax_devices": ["cpu:0"]

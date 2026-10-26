@@ -15,26 +15,26 @@
             \cmidrule{4-10}
             & & & \textbf{Principal eigenpairs} & \textbf{Reach-time bounds} & \textbf{CORA} \cite{althoff2016cora} & \textbf{JuliaReach} \cite{bogomolov2019juliareach} & \textbf{dReach} \cite{kong2015dreach} & \textbf{hj\_reachability} & \textbf{SOSTOOLS} \cite{papachristodoulou2013sostools} \\
             \midrule
-            \multirow{6}{*}{\textbf{\shortstack{Duffing's \\ oscillator \\(Example 1)}}} & \multirow{6}{*}{2} & \gc DUFF\_REA\_BOX & \gc 4.71 & \gc Rea (2.68) & \gc Ukn (535.92) & \gc Ukn (6.74) & \gc -- & \gc Ukn (25.20) & \gc Ukn (2.24) \\
-            & & DUFF\_REA\_CVX\_LS & 4.92 & Rea (1.59) & Ukn (198.34) & Ukn (6.85) & -- & Ukn (28.16) & Ukn (1.90) \\
-            & & \gc DUFF\_REA\_NCVX\_LS & \gc 4.79 & \gc Rea (0.02) & \gc Ukn (46.19) & \gc Ukn (2.59) & \gc -- & \gc Rea (19.74) & \gc Ukn (1.68) \\
-            & & DUFF\_REA\_DSJT\_BOX & 7.24 & Rea (0.01) & Rea (309.45) & Rea (7.35) & -- & Rea (22.47) & Ukn (2.13) \\
-            & & \gc DUFF\_UNR\_BOX & \gc 5.31 & \gc Inc (0.37) & \gc Unr (845.60) & \gc Unr (13.32) & \gc -- & \gc Unr (83.03) & \gc Unr (1.96) \\
-            & & DUFF\_UNR\_CVX\_LS & 4.97 & Inc (0.30) & Ukn (214.51) & Ukn (6.81) & -- & Unr (27.72) & Unr (1.54) \\
+            \multirow{6}{*}{\textbf{\shortstack{Duffing's\\oscillator\\(Example 1)}}} & \multirow{6}{*}{2} & \gc DUFF\_REA\_BOX & \gc 4.57 & \gc Rea (0.01) & \gc Ukn (481.14) & \gc Ukn (7.32) & \gc $\delta$-Rea (446.86) & \gc Ukn (20.49) & \gc Ukn (2.24) \\
+            & & DUFF\_REA\_CVX\_LS & 4.68 & Rea (0.01) & Ukn (182.74) & Ukn (6.88) & $\delta$-Rea (14.31) & Ukn (22.61) & Ukn (1.90) \\
+            & & \gc DUFF\_REA\_NCVX\_LS & \gc 4.62 & \gc Rea (0.01) & \gc Ukn (27.56) & \gc Ukn (2.69) & \gc $\delta$-Rea (1589.39) & \gc Rea (16.33) & \gc Ukn (1.68) \\
+            & & DUFF\_REA\_DSJT\_BOX & 6.98 & Rea (0.01) & Rea (302.21) & Rea (8.33) & $\delta$-Rea (49.06) & Rea (18.32) & Ukn (2.13) \\
+            & & \gc DUFF\_UNR\_BOX & \gc 4.55 & \gc Inc (0.01) & \gc Unr (801.76) & \gc Unr (13.49) & \gc T/O & \gc Unr (70.08) & \gc Unr (1.96) \\
+            & & DUFF\_UNR\_CVX\_LS & 4.65 & Inc (0.01) & Ukn (182.37) & Ukn (6.68) & Unr (1725.68) & Unr (23.30) & Unr (1.54) \\
             \midrule
-            \multirow{2}{*}{\textbf{\shortstack{Stable \\limit cycle}}} & \multirow{2}{*}{2} & \gc NL-SLC\_REA\_BOX & \gc \scriptsize Analytical & \gc PRea (0.02) & \gc Rea (865.72) & \gc Rea (87.40) & \gc -- & \gc Rea (33.19) & \gc Ukn (1.83) \\
-            & & NL-SLC\_UNR\_BOX & \scriptsize Analytical & Unr (0.01) & Unr (824.48) & Unr (87.16) & -- & Unr (33.09) & Unr (1.67) \\
+            \multirow{2}{*}{\textbf{\shortstack{Stable \\limit cycle}}} & \multirow{2}{*}{2} & \gc NL-SLC\_REA\_BOX & \gc \scriptsize Analytical & \gc PRea (0.01) & \gc Rea (817.38) & \gc Rea (91.15) & \gc T/O & \gc Rea (29.07) & \gc Ukn (1.83) \\
+            & & NL-SLC\_UNR\_BOX & \scriptsize Analytical & Unr (0.01) & Unr (767.97) & Unr (87.76) & T/O & Unr (29.42) & Unr (1.67) \\
             \midrule
-            \multirow{2}{*}{\textbf{\shortstack{Saddle point\\system}}} & \multirow{2}{*}{2} & \gc NL-EIG\_BWD\_REA\_BOX & \gc \scriptsize Analytical & \gc Rea (0.29) & \gc Rea (504.56) & \gc Rea (129.36) & \gc -- & \gc Rea (8.80) & \gc N/A \tnote{a} \\
-            & & NL-EIG\_BWD\_UNR\_BOX & \scriptsize Analytical & Unr (0.01) & Unr (493.39) & Unr (113.31) & -- & Unr (8.81) & N/A \tnote{a} \\
+            \multirow{2}{*}{\textbf{\shortstack{Saddle point\\system}}} & \multirow{2}{*}{2} & \gc NL-EIG\_BWD\_REA\_BOX & \gc \scriptsize Analytical & \gc Rea (0.01) & \gc Rea (491.88) & \gc Rea (129.41) & \gc T/O & \gc Rea (7.00) & \gc N/A \tnote{a} \\
+            & & NL-EIG\_BWD\_UNR\_BOX & \scriptsize Analytical & Unr (0.01) & Unr (492.35) & Unr (113.61) & T/O & Unr (7.51) & N/A \tnote{a} \\
             \midrule
-            \multirow{3}{*}{\textbf{\shortstack{Cartpole \\ (Example 2)}}} & \multirow{3}{*}{4} & \gc CP-LQR\_REA\_CVG & \gc 2.63 & \gc Rea (0.04) & \gc Rea (5.13) & \gc Rea (15.00) & \gc -- & \gc N/A \tnote{b} & \gc N/A \tnote{a} \\
-            & & CP-LQR\_REA\_USF & 3.82 & Rea (0.01) & Ukn (3.49) & Rea (14.18) & -- & Ukn (468.05) & N/A \tnote{a} \\
-            & & \gc CP-LQR\_UNR\_SAF & \gc 3.97 & \gc Unr (0.01) & \gc Unr (3.34) & \gc Unr (13.96) & \gc -- & \gc Unr (464.52) & \gc N/A \tnote{a} \\
+            \multirow{3}{*}{\textbf{\shortstack{Cartpole\\(Example 2)}}} & \multirow{3}{*}{4} & \gc CP-LQR\_REA\_CVG & \gc 2.56 & \gc Rea (0.02) & \gc Rea (4.16) & \gc Rea (14.57) & \gc $\delta$-Rea (10.07) & \gc N/A \tnote{b} & \gc N/A \tnote{a} \\
+            & & CP-LQR\_REA\_USF & 3.81 & Rea (0.01) & Ukn (2.80) & Rea (14.77) & $\delta$-Rea (1.72) & Ukn (393.23) & N/A \tnote{a} \\
+            & & \gc CP-LQR\_UNR\_SAF & \gc 3.87 & \gc Unr (0.01) & \gc Unr (2.73) & \gc Unr (13.88) & \gc Unr (0.53) & \gc Unr (398.78) & \gc N/A \tnote{a} \\
             \midrule
-            \multirow{3}{*}{\textbf{\shortstack{Multi-agent\\consensus\\(Example 3)}}} & \multirow{3}{*}{16} & MAS-CON\_REA\_BOX & 22.30 & Rea (0.04) & Rea (56.15) & Rea (44.55) & -- & N/A \tnote{c} & N/A \tnote{a} \\
-            & & \gc MAS-CON\_UNR\_SAF\_0 & \gc 22.90 & \gc Unr (0.01) & \gc Unr (54.22) & \gc Unr (46.37) & \gc -- & \gc N/A \tnote{c} & \gc N/A \tnote{a} \\
-            & & MAS-CON\_UNR\_SAF\_1 & 22.30 & Unr (0.06) & Unr (54.22) & Unr (44.50) & -- & N/A \tnote{c} & N/A \tnote{a} \\
+            \multirow{3}{*}{\textbf{\shortstack{Multi-agent\\consensus\\(Example 3)}}} & \multirow{3}{*}{16} & MAS-CON\_REA\_BOX & 19.32 & Rea (0.01) & Rea (50.40) & Rea (45.09) & T/O & N/A \tnote{c} & N/A \tnote{a} \\
+            & & \gc MAS-CON\_UNR\_SAF\_0 & \gc 19.68 & \gc Unr (0.01) & \gc Unr (49.66) & \gc Unr (47.99) & \gc Unr (8.21) & \gc N/A \tnote{c} & \gc N/A \tnote{a} \\
+            & & MAS-CON\_UNR\_SAF\_1 & 19.59 & Unr (0.01) & Unr (51.83) & Unr (44.27) & Unr (8.41) & N/A \tnote{c} & N/A \tnote{a} \\
             \bottomrule
         \end{tabular}
     \end{adjustbox}
