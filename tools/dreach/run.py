@@ -14,6 +14,7 @@ Build the image first: docker build --platform linux/amd64 -t <image> tools/drea
 """
 
 import argparse
+import os
 import platform
 import re
 import shutil
@@ -25,7 +26,7 @@ import uuid
 from tools.common import load_benchmark, make_result, paths, write_result
 from tools.common.settings import configured_benchmarks, load_settings
 
-from .gen_drh import generate
+from .gen_drh import generate_model
 
 TOOL = "dreach"
 
@@ -48,24 +49,24 @@ def image_id(cli, image):
     return out.stdout.strip()
 
 
-def run(benchmark_id, setting="setting_0"):
+def execute(bm, cfg, work):
+    """Run dReach in Docker on a loaded benchmark; returns the raw outcome."""
     t_start = time.perf_counter()
-    bm = load_benchmark(benchmark_id)
-    cfg = load_settings(TOOL, setting, benchmark_id)
     cli = docker_cli()
     img = image_id(cli, cfg["image"])
 
-    work = paths.RAW_DIR / TOOL / benchmark_id / setting
     work.mkdir(parents=True, exist_ok=True)
     for name in ("dreach.out", "dreach.err", "dreach.code"):
         (work / name).unlink(missing_ok=True)
-    model = f"{benchmark_id}.drh"
-    (work / model).write_text(generate(benchmark_id))
+    model = f"{bm.id}.drh"
+    (work / model).write_text(generate_model(bm))
 
-    container = f"dreach-{benchmark_id.lower()}-{uuid.uuid4().hex[:8]}"
-    inner = (f"/usr/bin/time -p /usr/app/dreal/bin/dReach -k {cfg['k']} -z {model} "
+    container = f"dreach-{bm.id.lower()}-{uuid.uuid4().hex[:8]}"
+    inner = (f"/usr/bin/time -p dReach -k {cfg['k']} -z {model} "
              f"--precision {cfg['precision']} > dreach.out 2> dreach.err; echo $? > dreach.code")
+    # run as the host user so that files written to the mounted work directory are not owned by root
     cmd = [cli, "run", "--rm", "--name", container, "--platform", "linux/amd64",
+           "--user", f"{os.getuid()}:{os.getgid()}",
            "-v", f"{work}:/work", "-w", "/work", cfg["image"], "bash", "-c", inner]
 
     timed_out = False
@@ -80,23 +81,34 @@ def run(benchmark_id, setting="setting_0"):
     err = (work / "dreach.err").read_text() if (work / "dreach.err").exists() else ""
     code = (work / "dreach.code").read_text().strip() if (work / "dreach.code").exists() else None
     real = re.search(r"^real\s+([\d.]+)", err, re.M)
-    dreach_time = float(real.group(1)) if real else None
+    return {"timed_out": timed_out, "code": code, "stdout": out, "stderr": err, "wall": wall,
+            "dreach_time": float(real.group(1)) if real else None, "image_id": img, "model": work / model}
 
-    if timed_out:
-        verdict, detail = "timeout", f"no answer within {cfg['timeout_s']} s"
-    elif code == "52":
-        verdict, detail = "unreachable_proven", "unsat"
-    elif code == "51":
-        verdict, detail = "reachable_possible", f"delta-sat with delta = {cfg['precision']}"
-    else:
-        tail = (out + err).strip().splitlines()[-3:]
-        verdict, detail = "error", f"dReach exit code {code}: " + " | ".join(tail)
+
+def interpret(out, cfg):
+    """Verdict and detail from the outcome of execute()."""
+    if out["timed_out"]:
+        return "timeout", f"no answer within {cfg['timeout_s']} s"
+    if out["code"] == "52":
+        return "unreachable_proven", "unsat"
+    if out["code"] == "51":
+        return "reachable_possible", f"delta-sat with delta = {cfg['precision']}"
+    tail = (out["stdout"] + out["stderr"]).strip().splitlines()[-3:]
+    return "error", f"dReach exit code {out['code']}: " + " | ".join(tail)
+
+
+def run(benchmark_id, setting="setting_0"):
+    bm = load_benchmark(benchmark_id)
+    cfg = load_settings(TOOL, setting, benchmark_id)
+    out = execute(bm, cfg, paths.RAW_DIR / TOOL / benchmark_id / setting)
+    verdict, detail = interpret(out, cfg)
 
     host = platform.machine()
-    params = {**cfg, "image_id": img, "host_machine": host, "emulated": host not in ("x86_64", "AMD64")}
-    runtime = {"total": wall, "dreach": dreach_time,
-               "container_overhead": None if dreach_time is None else wall - dreach_time}
-    extra = {"model": str(work / model), "stdout_tail": out.strip().splitlines()[-5:]}
+    params = {**cfg, "image_id": out["image_id"], "host_machine": host, "emulated": host not in ("x86_64", "AMD64")}
+    dreach_time = out["dreach_time"]
+    runtime = {"total": out["wall"], "dreach": dreach_time,
+               "container_overhead": None if dreach_time is None else out["wall"] - dreach_time}
+    extra = {"model": str(out["model"]), "stdout_tail": out["stdout"].strip().splitlines()[-5:]}
     return make_result(bm, TOOL, setting, verdict, runtime, params, detail=detail,
                        horizon_covered=verdict in ("unreachable_proven", "reachable_possible"),
                        extra=extra, packages=("numpy",))
