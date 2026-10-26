@@ -41,6 +41,17 @@ def _setting(tool, setting):
     return _resolve(data["settings"], setting)
 
 
+def setting_names(tool):
+    return list(jsonio.read_json(paths.SETTINGS_DIR / f"{tool}.json")["settings"])
+
+
+def resolved(tool, setting):
+    """{"defaults", "benchmarks", "description", "inherits"} of a setting, with its 'inherits' chain merged."""
+    block = jsonio.read_json(paths.SETTINGS_DIR / f"{tool}.json")["settings"][setting]
+    return {**_setting(tool, setting), "description": block.get("description", ""),
+            "inherits": block.get("inherits")}
+
+
 def load_settings(tool, setting, benchmark_id):
     """Settings of `tool` for one benchmark; raises KeyError if the benchmark is not configured."""
     block = _setting(tool, setting)
