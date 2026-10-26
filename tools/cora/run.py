@@ -42,6 +42,20 @@ def matlab_command(release):
     return exe
 
 
+def run_matlab(release, call, work, timeout):
+    """`matlab -batch call` with its output in work/matlab.log; returns (exit code, log text).
+
+    The output goes to a file, not a pipe: MATLAB may start background services
+    (MathWorksServiceHost) that inherit its stdout/stderr and keep a pipe open after
+    MATLAB exits, which would block until the timeout. Raises TimeoutExpired.
+    """
+    log = work / "matlab.log"
+    with log.open("w") as f:
+        proc = subprocess.run([matlab_command(release), "-batch", call], stdin=subprocess.DEVNULL,
+                              stdout=f, stderr=subprocess.STDOUT, timeout=timeout)
+    return proc.returncode, log.read_text(errors="replace")
+
+
 def execute(bm, cfg, work):
     """Run run_cora.m on a loaded benchmark; returns its output dict."""
     work.mkdir(parents=True, exist_ok=True)
@@ -50,10 +64,9 @@ def execute(bm, cfg, work):
     jsonio.write_json(settings_path, cfg)
     out_path.unlink(missing_ok=True)
     call = f"addpath('{HERE}'); run_cora('{config_path}', '{settings_path}', '{out_path}')"
-    proc = subprocess.run([matlab_command(cfg["matlab_release"]), "-batch", call],
-                          capture_output=True, text=True, timeout=cfg["timeout_s"])
-    if proc.returncode != 0 or not out_path.exists():
-        tail = (proc.stdout + proc.stderr).strip().splitlines()[-6:]
+    code, log = run_matlab(cfg["matlab_release"], call, work, cfg["timeout_s"])
+    if code != 0 or not out_path.exists():
+        tail = log.strip().splitlines()[-6:]
         raise RuntimeError("MATLAB failed: " + " | ".join(tail))
     return jsonio.read_json(out_path)
 

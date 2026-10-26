@@ -26,7 +26,7 @@ import sympy as sp
 
 from tools.common import expr, jsonio, load_benchmark, make_result, paths, write_result
 from tools.common.settings import configured_benchmarks, load_settings
-from tools.cora.run import matlab_command
+from tools.cora.run import run_matlab
 
 TOOL = "sosbc"
 HERE = paths.REPO_ROOT / "tools" / "sosbc"
@@ -134,13 +134,12 @@ def run(benchmark_id, setting="setting_0"):
     out_path.unlink(missing_ok=True)
     call = f"addpath('{HERE}'); run_sosbc('{problem_path}', '{out_path}')"
     try:
-        proc = subprocess.run([matlab_command(cfg["matlab_release"]), "-batch", call],
-                              capture_output=True, text=True, timeout=cfg["timeout_s"])
+        code, log = run_matlab(cfg["matlab_release"], call, work, cfg["timeout_s"])
     except subprocess.TimeoutExpired:
         return make_result(bm, TOOL, setting, "timeout", {"total": time.perf_counter() - t_start}, cfg,
                            detail=f"no result within {cfg['timeout_s']} s", packages=("sympy",))
-    if proc.returncode != 0 or not out_path.exists():
-        tail = (proc.stdout + proc.stderr).strip().splitlines()[-6:]
+    if code != 0 or not out_path.exists():
+        tail = log.strip().splitlines()[-6:]
         return make_result(bm, TOOL, setting, "error", {"total": time.perf_counter() - t_start}, cfg,
                            detail="MATLAB failed: " + " | ".join(tail), packages=("sympy",))
     out = jsonio.read_json(out_path)
