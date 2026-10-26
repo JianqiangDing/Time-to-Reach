@@ -106,3 +106,10 @@ def test_path_integral_rejects_non_equilibrium_and_unstable_points():
         path_integral(System("nonlinear", 1, equations=["-x1 + 1"]), [0.0], T=10)
     with pytest.raises(NotImplementedError):
         path_integral(System("nonlinear", 1, equations=["x1"]), [0.0], T=10)
+
+
+def test_runtime_is_split_into_eigenpairs_and_bounds():
+    from tools.krtb.run import run
+    rt = run("NL_EIG_FIN_BACKWARD_UNR_BOX")["runtime_s"]
+    assert {"setup", "eigenpairs", "bounds", "witness_search"} <= rt.keys()
+    assert rt["krtb"] == pytest.approx(rt["eigenpairs"] + rt["bounds"])

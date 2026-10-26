@@ -13,8 +13,10 @@ Cell labels: Rea / PRea (several reach-time windows for one target) / Unr /
 Inc (KRTB bounds meet the horizon but no simulated witness) / Ukn (possible
 intersection, no certificate) / N/A (with a note giving the reason) / S/E / T/O /
 Err / $\\times$ (verdict contradicted by the simulation baseline) / -- (not run).
-Times are the core computation times of scripts.aggregate; KRTB's are split into
-the eigenfunction evaluation and the bounds plus witness search.
+Times are the core computation times of scripts.aggregate, except KRTB's: its two
+columns time the principal eigenpairs (eigenvalues and eigenfunction values on the
+samples) and the reach-time bounds. The witness simulation behind Rea is timed in
+results/summary/table.md and the report, not here.
 """
 
 import argparse
@@ -27,9 +29,10 @@ from tools.common import jsonio, load_benchmark, paths
 
 DEFAULT_COLUMNS = ["krtb:setting_1", "cora:setting_1", "juliareach:setting_1", "dreach:setting_0",
                    "hj:setting_0", "sosbc:setting_1"]
-# (system label, dimension, [(benchmark ID, name in the paper)]) in the paper's order
+# (system label, dimension, [(benchmark ID, name in the paper)]) in the paper's order. No space after
+# \\ in the labels: tex-fmt's table formatting drops the text before "\\ " in a cell.
 SYSTEMS = [
-    ("Duffing's \\\\ oscillator \\\\(Example 1)", 2, [
+    ("Duffing's\\\\oscillator\\\\(Example 1)", 2, [
         ("DUFF_FIN_REA_BOX", "DUFF_REA_BOX"),
         ("DUFF_FIN_REA_BALL", "DUFF_REA_CVX_LS"),
         ("DUFF_FIN_REA_NONCONVEX_LEVEL_SET", "DUFF_REA_NCVX_LS"),
@@ -42,7 +45,7 @@ SYSTEMS = [
     ("Saddle point\\\\system", 2, [
         ("NL_EIG_FIN_BACKWARD_REA_BOX", "NL-EIG_BWD_REA_BOX"),
         ("NL_EIG_FIN_BACKWARD_UNR_BOX", "NL-EIG_BWD_UNR_BOX")]),
-    ("Cartpole \\\\ (Example 2)", 4, [
+    ("Cartpole\\\\(Example 2)", 4, [
         ("CP_LQR_FIN_REA_CONVERGE", "CP-LQR_REA_CVG"),
         ("CP_LQR_FIN_REA_UNSAFE", "CP-LQR_REA_USF"),
         ("CP_LQR_FIN_UNR_SAFE", "CP-LQR_UNR_SAF")]),
@@ -106,18 +109,18 @@ def tool_cell(tool, record, truth):
 
 
 def krtb_cells(record, truth, num_targets):
-    """The two KRTB cells: eigenfunction evaluation, and verdict with bounds + witness time."""
+    """The two KRTB cells: principal eigenpairs, and verdict with the reach-time bounds time."""
     if record is None:
         return [{"label": "--", "time": None, "reason": None}] * 2
     analytic = record["extra"]["eigenfunctions"]["method"] == "analytic"
     eig = {"label": "Analytical" if analytic else "", "time": None if analytic else
-           record["runtime_s"]["eigenfunctions"], "reason": None}
+           record["runtime_s"]["eigenpairs"], "reason": None}
     cell = tool_cell("krtb", record, truth)
     if record["verdict"] == "unknown":
         cell["label"] = "Inc"
     if record["verdict"] == "reachable_witness" and len(record["reach_time_bounds"]) > num_targets:
         cell["label"] = "PRea"
-    cell["time"] = record["runtime_s"]["bounds"] + record["runtime_s"]["witness_search"]
+    cell["time"] = record["runtime_s"]["bounds"]
     return [eig, cell]
 
 

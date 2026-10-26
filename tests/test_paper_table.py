@@ -1,4 +1,4 @@
-from scripts.paper_table import SYSTEMS, build_rows, main, tool_cell
+from scripts.paper_table import SYSTEMS, build_rows, krtb_cells, main, tool_cell
 from tools.common import list_benchmarks
 
 TRUTH_REACHABLE = {"verdict": "reachable_witness", "extra": {"in_target_times": [[1.0, 2.0]]}}
@@ -25,6 +25,13 @@ def test_cell_labels():
     cell = tool_cell("sosbc", record("unsupported", "non-polynomial dynamics (sin)"), TRUTH_REACHABLE)
     assert cell["label"] == "N/A" and "trigonometric" in cell["reason"]
     assert tool_cell("dreach", None, TRUTH_REACHABLE)["label"] == "--"
+
+
+def test_krtb_columns_time_the_eigenpairs_and_the_bounds():
+    r = record("reachable_witness", eigenpairs=4.0, bounds=0.02, krtb=4.02, witness_search=5.0)
+    r.update(reach_time_bounds=[[1.0, 2.0]], extra={"eigenfunctions": {"method": "path_integral"}})
+    eig, cell = krtb_cells(r, TRUTH_REACHABLE, 1)
+    assert eig["time"] == 4.0 and cell == {"label": "Rea", "time": 0.02, "reason": None}  # witness not included
 
 
 def test_krtb_labels_from_results():

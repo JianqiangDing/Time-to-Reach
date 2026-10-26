@@ -7,4 +7,6 @@ def test_table_has_a_row_per_benchmark(tmp_path):
     md = (tmp_path / "table.md").read_text()
     assert md.count("| DUFF_FIN_") == 6 and "KRTB (setting_1)" in md
     assert (tmp_path / "table.csv").read_text().count("\n") == 17  # header + 16 benchmarks
+    assert "krtb:setting_1:eigenpairs_s,krtb:setting_1:bounds_s" in (tmp_path / "table.csv").read_text()
+    assert "(eigenpairs " in md and " + bounds " in md  # KRTB's time by step
     assert "\\begin{tabular}" in (tmp_path / "table.tex").read_text()

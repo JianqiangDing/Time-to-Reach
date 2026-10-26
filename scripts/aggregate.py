@@ -31,6 +31,10 @@ CORE_TIME = {
     "sosbc": ("setup", "solve"),  # SOS program construction + SDP solve
     "dreach": ("dreach",),
 }
+# Steps of the core time shown separately: (label, runtime key)
+STEPS = {
+    "krtb": (("eigenpairs", "eigenpairs"), ("bounds", "bounds"), ("witness", "witness_search")),
+}
 SYMBOL = {
     "unreachable_proven": "UNR proven", "reachable_proven": "REA proven", "reachable_witness": "REA witness",
     "reachable_possible": "REA possible", "reachable_estimated": "REA est.", "unreachable_estimated": "UNR est.",
@@ -39,19 +43,27 @@ SYMBOL = {
 }
 
 
+def steps(tool, record):
+    """[(label, seconds)] of the separately shown steps, or [] for tools without them."""
+    return [(label, record["runtime_s"][key]) for label, key in STEPS.get(tool, ())]
+
+
 def cell(tool, record, row):
     if record is None:
-        return {"text": "-", "verdict": None, "time": None}
+        return {"text": "-", "verdict": None, "time": None, "steps": []}
     phases = [record["runtime_s"].get(k) for k in CORE_TIME[tool]]
     t = sum(phases) if all(v is not None for v in phases) else record["runtime_s"].get("total")
     text = SYMBOL[record["verdict"]]
-    if record["verdict"] not in ("unsupported",) and t is not None:
+    split = steps(tool, record)
+    if split:
+        text += " (" + " + ".join(f"{label} {v:.3g} s" for label, v in split) + ")"
+    elif record["verdict"] not in ("unsupported",) and t is not None:
         text += f" ({t:.3g} s)"
     if row["verdict_check"] == "contradicted":
         text += " [CONTRADICTED]"
     if row.get("bounds_cover_simulation") is False:
         text += " [bounds miss]"
-    return {"text": text, "verdict": record["verdict"], "time": t}
+    return {"text": text, "verdict": record["verdict"], "time": t, "steps": split}
 
 
 def main(argv=None):
@@ -84,9 +96,10 @@ def main(argv=None):
         summary.append(f"| {NAMES[tool]} ({setting}) | " + " | ".join(str(c) for c in counts) + " |")
     note = [
         "",
-        "Times are each tool's core computation in seconds: everything needed for the verdict (for KRTB",
-        "including the witness simulation), excluding JIT compilation, MATLAB start-up, CORA derivative",
-        "generation and container start-up. Measured on: " + "; ".join(sorted(platforms)) + ".",
+        "Times are each tool's core computation in seconds: everything needed for the verdict, excluding",
+        "JIT compilation, MATLAB start-up, CORA derivative generation and container start-up. KRTB's is",
+        "split into the principal eigenpairs (eigenvalues and eigenfunction values on the samples), the",
+        "reach-time bounds and the witness simulation. Measured on: " + "; ".join(sorted(platforms)) + ".",
         "Only timings from the dedicated x86_64 Linux machine are final.",
     ]
     text = "\n".join(md + summary + note) + "\n"
@@ -96,9 +109,14 @@ def main(argv=None):
     out.with_suffix(".md").write_text(text)
     with out.with_suffix(".csv").open("w", newline="") as f:
         w = csv.writer(f, lineterminator="\n")
-        w.writerow(["benchmark", "expected"] + [f"{t}:{s}:{k}" for t, s in columns for k in ("verdict", "time_s")])
+        keys = {t: ["verdict", "time_s"] + [f"{label}_s" for label, _ in STEPS.get(t, ())] for t, _ in columns}
+        w.writerow(["benchmark", "expected"] + [f"{t}:{s}:{k}" for t, s in columns for k in keys[t]])
         for bid, expected, cells in rows:
-            w.writerow([bid, expected] + [x for c in cells for x in (c["verdict"] or "", c["time"] or "")])
+            values = []
+            for (t, _), c in zip(columns, cells):
+                split = [v for _, v in c["steps"]] or [""] * (len(keys[t]) - 2)
+                values += [c["verdict"] or "", c["time"] or ""] + split
+            w.writerow([bid, expected] + values)
     tex = ["\\begin{tabular}{ll" + "l" * len(columns) + "}", "\\toprule",
            " & ".join(["Benchmark", "Expected"] + [NAMES[t] for t, _ in columns]) + " \\\\", "\\midrule"]
     for bid, expected, cells in rows:

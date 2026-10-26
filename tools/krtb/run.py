@@ -13,7 +13,10 @@ look for a simulated witness inside the bounds. Verdicts:
   - bounds and a witness inside them  -> reachable_witness
   - bounds but no witness found       -> unknown
   - no information from the bounds    -> unknown
-Results go to results/summary/krtb/<ID>/<setting>.json.
+Results go to results/summary/krtb/<ID>/<setting>.json. Runtime phases:
+setup (sampling), eigenpairs (principal eigenvalues and eigenfunction values on
+the samples), bounds (reach-time bounds), witness_search; krtb = eigenpairs +
+bounds.
 """
 
 import argparse
@@ -72,9 +75,10 @@ def run(benchmark_id, setting="setting_0"):
 
     X0 = sample(bm.initial_set, cfg["num_samples_initial"], cfg["boundary_samples_initial"], rng)
     XF = sample(bm.target_set, cfg["num_samples_target"], cfg["boundary_samples_target"], rng)
-    eig = build_eigenfunctions(bm, cfg["eigenfunctions"], cfg["path_integral"], rng)
     t_setup = time.perf_counter()
 
+    # principal eigenpairs: the eigenvalues and the eigenfunction values on the samples
+    eig = build_eigenfunctions(bm, cfg["eigenfunctions"], cfg["path_integral"], rng)
     ef0, efF = eig.evaluate(X0), eig.evaluate(XF)
     t_eig = time.perf_counter()
 
@@ -116,7 +120,7 @@ def run(benchmark_id, setting="setting_0"):
     runtime = {
         "total": t_end - t_start,
         "setup": t_setup - t_start,
-        "eigenfunctions": t_eig - t_setup,
+        "eigenpairs": t_eig - t_setup,
         "bounds": t_bounds - t_eig,
         "krtb": t_bounds - t_setup,
         "witness_search": t_end - t_bounds,
@@ -151,7 +155,8 @@ def main(argv=None):
         rt = record["runtime_s"]
         bounds = ", ".join(f"[{lo:.4g}, {hi:.4g}]" for lo, hi in record["reach_time_bounds"]) or "-"
         print(f"{bid:34s} expected={record['expected_result']:11s} {record['verdict']:22s} "
-              f"bounds={bounds:28s} krtb={rt['krtb']:.2f}s total={rt['total']:.1f}s  {record['detail']}")
+              f"bounds={bounds:28s} eigenpairs={rt['eigenpairs']:.2f}s bounds_time={rt['bounds']:.3f}s "
+              f"witness={rt['witness_search']:.2f}s total={rt['total']:.1f}s  {record['detail']}")
     return 1 if failures else 0
 
 
