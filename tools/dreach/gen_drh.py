@@ -61,7 +61,11 @@ def union_formula(specs):
 
 
 def generate(benchmark_id):
-    bm = load_benchmark(benchmark_id)
+    return generate_model(load_benchmark(benchmark_id))
+
+
+def generate_model(bm):
+    """The .drh model of a loaded benchmark."""
     cfg = bm.raw
     if bm.system.kind != "nonlinear":
         raise NotImplementedError("linear systems: write A x as equations first")
@@ -81,7 +85,7 @@ def generate(benchmark_id):
     lines += [f"\t{a}" for a in invariants]
     lines.append("")
     lines.append("flow:")
-    for i, eq in enumerate(cfg["system"]["equations"], start=1):
+    for i, eq in enumerate(bm.system.equations, start=1):  # parameters and definitions substituted
         lines.append(f"\td/dt[x{i}] = {sign}({expr(eq)});")
     lines += ["\td/dt[tau] = 1;", "", "jump:", "", "}", ""]
     lines += ["init:", f"@1 (and {union_formula(cfg['initial_sets'])} (tau = 0));", ""]

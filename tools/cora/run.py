@@ -45,10 +45,11 @@ def matlab_command(release):
 def execute(bm, cfg, work):
     """Run run_cora.m on a loaded benchmark; returns its output dict."""
     work.mkdir(parents=True, exist_ok=True)
-    settings_path, out_path = work / "settings.json", work / "result.json"
+    config_path, settings_path, out_path = work / "benchmark.json", work / "settings.json", work / "result.json"
+    jsonio.write_json(config_path, bm.solver_config())  # named parameters/definitions expanded
     jsonio.write_json(settings_path, cfg)
     out_path.unlink(missing_ok=True)
-    call = f"addpath('{HERE}'); run_cora('{bm.path}', '{settings_path}', '{out_path}')"
+    call = f"addpath('{HERE}'); run_cora('{config_path}', '{settings_path}', '{out_path}')"
     proc = subprocess.run([matlab_command(cfg["matlab_release"]), "-batch", call],
                           capture_output=True, text=True, timeout=cfg["timeout_s"])
     if proc.returncode != 0 or not out_path.exists():

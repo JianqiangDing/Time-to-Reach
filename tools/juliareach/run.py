@@ -69,11 +69,12 @@ def run(benchmark_id, setting="setting_0"):
 def execute(bm, cfg, work):
     """Run run.jl on a loaded benchmark; returns its output dict."""
     work.mkdir(parents=True, exist_ok=True)
-    settings_path, out_path = work / "settings.json", work / "result.json"
+    config_path, settings_path, out_path = work / "benchmark.json", work / "settings.json", work / "result.json"
+    jsonio.write_json(config_path, bm.solver_config())  # named parameters/definitions expanded
     jsonio.write_json(settings_path, cfg)
     out_path.unlink(missing_ok=True)
     cmd = julia_command(cfg["julia"]) + ["--startup-file=no", f"--project={PROJECT}",
-                                         str(PROJECT / "run.jl"), str(bm.path), str(settings_path), str(out_path)]
+                                         str(PROJECT / "run.jl"), str(config_path), str(settings_path), str(out_path)]
     proc = subprocess.run(cmd, capture_output=True, text=True, timeout=cfg["timeout_s"])
     if proc.returncode != 0 or not out_path.exists():
         tail = (proc.stdout + proc.stderr).strip().splitlines()[-5:]

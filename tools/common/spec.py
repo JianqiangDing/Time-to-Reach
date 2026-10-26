@@ -78,6 +78,13 @@ class Benchmark:
     def dim(self):
         return self.system.dim
 
+    def solver_config(self):
+        """The config with named parameters and definitions expanded into the equations,
+        for tools that read the JSON themselves (JuliaReach, CORA)."""
+        if self.system.kind != "nonlinear":
+            return self.raw
+        return {**self.raw, "system": {"type": "nonlinear", "equations": list(self.system.equations)}}
+
     @property
     def problem_system(self):
         """The vector field along which the benchmark's trajectories evolve (f or -f)."""
@@ -110,7 +117,11 @@ def load_benchmark(id_or_path):
     sys_cfg = data["system"]
     if sys_cfg["type"] == "nonlinear":
         n = len(sys_cfg["equations"])
-        system = System("nonlinear", n, equations=list(sys_cfg["equations"]))
+        try:
+            equations = expr.expand(sys_cfg["equations"], n, sys_cfg.get("parameters"), sys_cfg.get("definitions"))
+        except ValueError as exc:
+            raise ValueError(f"{path.name}: {exc}") from exc
+        system = System("nonlinear", n, equations=equations)
     else:
         A = np.asarray(sys_cfg["A"], dtype=float)
         if A.ndim != 2 or A.shape[0] != A.shape[1]:

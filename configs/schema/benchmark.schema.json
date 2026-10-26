@@ -28,10 +28,22 @@
           "properties": {
             "type": {"const": "nonlinear"},
             "equations": {
-              "description": "Right-hand side f_i(x1..xn) for i = 1..n; '^' and '**' both denote powers.",
+              "description": "Right-hand side f_i(x1..xn) for i = 1..n; '^' and '**' both denote powers. May use the names in 'parameters' and 'definitions'.",
               "type": "array",
               "minItems": 1,
               "items": {"type": "string", "minLength": 1}
+            },
+            "parameters": {
+              "description": "Named constants (e.g. masses, feedback gains), substituted into 'definitions' and 'equations'.",
+              "type": "object",
+              "propertyNames": {"pattern": "^[A-Za-z][A-Za-z0-9_]*$"},
+              "additionalProperties": {"type": "number"}
+            },
+            "definitions": {
+              "description": "Named sub-expressions (e.g. a control law u), in order: each may use the states, the parameters and earlier definitions.",
+              "type": "object",
+              "propertyNames": {"pattern": "^[A-Za-z][A-Za-z0-9_]*$"},
+              "additionalProperties": {"type": "string", "minLength": 1}
             }
           }
         },
