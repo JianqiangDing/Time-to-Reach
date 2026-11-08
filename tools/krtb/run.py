@@ -3,7 +3,8 @@
     python -m tools.krtb.run --benchmark DUFF_FIN_REA_BOX [--setting setting_0]
     python -m tools.krtb.run --all
 
-For each benchmark: sample the initial and target sets, evaluate the principal
+For each benchmark: sample the initial and target sets (a target that contains
+the equilibrium also gets one point next to it, see equilibrium_sample), evaluate the principal
 eigenfunctions (analytic or path integral), compute reach-time bounds (with
 negated eigenvalues for backward benchmarks) clipped to the time horizon, and
 look for a simulated witness inside the bounds. Verdicts:
@@ -35,12 +36,48 @@ from .bounds import compute_reach_time_bounds
 
 TOOL = "krtb"
 PACKAGES = ("numpy", "scipy", "sympy", "cvxpy", "Mosek")
+EQUILIBRIUM_OFFSET = 1e-30  # distance (inf-norm) of the extra target point from the equilibrium, see equilibrium_sample
 
 
-def sample(s, n_interior, n_boundary, rng):
-    """Uniform interior samples, plus boundary samples (extrema of log|psi| often lie there)."""
-    X = s.sample(n_interior, rng)
-    return np.vstack([X, s.boundary_sample(n_boundary, rng)]) if n_boundary > 0 else X
+def sample(s, n_interior, n_boundary, rng, n_vertex=0):
+    """Uniform interior samples, plus samples on the boundary and towards the vertices (extrema of log|psi| lie there)."""
+    parts = [s.sample(n_interior, rng)]
+    if n_boundary > 0:
+        parts.append(s.boundary_sample(n_boundary, rng))
+    if n_vertex > 0:
+        parts.append(s.vertex_sample(n_vertex, rng))
+    return np.vstack(parts)
+
+
+def equilibrium_sample(target, equilibrium):
+    """One point of the target next to the equilibrium x_e, or None when the target does not contain x_e.
+
+    The point is added to the target samples mainly to avoid a large amount of useless sampling.
+    Every principal eigenfunction vanishes at x_e (s_t(x_e) = x_e gives psi(x_e) = e^{lambda t} psi(x_e)
+    for all t), so on a target that contains x_e the infimum of |psi| is 0 and the reach-time bound has
+    no upper end: the true bound is the time horizon. Uniform samples approach the zero set of a complex
+    psi (of codimension 2) only like N^(-1/2), so every tenfold increase of the samples adds only about
+    ln(10) / (2 |Re lambda|) to the sampled upper end, which stays below the true one. On the cart-pole
+    convergence benchmark (fast mode Re lambda = -3.62, horizon 12) the upper end moves from 3.51 with
+    16 000 samples to 3.99-4.12 with 511 000, and reaching the horizon would take about 1e30 samples.
+    A single point at the distance EQUILIBRIUM_OFFSET from x_e has a |psi| small enough for the upper
+    end to reach the horizon, and the result then no longer depends on the offset or on the seed.
+    x_e itself cannot be used: log|psi(x_e)| = -inf breaks the bound computation.
+
+    The direction comes from its own fixed generator, so the other samples and the witness search
+    draw the same random numbers as without this point.
+    """
+    if equilibrium is None:
+        return None
+    x_e = np.asarray(equilibrium, float)
+    if not np.atleast_1d(target.contains(x_e[None]))[0]:
+        return None
+    u = np.random.default_rng(0).uniform(-1.0, 1.0, x_e.size)
+    u /= np.abs(u).max()
+    for x in (x_e + EQUILIBRIUM_OFFSET * u, x_e - EQUILIBRIUM_OFFSET * u):
+        if np.any(x != x_e) and np.atleast_1d(target.contains(x[None]))[0]:
+            return x
+    return None
 
 
 def build_eigenfunctions(bm, spec, pi_defaults, rng):
@@ -73,13 +110,21 @@ def run(benchmark_id, setting="setting_0"):
     cfg = load_settings(TOOL, setting, benchmark_id)
     rng = np.random.default_rng(cfg["seed"])
 
-    X0 = sample(bm.initial_set, cfg["num_samples_initial"], cfg["boundary_samples_initial"], rng)
-    XF = sample(bm.target_set, cfg["num_samples_target"], cfg["boundary_samples_target"], rng)
+    X0 = sample(bm.initial_set, cfg["num_samples_initial"], cfg["boundary_samples_initial"], rng,
+                cfg.get("vertex_samples_initial", 0))
+    XF = sample(bm.target_set, cfg["num_samples_target"], cfg["boundary_samples_target"], rng,
+                cfg.get("vertex_samples_target", 0))
+    # a target that contains the equilibrium gets one point next to it instead of a huge sample (see equilibrium_sample)
+    x_eq = equilibrium_sample(bm.target_set, cfg["eigenfunctions"].get("equilibrium"))
+    if x_eq is not None:
+        XF = np.vstack([XF, x_eq])
     t_setup = time.perf_counter()
 
     # principal eigenpairs: the eigenvalues and the eigenfunction values on the samples
     eig = build_eigenfunctions(bm, cfg["eigenfunctions"], cfg["path_integral"], rng)
     ef0, efF = eig.evaluate(X0), eig.evaluate(XF)
+    if x_eq is not None and not np.all(np.abs(efF[-1]) > 0):  # psi underflowed to 0 (log 0): drop the point
+        XF, efF, x_eq = XF[:-1], efF[:-1], None
     t_eig = time.perf_counter()
 
     # The eigenfunctions of -f are those of f with negated eigenvalues.
@@ -115,6 +160,7 @@ def run(benchmark_id, setting="setting_0"):
         "bound_details": bounds.details,
         "witness": witness,
         "num_samples": {"initial": len(X0), "target": len(XF)},
+        "equilibrium_sample": None if x_eq is None else x_eq.tolist(),
     }
     params = {k: v for k, v in cfg.items()}
     runtime = {

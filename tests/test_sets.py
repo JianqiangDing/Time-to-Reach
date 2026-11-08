@@ -63,3 +63,26 @@ def test_make_set_checks_dimension():
 def test_invalid_box_bounds():
     with pytest.raises(ValueError):
         Box([[1, 0]])
+
+
+def test_vertex_samples_of_a_box_are_vertices():
+    b = Box([[0, 1], [2, 3], [-1, 1]])
+    X = b.vertex_sample(200, rng())
+    assert X.shape == (200, 3) and len(np.unique(X, axis=0)) == 8  # all vertices of the box
+    assert all(set(np.unique(X[:, d])) == set(b.bounds[d]) for d in range(3))
+
+
+def test_vertex_samples_of_a_level_set_lie_on_it_with_coordinates_at_the_bounds():
+    # the pole-tip set of the cart-pole benchmarks: the extrema of log|psi| are at x1 = 1, x2 on the level set
+    s = LevelSet("1.3 - x1 - sin(x2)", [[-1, 1], [-1, 1], [-2.5, 2.5]])
+    X = s.vertex_sample(500, rng())
+    assert X.shape == (500, 3) and np.all(s.contains(X))
+    assert np.max(np.abs(s.value(X))) < 1e-9  # on f = 0, inside
+    assert np.mean(X[:, 0] == 1) > 0.3 and np.mean(np.isin(X[:, 2], (-2.5, 2.5))) > 0.3
+
+
+def test_vertex_samples_of_a_union_cover_its_members():
+    u = Union([Box([[0.6, 0.7], [0.2, 0.3]]), Box([[1.0, 1.1], [1.0, 1.1]])])
+    X = u.vertex_sample(20, rng())
+    assert len(X) == 20 and np.all(u.contains(X)) and np.any(X[:, 0] < 0.8) and np.any(X[:, 0] > 0.9)
+

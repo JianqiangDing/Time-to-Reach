@@ -43,6 +43,10 @@ class Set:
         """Points on (or very near) the boundary; used to catch extreme trajectories."""
         raise NotImplementedError
 
+    def vertex_sample(self, n, rng):
+        """Points towards the vertices of the bounding box, which uniform samples miss in high dimension."""
+        raise NotImplementedError
+
     def margin_kind(self):
         return "euclidean_distance"
 
@@ -100,6 +104,9 @@ class Box(Set):
         side = rng.random(n) < 0.5
         pts[np.arange(n), face] = np.where(side, self.lower[face], self.upper[face])
         return np.vstack([self.corners(), pts])
+
+    def vertex_sample(self, n, rng):
+        return np.where(rng.random((n, self.lower.size)) < 0.5, self.lower, self.upper)
 
 
 @dataclass
@@ -193,6 +200,33 @@ class LevelSet(Set):
             b = np.where(in_mid[:, None], b, mid)
         return a
 
+    def vertex_sample(self, n, rng, at_bound=0.75, batch=20000, max_batches=500):
+        """Most coordinates at a bound of the box, the others free, then one coordinate bisected onto f = 0."""
+        lo, hi = self.box[:, 0], self.box[:, 1]
+        found = []
+        count = 0
+        for _ in range(max_batches):
+            x = self._box_set.sample(batch, rng)
+            bound = np.where(rng.random(x.shape) < 0.5, lo, hi)
+            x = np.where(rng.random(x.shape) < at_bound, bound, x)
+            j = rng.integers(self.dim, size=batch)
+            a, b = x.copy(), x.copy()  # the two ends of coordinate j
+            a[np.arange(batch), j], b[np.arange(batch), j] = lo[j], hi[j]
+            in_a, in_b = self.value(a) <= 0, self.value(b) <= 0
+            keep = in_a != in_b
+            inside = np.where(in_a[:, None], a, b)[keep]
+            outside = np.where(in_a[:, None], b, a)[keep]
+            for _ in range(40):
+                mid = 0.5 * (inside + outside)
+                in_mid = self.value(mid) <= 0
+                inside = np.where(in_mid[:, None], mid, inside)
+                outside = np.where(in_mid[:, None], outside, mid)
+            found.append(inside)
+            count += len(inside)
+            if count >= n:
+                return np.vstack(found)[:n]
+        raise ValueError(f"level set {self.function!r}: found {count} of {n} samples towards the vertices of its box")
+
     def boundary_touches_box(self, n=4000, rng=None):
         """True if the sublevel set reaches the bounding-box boundary (box may cut the set)."""
         rng = rng or np.random.default_rng(0)
@@ -229,6 +263,9 @@ class Union(Set):
 
     def boundary_sample(self, n, rng):
         return np.vstack([s.boundary_sample(m, rng) for s, m in zip(self.sets, self._split(n)) if m > 0])
+
+    def vertex_sample(self, n, rng):
+        return np.vstack([s.vertex_sample(m, rng) for s, m in zip(self.sets, self._split(n)) if m > 0])
 
     def margin_kind(self):
         kinds = {s.margin_kind() for s in self.sets}

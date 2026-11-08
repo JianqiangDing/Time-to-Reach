@@ -113,3 +113,52 @@ def test_runtime_is_split_into_eigenpairs_and_bounds():
     rt = run("NL_EIG_FIN_BACKWARD_UNR_BOX")["runtime_s"]
     assert {"setup", "eigenpairs", "bounds", "witness_search"} <= rt.keys()
     assert rt["krtb"] == pytest.approx(rt["eigenpairs"] + rt["bounds"])
+
+
+def test_samples_add_boundary_and_vertex_points_on_request():
+    from tools.common.sets import Box
+    from tools.krtb.run import sample
+    b = Box([[0, 1], [0, 1]])
+    g = np.random.default_rng(0)
+    assert len(sample(b, 10, 0, g)) == 10
+    X = sample(b, 10, 0, g, n_vertex=5)
+    assert len(X) == 15 and np.all(np.isin(X[-5:], (0, 1)))
+
+
+def test_the_setting_samples_boundaries_and_in_high_dimension_vertices():
+    from tools.common.settings import setting_names
+    assert setting_names("krtb") == ["setting_0"]  # one setting: the one whose bounds agree with the simulation
+    for bid in ("DUFF_FIN_REA_BOX", "NL_SLC_FIN_REA_BOX", "NL_EIG_FIN_BACKWARD_REA_BOX"):
+        cfg = load_settings("krtb", "setting_0", bid)
+        assert cfg["boundary_samples_initial"] > 0 and cfg["boundary_samples_target"] > 0
+        assert "vertex_samples_target" not in cfg
+    assert load_settings("krtb", "setting_0", "MAS_CON_FIN_REA_BOX")["vertex_samples_target"] > 0
+    assert load_settings("krtb", "setting_0", "CP_LQR_FIN_UNR_SAFE")["vertex_samples_target"] > 0
+
+
+
+def test_equilibrium_sample_is_a_target_point_next_to_the_equilibrium():
+    from tools.common.sets import Box
+    from tools.krtb.run import EQUILIBRIUM_OFFSET, equilibrium_sample
+    box = Box([[-0.1, 0.1], [-0.1, 0.1]])
+    x = equilibrium_sample(box, [0, 0])
+    assert x is not None and box.contains(x[None])[0] and 0 < np.abs(x).max() <= EQUILIBRIUM_OFFSET
+    assert equilibrium_sample(Box([[0.5, 1], [0.5, 1]]), [0, 0]) is None
+    assert equilibrium_sample(box, None) is None
+
+
+def test_equilibrium_sample_lifts_the_upper_end_to_the_horizon():
+    # x' = diag(-1, -2) x has psi = (x1, x2); from (1, 1) the state enters the box at ln 10 and stays in it,
+    # so the reach-time bound has no upper end. Uniform samples miss psi = 0 and cut the bound short.
+    from tools.common.sets import Box
+    from tools.krtb.run import equilibrium_sample, sample
+    box = Box([[-0.1, 0.1], [-0.1, 0.1]])
+    lams, e0 = np.array([-1.0, -2.0]), np.array([[1.0, 1.0]])
+    XF = sample(box, 1000, 1000, np.random.default_rng(0))
+    without = compute_reach_time_bounds(e0, XF, lams, horizon=(0.0, 20.0))
+    assert max(hi for _, hi in without.intervals) < 10
+    XF = np.vstack([XF, equilibrium_sample(box, [0, 0])])
+    with_point = compute_reach_time_bounds(e0, XF, lams, horizon=(0.0, 20.0))
+    assert len(with_point.intervals) == 1
+    lo, hi = with_point.intervals[0]
+    assert lo <= np.log(10) and hi == pytest.approx(20.0)
