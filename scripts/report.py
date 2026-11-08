@@ -23,12 +23,10 @@ It stands alone: it does not point to files of this repository or to other setti
 
 import argparse
 import base64
-import datetime
 import html
 import io
 import json
 import re
-import subprocess
 import sys
 from pathlib import Path
 
@@ -996,13 +994,6 @@ def result_row(tool, setting, record, row, compare=True, show_setting=True):
             f"<td class='desc'>{esc(record.get('detail', ''))}</td></tr>")
 
 
-def git_state():
-    def run(*args):
-        return subprocess.run(["git", *args], cwd=paths.REPO_ROOT, capture_output=True, text=True).stdout.strip()
-    return run("rev-parse", "--short", "HEAD"), bool(run("status", "--porcelain", "--", "results/summary", "tools",
-                                                        "configs", "scripts"))
-
-
 def katex_css():
     """KaTeX's style sheet with its woff2 fonts embedded (the other font formats dropped)."""
     def font(m):
@@ -1052,7 +1043,7 @@ and 1000 boundary samples of the initial set: {kinds}. The simulation under-appr
 
 
 def build(benchmarks, n_samples, seed, krtb_only=False):
-    sections, overview, columns, platforms = [], [], [], set()
+    sections, overview, columns = [], [], []
     per_bench = {}
     for bid in benchmarks:
         bm = load_benchmark(bid)
@@ -1060,7 +1051,6 @@ def build(benchmarks, n_samples, seed, krtb_only=False):
         results = [(t, s, r, evaluate(r, truth)) for t, s, r in tool_results(bid)
                    if (t, s) == ("krtb", KRTB_SETTING) or not krtb_only]
         for t, s, r, _ in results:
-            platforms.add(r["provenance"]["platform"])
             if (t, s) not in columns:
                 columns.append((t, s))
         per_bench[bid] = (bm, truth, results)
@@ -1101,8 +1091,6 @@ def build(benchmarks, n_samples, seed, krtb_only=False):
         overview.append(f"<tr><td class='bid'><a href='#{bid}'>{name}</a></td><td>{esc(truth['expected_result'])}</td>"
                         + sim + "".join(cells) + "</tr>")
 
-    commit, dirty = git_state()
-    stamp = datetime.datetime.now().astimezone().strftime("%Y-%m-%d %H:%M %Z")
     occurring = {status_of(row) for _, _, results in per_bench.values() for *_, row in results}
     statuses = {key for key, value in STATUS.items() if value in occurring}
     verdicts = {r["verdict"] for _, _, results in per_bench.values() for t, _, r, _ in results if t == "krtb"}
@@ -1112,8 +1100,6 @@ def build(benchmarks, n_samples, seed, krtb_only=False):
     toc = "".join(f"<li><a href='#{b}'>{esc(b)}</a></li>" for b in benchmarks)
     title = "KRTB results" if krtb_only else "Time-to-Reach results"
     heading = "Koopman reach-time bounds (KRTB): benchmark results" if krtb_only else "Time-to-Reach benchmark results"
-    source = "" if krtb_only else (f" by <code>python -m scripts.report</code> from <code>results/summary</code> at commit "
-                                   f"<code>{esc(commit)}</code>{' (with uncommitted changes)' if dirty else ''}")
     if krtb_only:
         overview_head = "<tr><th>benchmark</th><th>expected</th><th>simulated in-target times</th><th>KRTB</th></tr>"
     elif all(n == 1 for _, n in groups):  # one setting per tool: no row of setting names
@@ -1136,7 +1122,6 @@ document.addEventListener("DOMContentLoaded", () => {{
 </script></head>
 <body><main>
 <h1>{heading}</h1>
-<p class="meta">Generated {esc(stamp)}{source}. Results measured on: {esc('; '.join(sorted(platforms)))}.</p>
 __EXPLAINER__
 {reading_html(krtb_only, legend, statuses, verdicts)}
 
