@@ -10,22 +10,22 @@
   "time_horizon": [0.0, 6.0],
   "horizon_covered": true,
   "reach_time_bounds": [
-    [0.7233441720487447, 1.4475241357995237],
-    [4.969495282542604, 5.961497714944262]
+    [0.6917001555331505, 1.448665070684318],
+    [4.959538363133109, 5.962638649829056]
   ],
   "runtime_s": {
-    "total": 3.6665230420185253,
-    "setup": 0.00619508299860172,
-    "eigenpairs": 3.6475372920103837,
-    "bounds": 0.008263791998615488,
-    "krtb": 3.655801084008999,
-    "witness_search": 0.004526875010924414
+    "total": 7.386565458000405,
+    "setup": 0.006569707999005914,
+    "eigenpairs": 7.365503125009127,
+    "bounds": 0.009838458994636312,
+    "krtb": 7.375341584003763,
+    "witness_search": 0.004654165997635573
   },
   "params": {
     "num_samples_initial": 1000,
     "num_samples_target": 2000,
-    "boundary_samples_initial": 0,
-    "boundary_samples_target": 0,
+    "boundary_samples_initial": 1000,
+    "boundary_samples_target": 2000,
     "num_sim_samples": 1000,
     "seed": 0,
     "path_integral": {
@@ -41,10 +41,10 @@
     }
   },
   "provenance": {
-    "git_commit": "f343df849dabd991bb9795c662d80ecb86e3c855",
+    "git_commit": "e7b400355531d201bb3910d87c86cb082ffc2171",
     "git_dirty": true,
-    "timestamp": "2026-10-25T19:40:48+00:00",
-    "platform": "macOS-27.0.1-arm64-arm-64bit",
+    "timestamp": "2026-11-06T16:21:18+00:00",
+    "platform": "macOS-27.2-arm64-arm-64bit",
     "machine": "arm64",
     "versions": {
       "python": "3.12.15",
@@ -70,20 +70,20 @@
       "quadrature_points": 5001,
       "spectral_margin": 0.24999999999999994,
       "min_truncation_time": 98.26,
-      "max_relative_integrand_at_truncation": 4.449440195278488e-11
+      "max_relative_integrand_at_truncation": 4.455796015224265e-11
     },
     "bounds_status": "bounded",
     "bounds_unclipped": [
-      [0.7233441720487447, 1.4475241357995237],
-      [4.969495282542604, 5.961497714944262]
+      [0.6917001555331505, 1.448665070684318],
+      [4.959538363133109, 5.962638649829056]
     ],
-    "magnitude_interval": [0.7233441720487447, 5.970218749337392],
-    "phase_window": [-4.058451875746871, -3.066449443345214],
+    "magnitude_interval": [0.6917001555331505, 5.99588924987638],
+    "phase_window": [-4.068408795156366, -3.0653085084604195],
     "period": 4.5139735791447375,
     "bound_details": {
       "magnitude": {
         "growing_cone": ["-inf", "inf"],
-        "decaying_cone": [0.7233441720487447, 5.970218749337392],
+        "decaying_cone": [0.6917001555331505, 5.99588924987638],
         "lfp_status": ["infeasible", "infeasible", "optimal", "optimal"]
       },
       "phase": {
@@ -93,12 +93,12 @@
     },
     "witness": {
       "x0": [-0.8, 1.8],
-      "first_hit_time": 5.1163926722294075,
+      "first_hit_time": 5.116392672229407,
       "inside_bounds": true
     },
     "num_samples": {
-      "initial": 1000,
-      "target": 2000
+      "initial": 2004,
+      "target": 4008
     }
   }
 }

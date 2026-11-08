@@ -3,33 +3,34 @@
   "benchmark": "DUFF_FIN_REA_BALL",
   "tool": "hj",
   "setting": "setting_0",
-  "verdict": "unknown",
+  "verdict": "reachable_estimated",
   "expected_result": "reachable",
-  "agrees_with_expected": null,
-  "detail": "min V over the initial set -0.00342 within the grid margin +-0.00641",
+  "agrees_with_expected": true,
+  "detail": "min V over the initial set -0.00342 <= 0",
   "time_horizon": [0.0, 6.0],
   "horizon_covered": true,
   "reach_time_bounds": null,
   "runtime_s": {
-    "setup": 0.19731049999245442,
-    "compile_and_first_step": 0.1928909590060357,
-    "solve": 22.611220207996666,
-    "total": 23.03318916700664
+    "setup": 0.1812408329860773,
+    "compile_and_first_step": 0.14927395901759155,
+    "solve": 21.611512207979104,
+    "total": 22.372320750000654
   },
   "params": {
     "grid_size": 500,
     "accuracy": "medium",
     "time_step_report": 0.005,
-    "margin_cells": 1.0,
     "num_samples_initial": 2000,
     "boundary_samples_initial": 2000,
-    "seed": 0
+    "seed": 0,
+    "memory_limit_gb": 8,
+    "timeout_s": 1800
   },
   "provenance": {
-    "git_commit": "f343df849dabd991bb9795c662d80ecb86e3c855",
+    "git_commit": "e7b400355531d201bb3910d87c86cb082ffc2171",
     "git_dirty": true,
-    "timestamp": "2026-10-25T17:57:09+00:00",
-    "platform": "macOS-27.0.1-arm64-arm-64bit",
+    "timestamp": "2026-11-06T17:19:47+00:00",
+    "platform": "macOS-27.2-arm64-arm-64bit",
     "machine": "arm64",
     "versions": {
       "python": "3.12.15",
@@ -44,10 +45,13 @@
     "direction": "forward",
     "grid_shape": [500, 500],
     "grid_spacing": [0.006012024357914925, 0.006412826012820005],
-    "margin": 0.006412826012820005,
     "min_value_over_initial": -0.003419537330046296,
     "first_reach_time_estimate": 2.595,
     "num_initial_samples": 4000,
-    "jax_devices": ["cpu:0"]
+    "jax_devices": ["cpu:0"],
+    "memory_limit_gb": 8,
+    "grid_nodes": 250000.0,
+    "grid_memory_gb": 0.003,
+    "peak_memory_gb": 0.204816384
   }
 }

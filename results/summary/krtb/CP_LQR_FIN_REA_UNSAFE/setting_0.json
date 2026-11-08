@@ -6,25 +6,25 @@
   "verdict": "reachable_witness",
   "expected_result": "reachable",
   "agrees_with_expected": true,
-  "detail": "witness reaches the target at t = 0.6788",
+  "detail": "witness reaches the target at t = 0.8277",
   "time_horizon": [0.0, 10.0],
   "horizon_covered": true,
   "reach_time_bounds": [
-    [0.0, 0.98077212969134]
+    [0.0, 1.722511526286091]
   ],
   "runtime_s": {
-    "total": 2.058707875024993,
-    "setup": 0.01085837502614595,
-    "eigenpairs": 2.0356073750008363,
-    "bounds": 0.008575416984967887,
-    "krtb": 2.044182791985804,
-    "witness_search": 0.0036667080130428076
+    "total": 55.962861207997776,
+    "setup": 0.03469333300017752,
+    "eigenpairs": 55.90789937500085,
+    "bounds": 0.0134066669997992,
+    "krtb": 55.92130604200065,
+    "witness_search": 0.0068618329969467595
   },
   "params": {
     "num_samples_initial": 1,
-    "num_samples_target": 1000,
+    "num_samples_target": 10000,
     "boundary_samples_initial": 0,
-    "boundary_samples_target": 0,
+    "boundary_samples_target": 2000,
     "num_sim_samples": 100,
     "seed": 0,
     "path_integral": {
@@ -37,13 +37,14 @@
       "method": "path_integral",
       "equilibrium": [0, 0, 0, 0],
       "T": 50
-    }
+    },
+    "vertex_samples_target": 20000
   },
   "provenance": {
-    "git_commit": "f343df849dabd991bb9795c662d80ecb86e3c855",
+    "git_commit": "e7b400355531d201bb3910d87c86cb082ffc2171",
     "git_dirty": true,
-    "timestamp": "2026-10-25T19:40:33+00:00",
-    "platform": "macOS-27.0.1-arm64-arm-64bit",
+    "timestamp": "2026-11-08T13:54:01+00:00",
+    "platform": "macOS-27.2-arm64-arm-64bit",
     "machine": "arm64",
     "versions": {
       "python": "3.12.15",
@@ -57,10 +58,10 @@
   "extra": {
     "direction": "forward",
     "eigenvalues": [
-      [-0.6333493484919319, 0.4730037601800394],
-      [-0.6333493484919319, -0.4730037601800394],
-      [-0.7524228567186646, 3.9970732481353055],
-      [-0.7524228567186646, -3.9970732481353055]
+      [-0.770572688971497, 0.6286999186817913],
+      [-0.770572688971497, -0.6286999186817913],
+      [-0.8584987199849408, 3.698151656978766],
+      [-0.8584987199849408, -3.698151656978766]
     ],
     "eigenfunctions": {
       "method": "path_integral",
@@ -69,21 +70,21 @@
       "rtol": 1e-12,
       "atol": 1e-14,
       "quadrature_points": 2501,
-      "spectral_margin": 0.5142758402651992,
-      "min_truncation_time": 23.16,
-      "max_relative_integrand_at_truncation": 3.5343766065531276e-14
+      "spectral_margin": 0.6826466579580532,
+      "min_truncation_time": 20.2,
+      "max_relative_integrand_at_truncation": 4.167220863802678e-13
     },
     "bounds_status": "bounded",
     "bounds_unclipped": [
-      [0.0, 0.98077212969134]
+      [0.0, 1.722511526286091]
     ],
-    "magnitude_interval": [-2.0442235844000014, 0.98077212969134],
-    "phase_window": [-0.6376094775648176, 0.9333704195901871],
-    "period": 1.5719465011332445,
+    "magnitude_interval": [-0.9555547826771804, 1.722511526286091],
+    "phase_window": [-0.7889958586194071, 0.9096906973956348],
+    "period": 1.69900693372664,
     "bound_details": {
       "magnitude": {
         "growing_cone": ["-inf", "inf"],
-        "decaying_cone": [-2.0442235844000014, 0.98077212969134],
+        "decaying_cone": [-0.9555547826771804, 1.722511526286091],
         "lfp_status": ["infeasible", "infeasible", "optimal", "optimal"]
       },
       "phase": {
@@ -92,13 +93,14 @@
       }
     },
     "witness": {
-      "x0": [0.8, 0.3, -0.785398, 0.2],
-      "first_hit_time": 0.6788462103709884,
+      "x0": [0.8, 0.3, -0.7853981633974483, 0.2],
+      "first_hit_time": 0.8276667883804667,
       "inside_bounds": true
     },
     "num_samples": {
       "initial": 1,
-      "target": 1000
-    }
+      "target": 32000
+    },
+    "equilibrium_sample": null
   }
 }

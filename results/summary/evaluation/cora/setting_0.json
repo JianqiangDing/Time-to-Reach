@@ -8,48 +8,39 @@
       "expected_result": "reachable",
       "simulation": "reachable_witness",
       "verdict_check": "consistent",
-      "runtime_s": 9.979310541995801,
+      "runtime_s": 20.86637299999711,
       "bounds": [
-        [10.15, 12]
+        [9.94, 12]
       ],
       "simulated_in_target_times": [
-        [10.22098384022408, 10.668085249484312],
-        [10.754360273591333, 12.0]
+        [9.951599007245681, 12.0]
       ],
       "bounds_cover_simulation": true,
       "missed_times": []
     },
     {
       "benchmark": "CP_LQR_FIN_REA_UNSAFE",
-      "verdict": "reachable_possible",
+      "verdict": "unsupported",
       "expected_result": "reachable",
       "simulation": "reachable_witness",
       "verdict_check": "no claim",
-      "runtime_s": 9.124917540990282,
-      "bounds": [
-        [0.65, 0.9]
-      ],
-      "simulated_in_target_times": [
-        [0.6788462101513657, 0.855]
-      ],
-      "bounds_cover_simulation": true,
-      "missed_times": []
+      "runtime_s": 0.008927249989937991
     },
     {
       "benchmark": "CP_LQR_FIN_UNR_SAFE",
-      "verdict": "unreachable_proven",
+      "verdict": "unsupported",
       "expected_result": "unreachable",
       "simulation": "unreachable_estimated",
-      "verdict_check": "consistent",
-      "runtime_s": 8.367833083961159
+      "verdict_check": "no claim",
+      "runtime_s": 0.008605875002103858
     },
     {
       "benchmark": "DUFF_FIN_REA_BALL",
-      "verdict": "set_explosion",
+      "verdict": "unsupported",
       "expected_result": "reachable",
       "simulation": "reachable_witness",
       "verdict_check": "no claim",
-      "runtime_s": 8.032963750010822
+      "runtime_s": 0.0063411669980268925
     },
     {
       "benchmark": "DUFF_FIN_REA_BOX",
@@ -57,7 +48,7 @@
       "expected_result": "reachable",
       "simulation": "reachable_witness",
       "verdict_check": "no claim",
-      "runtime_s": 14.885806249978486,
+      "runtime_s": 13.944449333997909,
       "bounds": [
         [5.07, 6]
       ],
@@ -69,37 +60,27 @@
     },
     {
       "benchmark": "DUFF_FIN_REA_DISJOINT_BOX",
-      "verdict": "reachable_possible",
+      "verdict": "unsupported",
       "expected_result": "reachable",
       "simulation": "reachable_witness",
       "verdict_check": "no claim",
-      "runtime_s": 11.988635500019882,
-      "bounds": [
-        [1.23, 1.5],
-        [4.73, 5.83]
-      ],
-      "simulated_in_target_times": [
-        [1.2462635922401541, 1.4393312853484082],
-        [4.975847659979936, 5.421003026212117]
-      ],
-      "bounds_cover_simulation": true,
-      "missed_times": []
+      "runtime_s": 0.0063299169996753335
     },
     {
       "benchmark": "DUFF_FIN_REA_NONCONVEX_LEVEL_SET",
-      "verdict": "set_explosion",
+      "verdict": "unsupported",
       "expected_result": "reachable",
       "simulation": "reachable_witness",
       "verdict_check": "no claim",
-      "runtime_s": 7.193735875014681
+      "runtime_s": 0.015983416000381112
     },
     {
       "benchmark": "DUFF_FIN_UNR_BALL",
-      "verdict": "set_explosion",
+      "verdict": "unsupported",
       "expected_result": "unreachable",
       "simulation": "unreachable_estimated",
       "verdict_check": "no claim",
-      "runtime_s": 11.329320874996483
+      "runtime_s": 0.00598333400557749
     },
     {
       "benchmark": "DUFF_FIN_UNR_BOX",
@@ -107,7 +88,7 @@
       "expected_result": "unreachable",
       "simulation": "unreachable_estimated",
       "verdict_check": "no claim",
-      "runtime_s": 16.56474395794794
+      "runtime_s": 14.679117249994306
     },
     {
       "benchmark": "MAS_CON_FIN_REA_BOX",
@@ -115,7 +96,7 @@
       "expected_result": "reachable",
       "simulation": "reachable_witness",
       "verdict_check": "consistent",
-      "runtime_s": 57.605997166014276,
+      "runtime_s": 57.649950916995294,
       "bounds": [
         [5.6899999999999995, 7]
       ],
@@ -131,7 +112,7 @@
       "expected_result": "unreachable",
       "simulation": "unreachable_estimated",
       "verdict_check": "consistent",
-      "runtime_s": 59.383096000005025
+      "runtime_s": 57.670262958999956
     },
     {
       "benchmark": "MAS_CON_FIN_UNR_SAFE_1",
@@ -139,23 +120,23 @@
       "expected_result": "unreachable",
       "simulation": "unreachable_estimated",
       "verdict_check": "consistent",
-      "runtime_s": 63.30488320795121
+      "runtime_s": 57.95704087498598
     },
     {
       "benchmark": "NL_EIG_FIN_BACKWARD_REA_BOX",
-      "verdict": "set_explosion",
+      "verdict": "unsupported",
       "expected_result": "reachable",
       "simulation": "reachable_witness",
       "verdict_check": "no claim",
-      "runtime_s": 7.336186625005212
+      "runtime_s": 0.010322707996238023
     },
     {
       "benchmark": "NL_EIG_FIN_BACKWARD_UNR_BOX",
-      "verdict": "set_explosion",
+      "verdict": "unsupported",
       "expected_result": "unreachable",
       "simulation": "unreachable_estimated",
       "verdict_check": "no claim",
-      "runtime_s": 7.966951875016093
+      "runtime_s": 0.008405040978686884
     },
     {
       "benchmark": "NL_SLC_FIN_REA_BOX",
@@ -163,7 +144,7 @@
       "expected_result": "reachable",
       "simulation": "reachable_witness",
       "verdict_check": "no claim",
-      "runtime_s": 11.368618374981452
+      "runtime_s": 8.135435250005685
     },
     {
       "benchmark": "NL_SLC_FIN_UNR_BOX",
@@ -171,7 +152,7 @@
       "expected_result": "unreachable",
       "simulation": "unreachable_estimated",
       "verdict_check": "no claim",
-      "runtime_s": 9.45816354098497
+      "runtime_s": 8.143532041984145
     }
   ]
 }

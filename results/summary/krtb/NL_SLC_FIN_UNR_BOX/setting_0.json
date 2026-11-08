@@ -11,18 +11,18 @@
   "horizon_covered": true,
   "reach_time_bounds": [],
   "runtime_s": {
-    "total": 0.023557750013424084,
-    "setup": 0.008981874998426065,
-    "eigenpairs": 0.0054366250114981085,
-    "bounds": 0.009138791996520013,
-    "krtb": 0.014575417008018121,
-    "witness_search": 4.580069798976183e-07
+    "total": 0.022119207977084443,
+    "setup": 0.007544749998487532,
+    "eigenpairs": 0.005522583000129089,
+    "bounds": 0.009051375003764406,
+    "krtb": 0.014573958003893495,
+    "witness_search": 4.999747034162283e-07
   },
   "params": {
     "num_samples_initial": 2000,
     "num_samples_target": 2000,
-    "boundary_samples_initial": 0,
-    "boundary_samples_target": 0,
+    "boundary_samples_initial": 2000,
+    "boundary_samples_target": 2000,
     "num_sim_samples": 100,
     "seed": 0,
     "path_integral": {
@@ -38,10 +38,10 @@
     }
   },
   "provenance": {
-    "git_commit": "f343df849dabd991bb9795c662d80ecb86e3c855",
+    "git_commit": "e7b400355531d201bb3910d87c86cb082ffc2171",
     "git_dirty": true,
-    "timestamp": "2026-10-25T19:41:27+00:00",
-    "platform": "macOS-27.0.1-arm64-arm-64bit",
+    "timestamp": "2026-11-06T16:24:33+00:00",
+    "platform": "macOS-27.2-arm64-arm-64bit",
     "machine": "arm64",
     "versions": {
       "python": "3.12.15",
@@ -61,17 +61,17 @@
     "eigenfunctions": {
       "method": "analytic",
       "functions": ["(1 - x1^2 - x2^2)^2*exp(I*atan2(x2, x1))", "(1 - x1^2 - x2^2)^2*exp(-I*atan2(x2, x1))"],
-      "max_relative_eigen_residual": 5.512089143795366e-14
+      "max_relative_eigen_residual": 9.557443504251727e-15
     },
     "bounds_status": "empty",
     "bounds_unclipped": [],
-    "magnitude_interval": [2.948276499510292, 3.7330961279406223],
-    "phase_window": [-0.08415246644414542, 0.08536072238120873],
+    "magnitude_interval": [2.9344256045522785, 3.7457459109196773],
+    "phase_window": [-0.08697851159587278, 0.08697851159587267],
     "period": 6.283185307179586,
     "bound_details": {
       "magnitude": {
         "growing_cone": ["-inf", "inf"],
-        "decaying_cone": [2.948276499510292, 3.7330961279406223],
+        "decaying_cone": [2.9344256045522785, 3.7457459109196773],
         "lfp_status": ["infeasible", "infeasible", "optimal", "optimal"]
       },
       "phase": {
@@ -81,8 +81,8 @@
     },
     "witness": null,
     "num_samples": {
-      "initial": 2000,
-      "target": 2000
+      "initial": 4004,
+      "target": 4004
     }
   }
 }

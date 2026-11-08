@@ -8,22 +8,15 @@
       "expected_result": "reachable",
       "simulation": "reachable_witness",
       "verdict_check": "consistent",
-      "runtime_s": 1.41473366698483,
+      "runtime_s": 6.884681458002888,
       "bounds": [
-        [8.654096508445935, 8.792908533252835],
-        [8.794580078092908, 10.364855034386078],
-        [10.366526579226154, 11.936801535519324],
-        [11.938473080359397, 12.0]
+        [8.168143360602157, 12.0]
       ],
       "simulated_in_target_times": [
-        [10.22098384022408, 10.668085249484312],
-        [10.754360273591333, 12.0]
+        [9.951599007245681, 12.0]
       ],
-      "bounds_cover_simulation": false,
-      "missed_times": [
-        [10.364855034386078, 10.366526579226154],
-        [11.936801535519324, 11.938473080359397]
-      ]
+      "bounds_cover_simulation": true,
+      "missed_times": []
     },
     {
       "benchmark": "CP_LQR_FIN_REA_UNSAFE",
@@ -31,12 +24,12 @@
       "expected_result": "reachable",
       "simulation": "reachable_witness",
       "verdict_check": "consistent",
-      "runtime_s": 2.058707875024993,
+      "runtime_s": 55.962861207997776,
       "bounds": [
-        [0.0, 0.98077212969134]
+        [0.0, 1.722511526286091]
       ],
       "simulated_in_target_times": [
-        [0.6788462101513657, 0.855]
+        [0.8292065727144532, 1.1425420189448672]
       ],
       "bounds_cover_simulation": true,
       "missed_times": []
@@ -47,7 +40,7 @@
       "expected_result": "unreachable",
       "simulation": "unreachable_estimated",
       "verdict_check": "consistent",
-      "runtime_s": 2.0989162499899976
+      "runtime_s": 54.54839287500363
     },
     {
       "benchmark": "DUFF_FIN_REA_BALL",
@@ -55,17 +48,15 @@
       "expected_result": "reachable",
       "simulation": "reachable_witness",
       "verdict_check": "consistent",
-      "runtime_s": 4.037875915993936,
+      "runtime_s": 6.478601374983555,
       "bounds": [
-        [1.5318342799519682, 2.6008629683904827]
+        [1.5297997081081465, 2.6135562324354797]
       ],
       "simulated_in_target_times": [
         [2.5616187686573246, 2.612978208762301]
       ],
-      "bounds_cover_simulation": false,
-      "missed_times": [
-        [2.6008629683904827, 2.612978208762301]
-      ]
+      "bounds_cover_simulation": true,
+      "missed_times": []
     },
     {
       "benchmark": "DUFF_FIN_REA_BOX",
@@ -73,17 +64,15 @@
       "expected_result": "reachable",
       "simulation": "reachable_witness",
       "verdict_check": "consistent",
-      "runtime_s": 5.3740566660126206,
+      "runtime_s": 7.459495042014169,
       "bounds": [
-        [5.409987881267058, 5.626676048924815]
+        [5.396268702078449, 5.657547063076689]
       ],
       "simulated_in_target_times": [
         [5.608055856125938, 5.643324848881654]
       ],
-      "bounds_cover_simulation": false,
-      "missed_times": [
-        [5.626676048924815, 5.643324848881654]
-      ]
+      "bounds_cover_simulation": true,
+      "missed_times": []
     },
     {
       "benchmark": "DUFF_FIN_REA_DISJOINT_BOX",
@@ -91,10 +80,10 @@
       "expected_result": "reachable",
       "simulation": "reachable_witness",
       "verdict_check": "consistent",
-      "runtime_s": 3.6665230420185253,
+      "runtime_s": 7.386565458000405,
       "bounds": [
-        [0.7233441720487447, 1.4475241357995237],
-        [4.969495282542604, 5.961497714944262]
+        [0.6917001555331505, 1.448665070684318],
+        [4.959538363133109, 5.962638649829056]
       ],
       "simulated_in_target_times": [
         [1.2462635922401541, 1.4393312853484082],
@@ -109,17 +98,15 @@
       "expected_result": "reachable",
       "simulation": "reachable_witness",
       "verdict_check": "consistent",
-      "runtime_s": 2.4144991250068415,
+      "runtime_s": 4.814366958977189,
       "bounds": [
-        [5.057429054333465, 5.8268064577759615]
+        [5.048379116659507, 5.830674297735419]
       ],
       "simulated_in_target_times": [
         [5.050584273941884, 5.808]
       ],
-      "bounds_cover_simulation": false,
-      "missed_times": [
-        [5.050584273941884, 5.057429054333465]
-      ]
+      "bounds_cover_simulation": true,
+      "missed_times": []
     },
     {
       "benchmark": "DUFF_FIN_UNR_BALL",
@@ -127,7 +114,7 @@
       "expected_result": "unreachable",
       "simulation": "unreachable_estimated",
       "verdict_check": "no claim",
-      "runtime_s": 2.646601250016829
+      "runtime_s": 5.079917249997379
     },
     {
       "benchmark": "DUFF_FIN_UNR_BOX",
@@ -135,7 +122,7 @@
       "expected_result": "unreachable",
       "simulation": "unreachable_estimated",
       "verdict_check": "no claim",
-      "runtime_s": 2.7242136250133626
+      "runtime_s": 5.22978416600381
     },
     {
       "benchmark": "MAS_CON_FIN_REA_BOX",
@@ -143,9 +130,9 @@
       "expected_result": "reachable",
       "simulation": "reachable_witness",
       "verdict_check": "consistent",
-      "runtime_s": 10.075363790994743,
+      "runtime_s": 57.08188208399952,
       "bounds": [
-        [5.460729988881863, 7.0]
+        [4.948831663923701, 7.0]
       ],
       "simulated_in_target_times": [
         [5.734547122148391, 7.0]
@@ -159,7 +146,7 @@
       "expected_result": "unreachable",
       "simulation": "unreachable_estimated",
       "verdict_check": "consistent",
-      "runtime_s": 10.091706334002083
+      "runtime_s": 60.47605987501447
     },
     {
       "benchmark": "MAS_CON_FIN_UNR_SAFE_1",
@@ -167,7 +154,7 @@
       "expected_result": "unreachable",
       "simulation": "unreachable_estimated",
       "verdict_check": "consistent",
-      "runtime_s": 9.978513582987944
+      "runtime_s": 60.52551270800177
     },
     {
       "benchmark": "NL_EIG_FIN_BACKWARD_REA_BOX",
@@ -175,9 +162,9 @@
       "expected_result": "reachable",
       "simulation": "reachable_witness",
       "verdict_check": "consistent",
-      "runtime_s": 0.19724591699196026,
+      "runtime_s": 0.25744566702633165,
       "bounds": [
-        [0.7615381796395024, 0.8824451795085926]
+        [0.7604545766415112, 0.883546210624822]
       ],
       "simulated_in_target_times": [
         [0.797487212914619, 0.8774090014956033]
@@ -191,7 +178,7 @@
       "expected_result": "unreachable",
       "simulation": "unreachable_estimated",
       "verdict_check": "consistent",
-      "runtime_s": 0.02143912500469014
+      "runtime_s": 0.019230957987019792
     },
     {
       "benchmark": "NL_SLC_FIN_REA_BOX",
@@ -199,19 +186,17 @@
       "expected_result": "reachable",
       "simulation": "reachable_witness",
       "verdict_check": "consistent",
-      "runtime_s": 0.039283833000808954,
+      "runtime_s": 0.03873229201417416,
       "bounds": [
-        [6.429228938565771, 6.6263985092287125],
-        [12.712414245745357, 12.909583816408299]
+        [6.425672235863621, 6.62798736036857],
+        [12.708857543043207, 12.911172667548156]
       ],
       "simulated_in_target_times": [
         [6.427943147152325, 6.608016395798662],
         [12.787337730150693, 12.866415328125933]
       ],
-      "bounds_cover_simulation": false,
-      "missed_times": [
-        [6.427943147152325, 6.429228938565771]
-      ]
+      "bounds_cover_simulation": true,
+      "missed_times": []
     },
     {
       "benchmark": "NL_SLC_FIN_UNR_BOX",
@@ -219,7 +204,7 @@
       "expected_result": "unreachable",
       "simulation": "unreachable_estimated",
       "verdict_check": "consistent",
-      "runtime_s": 0.023557750013424084
+      "runtime_s": 0.022119207977084443
     }
   ]
 }

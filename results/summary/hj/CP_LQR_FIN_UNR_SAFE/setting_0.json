@@ -3,39 +3,31 @@
   "benchmark": "CP_LQR_FIN_UNR_SAFE",
   "tool": "hj",
   "setting": "setting_0",
-  "verdict": "unreachable_estimated",
+  "verdict": "out_of_memory",
   "expected_result": "unreachable",
-  "agrees_with_expected": true,
-  "detail": "min V over the initial set 0.341 >= 0.15",
+  "agrees_with_expected": null,
+  "detail": "grid of 100^4 = 1e+08 nodes: memory use reached 8.41 GB after 1.12 s, above the memory limit of 8 GB",
   "time_horizon": [0.0, 10.0],
-  "horizon_covered": true,
+  "horizon_covered": null,
   "reach_time_bounds": null,
   "runtime_s": {
-    "setup": 0.5182054589968175,
-    "compile_and_first_step": 0.8217060829920229,
-    "solve": 398.7754189170082,
-    "total": 400.1282963750127
+    "total": 1.2044400840095477
   },
   "params": {
-    "grid_size": 41,
-    "accuracy": "medium",
-    "time_step_report": 0.01,
-    "margin_cells": 1.0,
+    "grid_size": 100,
+    "accuracy": "low",
+    "time_step_report": 0.005,
     "num_samples_initial": 2000,
     "boundary_samples_initial": 2000,
     "seed": 0,
-    "grid_domain": [
-      [-1.5, 1.5],
-      [-1.5, 1.5],
-      [-1.5, 1.5],
-      [-3, 3]
-    ]
+    "memory_limit_gb": 8,
+    "timeout_s": 1800
   },
   "provenance": {
-    "git_commit": "f343df849dabd991bb9795c662d80ecb86e3c855",
+    "git_commit": "e7b400355531d201bb3910d87c86cb082ffc2171",
     "git_dirty": true,
-    "timestamp": "2026-10-25T17:56:46+00:00",
-    "platform": "macOS-27.0.1-arm64-arm-64bit",
+    "timestamp": "2026-11-08T13:56:03+00:00",
+    "platform": "macOS-27.2-arm64-arm-64bit",
     "machine": "arm64",
     "versions": {
       "python": "3.12.15",
@@ -47,13 +39,10 @@
     }
   },
   "extra": {
-    "direction": "forward",
-    "grid_shape": [41, 41, 41, 41],
-    "grid_spacing": [0.07500000298023224, 0.07500000298023224, 0.07500000298023224, 0.15000000596046448],
-    "margin": 0.15000000596046448,
-    "min_value_over_initial": 0.3414192795753479,
-    "first_reach_time_estimate": null,
-    "num_initial_samples": 1,
-    "jax_devices": ["cpu:0"]
+    "memory_limit_gb": 8,
+    "grid_nodes": 100000000.0,
+    "grid_memory_gb": 2.0,
+    "started": true,
+    "peak_memory_gb": 8.414838784
   }
 }

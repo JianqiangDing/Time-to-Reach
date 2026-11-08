@@ -11,9 +11,9 @@
   "horizon_covered": true,
   "reach_time_bounds": null,
   "runtime_s": {
-    "total": 1.9765424999932293,
-    "dreach": 1.72,
-    "container_overhead": 0.2565424999932293
+    "total": 3.226795124995988,
+    "dreach": 2.95,
+    "container_overhead": 0.2767951249959877
   },
   "params": {
     "image": "dreach:dreal3-7f31797b",
@@ -25,10 +25,10 @@
     "emulated": true
   },
   "provenance": {
-    "git_commit": "f343df849dabd991bb9795c662d80ecb86e3c855",
+    "git_commit": "e7b400355531d201bb3910d87c86cb082ffc2171",
     "git_dirty": true,
-    "timestamp": "2026-10-25T11:30:20+00:00",
-    "platform": "macOS-27.0.1-arm64-arm-64bit",
+    "timestamp": "2026-11-08T13:55:58+00:00",
+    "platform": "macOS-27.2-arm64-arm-64bit",
     "machine": "arm64",
     "versions": {
       "python": "3.12.15",

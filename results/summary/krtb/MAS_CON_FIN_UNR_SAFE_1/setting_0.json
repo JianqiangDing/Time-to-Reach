@@ -11,18 +11,18 @@
   "horizon_covered": true,
   "reach_time_bounds": [],
   "runtime_s": {
-    "total": 9.978513582987944,
-    "setup": 0.06275849998928607,
-    "eigenpairs": 9.90902466600528,
-    "bounds": 0.006729084008838981,
-    "krtb": 9.915753750014119,
-    "witness_search": 1.3329845387488604e-06
+    "total": 60.52551270800177,
+    "setup": 0.06918445799965411,
+    "eigenpairs": 60.44784741700278,
+    "bounds": 0.008480416989186779,
+    "krtb": 60.45632783399196,
+    "witness_search": 4.1601015254855156e-07
   },
   "params": {
     "num_samples_initial": 100,
     "num_samples_target": 1000,
-    "boundary_samples_initial": 0,
-    "boundary_samples_target": 0,
+    "boundary_samples_initial": 100,
+    "boundary_samples_target": 1000,
     "num_sim_samples": 1000,
     "seed": 0,
     "path_integral": {
@@ -35,13 +35,15 @@
       "method": "path_integral",
       "equilibrium": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
       "T": 70
-    }
+    },
+    "vertex_samples_initial": 2000,
+    "vertex_samples_target": 2000
   },
   "provenance": {
-    "git_commit": "f343df849dabd991bb9795c662d80ecb86e3c855",
+    "git_commit": "e7b400355531d201bb3910d87c86cb082ffc2171",
     "git_dirty": true,
-    "timestamp": "2026-10-25T19:41:26+00:00",
-    "platform": "macOS-27.0.1-arm64-arm-64bit",
+    "timestamp": "2026-11-06T16:24:33+00:00",
+    "platform": "macOS-27.2-arm64-arm-64bit",
     "machine": "arm64",
     "versions": {
       "python": "3.12.15",
@@ -80,8 +82,8 @@
       "atol": 1e-14,
       "quadrature_points": 3501,
       "spectral_margin": 0.011999999999999789,
-      "min_truncation_time": 29.84,
-      "max_relative_integrand_at_truncation": 5.630885450737949e-05
+      "min_truncation_time": 0.0,
+      "max_relative_integrand_at_truncation": 1.177716083209105
     },
     "bounds_status": "empty",
     "bounds_unclipped": [],
@@ -91,14 +93,14 @@
     "bound_details": {
       "magnitude": {
         "growing_cone": ["-inf", "inf"],
-        "decaying_cone": [5.264029503259052, -4.177960311416667],
+        "decaying_cone": [4.752379277701145, -3.723180083601383],
         "lfp_status": ["infeasible", "infeasible", "optimal", "optimal"]
       }
     },
     "witness": null,
     "num_samples": {
-      "initial": 100,
-      "target": 1000
+      "initial": 2200,
+      "target": 4000
     }
   }
 }

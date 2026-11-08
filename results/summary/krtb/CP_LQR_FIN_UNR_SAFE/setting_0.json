@@ -11,18 +11,18 @@
   "horizon_covered": true,
   "reach_time_bounds": [],
   "runtime_s": {
-    "total": 2.0989162499899976,
-    "setup": 0.017181500006699935,
-    "eigenpairs": 2.0758623750007246,
-    "bounds": 0.0058716670027934015,
-    "krtb": 2.081734042003518,
-    "witness_search": 7.079797796905041e-07
+    "total": 54.54839287500363,
+    "setup": 0.046722708008019254,
+    "eigenpairs": 54.49450404199888,
+    "bounds": 0.007164583003032021,
+    "krtb": 54.50166862500191,
+    "witness_search": 1.5419936971738935e-06
   },
   "params": {
     "num_samples_initial": 1,
-    "num_samples_target": 1000,
+    "num_samples_target": 10000,
     "boundary_samples_initial": 0,
-    "boundary_samples_target": 0,
+    "boundary_samples_target": 2000,
     "num_sim_samples": 100,
     "seed": 0,
     "path_integral": {
@@ -35,13 +35,14 @@
       "method": "path_integral",
       "equilibrium": [0, 0, 0, 0],
       "T": 50
-    }
+    },
+    "vertex_samples_target": 20000
   },
   "provenance": {
-    "git_commit": "f343df849dabd991bb9795c662d80ecb86e3c855",
+    "git_commit": "e7b400355531d201bb3910d87c86cb082ffc2171",
     "git_dirty": true,
-    "timestamp": "2026-10-25T19:40:35+00:00",
-    "platform": "macOS-27.0.1-arm64-arm-64bit",
+    "timestamp": "2026-11-08T13:54:56+00:00",
+    "platform": "macOS-27.2-arm64-arm-64bit",
     "machine": "arm64",
     "versions": {
       "python": "3.12.15",
@@ -55,10 +56,10 @@
   "extra": {
     "direction": "forward",
     "eigenvalues": [
-      [-0.6333493484919319, 0.4730037601800394],
-      [-0.6333493484919319, -0.4730037601800394],
-      [-0.7524228567186646, 3.9970732481353055],
-      [-0.7524228567186646, -3.9970732481353055]
+      [-0.770572688971497, 0.6286999186817913],
+      [-0.770572688971497, -0.6286999186817913],
+      [-0.8584987199849408, 3.698151656978766],
+      [-0.8584987199849408, -3.698151656978766]
     ],
     "eigenfunctions": {
       "method": "path_integral",
@@ -67,26 +68,27 @@
       "rtol": 1e-12,
       "atol": 1e-14,
       "quadrature_points": 2501,
-      "spectral_margin": 0.5142758402651992,
-      "min_truncation_time": 24.14,
-      "max_relative_integrand_at_truncation": 1.6999696366791257e-14
+      "spectral_margin": 0.6826466579580532,
+      "min_truncation_time": 21.68,
+      "max_relative_integrand_at_truncation": 1.1744680932751774e-12
     },
     "bounds_status": "empty",
     "bounds_unclipped": [],
-    "magnitude_interval": [-1.9615924814857415, -0.0939517417309697],
+    "magnitude_interval": [-0.5808483814313056, -0.08709039231830892],
     "phase_window": null,
     "period": null,
     "bound_details": {
       "magnitude": {
         "growing_cone": ["-inf", "inf"],
-        "decaying_cone": [-1.9615924814857415, -0.0939517417309697],
+        "decaying_cone": [-0.5808483814313056, -0.08709039231830892],
         "lfp_status": ["infeasible", "infeasible", "optimal", "optimal"]
       }
     },
     "witness": null,
     "num_samples": {
       "initial": 1,
-      "target": 1000
-    }
+      "target": 32000
+    },
+    "equilibrium_sample": null
   }
 }

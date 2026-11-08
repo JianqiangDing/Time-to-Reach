@@ -6,25 +6,25 @@
   "verdict": "reachable_witness",
   "expected_result": "reachable",
   "agrees_with_expected": true,
-  "detail": "witness reaches the target at t = 5.919",
+  "detail": "witness reaches the target at t = 5.921",
   "time_horizon": [0.0, 7.0],
   "horizon_covered": true,
   "reach_time_bounds": [
-    [5.460729988881863, 7.0]
+    [4.948831663923701, 7.0]
   ],
   "runtime_s": {
-    "total": 10.075363790994743,
-    "setup": 0.10777954099467024,
-    "eigenpairs": 9.92906879200018,
-    "bounds": 0.011597666976740584,
-    "krtb": 9.94066645897692,
-    "witness_search": 0.02691779102315195
+    "total": 57.08188208399952,
+    "setup": 0.10873712500324473,
+    "eigenpairs": 56.931790167000145,
+    "bounds": 0.012261207994015422,
+    "krtb": 56.94405137499416,
+    "witness_search": 0.02909358400211204
   },
   "params": {
     "num_samples_initial": 100,
     "num_samples_target": 1000,
-    "boundary_samples_initial": 0,
-    "boundary_samples_target": 0,
+    "boundary_samples_initial": 100,
+    "boundary_samples_target": 1000,
     "num_sim_samples": 1000,
     "seed": 0,
     "path_integral": {
@@ -37,13 +37,15 @@
       "method": "path_integral",
       "equilibrium": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
       "T": 70
-    }
+    },
+    "vertex_samples_initial": 2000,
+    "vertex_samples_target": 2000
   },
   "provenance": {
-    "git_commit": "f343df849dabd991bb9795c662d80ecb86e3c855",
+    "git_commit": "e7b400355531d201bb3910d87c86cb082ffc2171",
     "git_dirty": true,
-    "timestamp": "2026-10-25T19:41:06+00:00",
-    "platform": "macOS-27.0.1-arm64-arm-64bit",
+    "timestamp": "2026-11-08T08:14:46+00:00",
+    "platform": "macOS-27.2-arm64-arm-64bit",
     "machine": "arm64",
     "versions": {
       "python": "3.12.15",
@@ -82,20 +84,20 @@
       "atol": 1e-14,
       "quadrature_points": 3501,
       "spectral_margin": 0.011999999999999789,
-      "min_truncation_time": 25.6,
-      "max_relative_integrand_at_truncation": 1.9309403257135554e-05
+      "min_truncation_time": 0.0,
+      "max_relative_integrand_at_truncation": 0.9963374352176988
     },
     "bounds_status": "bounded",
     "bounds_unclipped": [
-      [5.460729988881863, 7.0]
+      [4.948831663923701, 7.0]
     ],
-    "magnitude_interval": [5.460729988881863, 10.39528503200511],
-    "phase_window": [-274.5445913112822, 1404.347056183462],
+    "magnitude_interval": [4.948831663923701, 78.84177546456195],
+    "phase_window": [-289.089581324237, 1422.5882216662912],
     "period": 1603.9582350903274,
     "bound_details": {
       "magnitude": {
         "growing_cone": ["-inf", "inf"],
-        "decaying_cone": [5.460729988881863, 10.39528503200511],
+        "decaying_cone": [4.948831663923701, 78.84177546456195],
         "lfp_status": ["infeasible", "infeasible", "optimal", "optimal"]
       },
       "phase": {
@@ -104,13 +106,14 @@
       }
     },
     "witness": {
-      "x0": [2.27569841, -1.2268537858166415, -1.6355959905211472, 1.8776348583653548, 2.0359267679806816, -1.5793112280652641, -0.26528976622648304, 1.1478275753172729, 1.7932811641486965, -1.71703301703067, 0.7719248646029191, 1.5026696905112582, 0.24817322205897654, -1.70342489554523, -2.3676592566574386, -1.1713594948708337],
-      "first_hit_time": 5.918711351566278,
+      "x0": [2.27569841, -1.2270091746339764, -1.7150682596624944, 1.9302753953934237, 2.1157202183916803, -1.5384803826674507, -0.2442061884332877, 1.023265371535951, 1.6547857361484515, -1.6708077850891654, 0.7611041254370066, 1.5407161240953717, 0.3426026528995004, -1.6434533825585742, -2.39752611016231, -1.0037174457728157],
+      "first_hit_time": 5.921061432037366,
       "inside_bounds": true
     },
     "num_samples": {
-      "initial": 100,
-      "target": 1000
-    }
+      "initial": 2200,
+      "target": 4001
+    },
+    "equilibrium_sample": [2.754319153369375e-31, -4.629622166906182e-31, -9.23108819445846e-31, -9.72269851249093e-31, 6.299909389877644e-31, 8.300573791032575e-31, 2.144460727477745e-31, 4.615208719406697e-31, 8.773048281507827e-32, 8.749368771494215e-31, 6.3518602230337135e-31, -1e-30, 7.187451204443989e-31, -9.37966089983095e-31, 4.618403928486829e-31, -6.522611935740491e-31]
   }
 }

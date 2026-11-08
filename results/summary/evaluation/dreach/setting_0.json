@@ -8,7 +8,7 @@
       "expected_result": "reachable",
       "simulation": "reachable_witness",
       "verdict_check": "no claim",
-      "runtime_s": 20.666013707988895
+      "runtime_s": 9.850475458995788
     },
     {
       "benchmark": "CP_LQR_FIN_REA_UNSAFE",
@@ -16,7 +16,7 @@
       "expected_result": "reachable",
       "simulation": "reachable_witness",
       "verdict_check": "no claim",
-      "runtime_s": 1.9765424999932293
+      "runtime_s": 3.226795124995988
     },
     {
       "benchmark": "CP_LQR_FIN_UNR_SAFE",
@@ -24,7 +24,7 @@
       "expected_result": "unreachable",
       "simulation": "unreachable_estimated",
       "verdict_check": "consistent",
-      "runtime_s": 0.7658906659926288
+      "runtime_s": 0.8062317089934368
     },
     {
       "benchmark": "DUFF_FIN_REA_BALL",

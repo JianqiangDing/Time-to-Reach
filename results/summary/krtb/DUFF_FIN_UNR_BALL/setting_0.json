@@ -10,21 +10,21 @@
   "time_horizon": [0.0, 6.0],
   "horizon_covered": true,
   "reach_time_bounds": [
-    [1.5263384049204123, 2.499264795340236]
+    [1.5255116095761365, 2.511906361794729]
   ],
   "runtime_s": {
-    "total": 2.646601250016829,
-    "setup": 0.006266833021072671,
-    "eigenpairs": 2.4006952499912586,
-    "bounds": 0.008194458001526073,
-    "krtb": 2.4088897079927847,
-    "witness_search": 0.23144470900297165
+    "total": 5.079917249997379,
+    "setup": 0.006166790990391746,
+    "eigenpairs": 4.8395759999984875,
+    "bounds": 0.00867437501437962,
+    "krtb": 4.848250375012867,
+    "witness_search": 0.22550008399412036
   },
   "params": {
     "num_samples_initial": 1000,
     "num_samples_target": 1000,
-    "boundary_samples_initial": 0,
-    "boundary_samples_target": 0,
+    "boundary_samples_initial": 1000,
+    "boundary_samples_target": 1000,
     "num_sim_samples": 100,
     "seed": 0,
     "path_integral": {
@@ -40,10 +40,10 @@
     }
   },
   "provenance": {
-    "git_commit": "f343df849dabd991bb9795c662d80ecb86e3c855",
+    "git_commit": "e7b400355531d201bb3910d87c86cb082ffc2171",
     "git_dirty": true,
-    "timestamp": "2026-10-25T19:40:53+00:00",
-    "platform": "macOS-27.0.1-arm64-arm-64bit",
+    "timestamp": "2026-11-06T16:21:28+00:00",
+    "platform": "macOS-27.2-arm64-arm-64bit",
     "machine": "arm64",
     "versions": {
       "python": "3.12.15",
@@ -69,19 +69,19 @@
       "quadrature_points": 5001,
       "spectral_margin": 0.24999999999999994,
       "min_truncation_time": 98.26,
-      "max_relative_integrand_at_truncation": 4.262200399536581e-11
+      "max_relative_integrand_at_truncation": 4.268210626170676e-11
     },
     "bounds_status": "bounded",
     "bounds_unclipped": [
-      [1.5263384049204123, 2.499264795340236]
+      [1.5255116095761365, 2.511906361794729]
     ],
-    "magnitude_interval": [0.10216346521574507, 2.499264795340236],
-    "phase_window": [-2.9876351742243252, -1.8158509392305051],
+    "magnitude_interval": [0.09790917830643811, 2.511906361794729],
+    "phase_window": [-2.988461969568601, -1.8112230939718954],
     "period": 4.5139735791447375,
     "bound_details": {
       "magnitude": {
         "growing_cone": ["-inf", "inf"],
-        "decaying_cone": [0.10216346521574507, 2.499264795340236],
+        "decaying_cone": [0.09790917830643811, 2.511906361794729],
         "lfp_status": ["infeasible", "infeasible", "optimal", "optimal"]
       },
       "phase": {
@@ -91,8 +91,8 @@
     },
     "witness": null,
     "num_samples": {
-      "initial": 1000,
-      "target": 1000
+      "initial": 2000,
+      "target": 2000
     }
   }
 }

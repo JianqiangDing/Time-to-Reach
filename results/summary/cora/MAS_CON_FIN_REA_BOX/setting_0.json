@@ -13,10 +13,10 @@
     [5.6899999999999995, 7]
   ],
   "runtime_s": {
-    "total": 57.605997166014276,
-    "warmup": 2.005054375,
-    "reach": 36.68793204166667,
-    "check": 14.735793541666666
+    "total": 57.649950916995294,
+    "warmup": 1.3129045833333333,
+    "reach": 37.77058229166666,
+    "check": 14.405596916666667
   },
   "params": {
     "matlab_release": "R2025a",
@@ -25,7 +25,6 @@
     "taylorTerms": 4,
     "zonotopeOrder": 50,
     "timeStep": 0.01,
-    "initial_splits": 1,
     "timeout_s": 1800,
     "versions": {
       "matlab": "25.1.0.2973910 (R2025a) Update 1",
@@ -33,10 +32,10 @@
     }
   },
   "provenance": {
-    "git_commit": "d9906e0ce47fa62562a8e81bfb0e80fca4033f13",
-    "git_dirty": false,
-    "timestamp": "2026-10-15T11:26:34+00:00",
-    "platform": "macOS-27.0.1-arm64-arm-64bit",
+    "git_commit": "e7b400355531d201bb3910d87c86cb082ffc2171",
+    "git_dirty": true,
+    "timestamp": "2026-11-06T17:07:54+00:00",
+    "platform": "macOS-27.2-arm64-arm-64bit",
     "machine": "arm64",
     "versions": {
       "python": "3.12.15"
@@ -47,8 +46,6 @@
     "reachable_set_end_time": 7,
     "num_segments": 700,
     "num_possible": 32,
-    "num_inside": 99,
-    "initial_set_overapproximated": false,
-    "num_initial_boxes": 1
+    "num_inside": 99
   }
 }

@@ -11,18 +11,18 @@
   "horizon_covered": true,
   "reach_time_bounds": [],
   "runtime_s": {
-    "total": 0.02143912500469014,
-    "setup": 0.011360083997715265,
-    "eigenpairs": 0.004226290999213234,
-    "bounds": 0.005851624999195337,
-    "krtb": 0.010077915998408571,
-    "witness_search": 1.1250085663050413e-06
+    "total": 0.019230957987019792,
+    "setup": 0.008353292010724545,
+    "eigenpairs": 0.004377707984531298,
+    "bounds": 0.00649920801515691,
+    "krtb": 0.010876915999688208,
+    "witness_search": 7.499766070395708e-07
   },
   "params": {
     "num_samples_initial": 1000,
     "num_samples_target": 1000,
-    "boundary_samples_initial": 0,
-    "boundary_samples_target": 0,
+    "boundary_samples_initial": 1000,
+    "boundary_samples_target": 1000,
     "num_sim_samples": 100,
     "seed": 0,
     "path_integral": {
@@ -38,10 +38,10 @@
     }
   },
   "provenance": {
-    "git_commit": "f343df849dabd991bb9795c662d80ecb86e3c855",
+    "git_commit": "e7b400355531d201bb3910d87c86cb082ffc2171",
     "git_dirty": true,
-    "timestamp": "2026-10-25T19:41:26+00:00",
-    "platform": "macOS-27.0.1-arm64-arm-64bit",
+    "timestamp": "2026-11-06T16:24:33+00:00",
+    "platform": "macOS-27.2-arm64-arm-64bit",
     "machine": "arm64",
     "versions": {
       "python": "3.12.15",
@@ -61,7 +61,7 @@
     "eigenfunctions": {
       "method": "analytic",
       "functions": ["x1^2 + 2*x2 + x2^3", "x1 + sin(x2) + x1^3"],
-      "max_relative_eigen_residual": 1.809570702797194e-14
+      "max_relative_eigen_residual": 5.6396117194431634e-15
     },
     "bounds_status": "empty",
     "bounds_unclipped": [],
@@ -70,15 +70,15 @@
     "period": null,
     "bound_details": {
       "magnitude": {
-        "growing_cone": [0.17540984636420043, "-inf"],
-        "decaying_cone": ["inf", 0.7545326472283561],
+        "growing_cone": [0.17369279164111529, "-inf"],
+        "decaying_cone": ["inf", 0.7556906361991899],
         "lfp_status": ["optimal", "unbounded", "unbounded", "optimal"]
       }
     },
     "witness": null,
     "num_samples": {
-      "initial": 1000,
-      "target": 1000
+      "initial": 2004,
+      "target": 2004
     }
   }
 }

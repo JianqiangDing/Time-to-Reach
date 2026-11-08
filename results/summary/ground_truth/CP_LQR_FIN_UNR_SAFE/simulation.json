@@ -6,12 +6,12 @@
   "verdict": "unreachable_estimated",
   "expected_result": "unreachable",
   "agrees_with_expected": true,
-  "detail": "no sampled trajectory reaches the target; closest approach 0.3666 (function_value)",
+  "detail": "no sampled trajectory reaches the target; closest approach 2.341 (function_value)",
   "time_horizon": [0.0, 10.0],
   "horizon_covered": true,
   "reach_time_bounds": null,
   "runtime_s": {
-    "total": 0.05372962501132861
+    "total": 0.03671933300211094
   },
   "params": {
     "direction": "forward",
@@ -21,10 +21,10 @@
     "event_detection": true
   },
   "provenance": {
-    "git_commit": "48463789a2a4ca92a8193c740238cac0cd898527",
-    "git_dirty": false,
-    "timestamp": "2026-10-15T09:05:47+00:00",
-    "platform": "macOS-27.0.1-arm64-arm-64bit",
+    "git_commit": "e7b400355531d201bb3910d87c86cb082ffc2171",
+    "git_dirty": true,
+    "timestamp": "2026-11-08T13:56:04+00:00",
+    "platform": "macOS-27.2-arm64-arm-64bit",
     "machine": "arm64",
     "versions": {
       "python": "3.12.15",
@@ -43,10 +43,10 @@
     "num_hitting": 0,
     "num_trajectories": 1,
     "closest_approach": {
-      "value": 0.36656454288113816,
+      "value": 2.340991460954936,
       "kind": "function_value",
-      "x0": [0.8, 0.3, -0.785398, 0.2],
-      "time": 0.7662725713780587
+      "x0": [0.8, 0.3, -0.7853981633974483, 0.2],
+      "time": 0.9870709147404201
     },
     "max_domain_violation": 0.0,
     "problems": [],
