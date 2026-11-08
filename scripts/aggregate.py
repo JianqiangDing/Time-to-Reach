@@ -1,6 +1,6 @@
 """Build the comparison table from results/summary.
 
-    python -m scripts.aggregate [--columns krtb:setting_1 hj:setting_0 ...] [--out results/summary/table]
+    python -m scripts.aggregate [--columns krtb:setting_0 hj:setting_0 ...] [--out results/summary/table]
 
 Each cell shows the verdict class and the tool's core computation time; cells
 whose verdict is contradicted by the simulation baseline are marked, as are
@@ -16,8 +16,8 @@ from pathlib import Path
 from scripts.evaluate_results import evaluate
 from tools.common import jsonio, list_benchmarks, paths
 
-DEFAULT_COLUMNS = ["krtb:setting_1", "hj:setting_0", "juliareach:setting_1", "cora:setting_1",
-                   "sosbc:setting_1", "dreach:setting_0"]
+DEFAULT_COLUMNS = ["krtb:setting_0", "hj:setting_0", "juliareach:setting_0", "cora:setting_0",
+                   "sosbc:setting_0", "dreach:setting_0"]
 NAMES = {"krtb": "KRTB", "hj": "HJ", "juliareach": "JuliaReach", "cora": "CORA", "sosbc": "SOSBC",
          "dreach": "dReach"}
 # Runtime phases that make up each tool's core computation: everything needed for
@@ -38,8 +38,8 @@ STEPS = {
 SYMBOL = {
     "unreachable_proven": "UNR proven", "reachable_proven": "REA proven", "reachable_witness": "REA witness",
     "reachable_possible": "REA possible", "reachable_estimated": "REA est.", "unreachable_estimated": "UNR est.",
-    "unknown": "unknown", "unsupported": "n/a", "set_explosion": "set explosion", "timeout": "timeout",
-    "error": "error",
+    "unknown": "unknown", "unsupported": "n/a", "set_explosion": "set explosion", "out_of_memory": "out of memory",
+    "timeout": "timeout", "error": "error",
 }
 
 
@@ -57,7 +57,7 @@ def cell(tool, record, row):
     split = steps(tool, record)
     if split:
         text += " (" + " + ".join(f"{label} {v:.3g} s" for label, v in split) + ")"
-    elif record["verdict"] not in ("unsupported",) and t is not None:
+    elif record["verdict"] not in ("unsupported", "out_of_memory") and t is not None:
         text += f" ({t:.3g} s)"
     if row["verdict_check"] == "contradicted":
         text += " [CONTRADICTED]"
@@ -100,7 +100,6 @@ def main(argv=None):
         "JIT compilation, MATLAB start-up, CORA derivative generation and container start-up. KRTB's is",
         "split into the principal eigenpairs (eigenvalues and eigenfunction values on the samples), the",
         "reach-time bounds and the witness simulation. Measured on: " + "; ".join(sorted(platforms)) + ".",
-        "Only timings from the dedicated x86_64 Linux machine are final.",
     ]
     text = "\n".join(md + summary + note) + "\n"
 

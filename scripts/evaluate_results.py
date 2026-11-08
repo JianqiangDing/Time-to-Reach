@@ -16,7 +16,7 @@ compares with results/summary/ground_truth/<ID>/simulation.json:
 Writes results/summary/evaluation/<tool>/<setting>.json and prints a table.
 Exits non-zero if any verdict is contradicted by simulation.
 
-    python -m scripts.evaluate_results [--tool krtb] [--setting setting_1]
+    python -m scripts.evaluate_results [--tool krtb] [--setting setting_0]
 """
 
 import argparse

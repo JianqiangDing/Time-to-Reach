@@ -1,5 +1,6 @@
 from scripts.paper_table import SYSTEMS, build_rows, krtb_cells, main, tool_cell
-from tools.common import list_benchmarks
+from tools.common import list_benchmarks, load_benchmark
+from tools.common.support import box_to_box_reason
 
 TRUTH_REACHABLE = {"verdict": "reachable_witness", "extra": {"in_target_times": [[1.0, 2.0]]}}
 
@@ -15,8 +16,8 @@ def test_every_benchmark_appears_once():
 
 
 def test_cell_labels():
-    assert tool_cell("cora", record("reachable_proven", reach=1.0, check=0.5), TRUTH_REACHABLE) == \
-        {"label": "Rea", "time": 1.5, "reason": None}
+    assert tool_cell("cora", record("reachable_possible", reach=1.0, check=0.5), TRUTH_REACHABLE) == \
+        {"label": "Ukn", "time": 1.5, "reason": None}
     assert tool_cell("dreach", record("reachable_possible", dreach=2.0), TRUTH_REACHABLE)["label"] == \
         "$\\delta$-Rea"
     # unreachable claimed where simulation reaches the target
@@ -24,6 +25,12 @@ def test_cell_labels():
         "$\\times$"
     cell = tool_cell("sosbc", record("unsupported", "non-polynomial dynamics (sin)"), TRUTH_REACHABLE)
     assert cell["label"] == "N/A" and "trigonometric" in cell["reason"]
+    # as in the arXiv table: N/A without a note for the set-propagation tools
+    cell = tool_cell("cora", record("unsupported", box_to_box_reason(load_benchmark("DUFF_FIN_REA_BALL"))),
+                     TRUTH_REACHABLE)
+    assert cell["label"] == "N/A" and cell["reason"] is None
+    assert tool_cell("hj", record("out_of_memory", "grid of 100^4 nodes"), TRUTH_REACHABLE) == \
+        {"label": "OOM", "time": 9.0, "reason": None}
     assert tool_cell("dreach", None, TRUTH_REACHABLE)["label"] == "--"
 
 
@@ -35,7 +42,7 @@ def test_krtb_columns_time_the_eigenpairs_and_the_bounds():
 
 
 def test_krtb_labels_from_results():
-    rows = {bid: cells for _, _, benchmarks in build_rows([("krtb", "setting_1")]) for bid, _, cells in benchmarks}
+    rows = {bid: cells for _, _, benchmarks in build_rows([("krtb", "setting_0")]) for bid, _, cells in benchmarks}
     assert rows["NL_SLC_FIN_REA_BOX"][0]["label"] == "Analytical"
     assert rows["NL_SLC_FIN_REA_BOX"][1]["label"] == "PRea"  # two windows, one target
     assert rows["DUFF_FIN_REA_DISJOINT_BOX"][1]["label"] == "Rea"  # two windows, two targets

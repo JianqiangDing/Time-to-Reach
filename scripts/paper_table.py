@@ -1,6 +1,6 @@
 """Write the paper's tables (arXiv:2411.05554) from results/summary.
 
-    python -m scripts.paper_table [--columns krtb:setting_1 cora:setting_1 ...] [--out-dir results/summary]
+    python -m scripts.paper_table [--columns krtb:setting_0 cora:setting_0 ...] [--out-dir results/summary]
 
 Writes <out-dir>/paper_table.tex, the comparison table (label tab:benchmark), and
 <out-dir>/paper_table_mas.tex, the initial sets and principal eigenvalues of the
@@ -11,7 +11,8 @@ M column type and \\gc).
 
 Cell labels: Rea / PRea (several reach-time windows for one target) / Unr /
 Inc (KRTB bounds meet the horizon but no simulated witness) / Ukn (possible
-intersection, no certificate) / N/A (with a note giving the reason) / S/E / T/O /
+intersection, no certificate) / N/A (the tool does not handle the benchmark itself;
+a note gives the reason where the arXiv version has one) / S/E / OOM / T/O /
 Err / $\\times$ (verdict contradicted by the simulation baseline) / -- (not run).
 Times are the core computation times of scripts.aggregate, except KRTB's: its two
 columns time the principal eigenpairs (eigenvalues and eigenfunction values on the
@@ -27,8 +28,8 @@ from scripts.aggregate import CORE_TIME
 from scripts.evaluate_results import evaluate
 from tools.common import jsonio, load_benchmark, paths
 
-DEFAULT_COLUMNS = ["krtb:setting_1", "cora:setting_1", "juliareach:setting_1", "dreach:setting_0",
-                   "hj:setting_0", "sosbc:setting_1"]
+DEFAULT_COLUMNS = ["krtb:setting_0", "cora:setting_0", "juliareach:setting_0", "dreach:setting_0",
+                   "hj:setting_0", "sosbc:setting_0"]
 # (system label, dimension, [(benchmark ID, name in the paper)]) in the paper's order. No space after
 # \\ in the labels: tex-fmt's table formatting drops the text before "\\ " in a cell.
 SYSTEMS = [
@@ -58,21 +59,21 @@ LABEL = {
     "reachable_proven": "Rea", "reachable_witness": "Rea", "reachable_estimated": "Rea",
     "unreachable_proven": "Unr", "unreachable_estimated": "Unr",
     "reachable_possible": "Ukn", "unknown": "Ukn", "unsupported": "N/A",
-    "set_explosion": "S/E", "timeout": "T/O", "error": "Err",
+    "set_explosion": "S/E", "out_of_memory": "OOM", "timeout": "T/O", "error": "Err",
 }
-NO_TIME = {"N/A", "S/E", "T/O", "Err", "--"}
-# Notes explaining why a tool does not apply, matched against the record's detail.
+NO_TIME = {"N/A", "S/E", "OOM", "T/O", "Err", "--"}
+# Why a tool does not apply: (text in the record's detail, label, note or None). The SOS note is the one of
+# the arXiv version, where the set-propagation tools have N/A without a note.
 REASONS = [
-    ("non-polynomial dynamics", "Not applicable: the dynamics contain trigonometric or exponential terms "
-                                "(SOS programming needs polynomial or rational dynamics)."),
-    ("16-dimensional", "Not applicable: a grid over the 16-dimensional state space is infeasible."),
-    ("half-width", "Not applicable: the target set is far thinner than the spacing of any feasible "
-                   "4-dimensional grid."),
+    ("box-to-box", "N/A", None),
+    ("non-polynomial", "N/A", "Not directly applicable due to trigonometric, exponential or fractional polynomial "
+                              "functions."),
 ]
 ABBREVIATIONS = [
     "Rea --- Reachable; PRea --- Periodically reachable; Unr --- Unreachable; Ukn --- Unknown; "
     "Inc --- Inconclusive.",
-    "N/A --- Not applicable; S/E --- Set explosion; T/O --- Time out; Err --- Error; "
+    "N/A --- Not applicable; S/E --- Set explosion; OOM --- Out of memory; "
+    "T/O --- Time out; Err --- Error; "
     "$\\times$ --- Unsound result; -- --- Not run.",
     "For more details regarding the benchmark specifications, please follow the shared link for the code. "
     "\\protect\\footnotemark",
@@ -104,7 +105,8 @@ def tool_cell(tool, record, truth):
         label = "$\\times$"
     reason = None
     if verdict == "unsupported":
-        reason = next((text for key, text in REASONS if key in record["detail"]), record["detail"])
+        label, reason = next(((lab, note) for key, lab, note in REASONS if key in record["detail"]),
+                             (label, record["detail"]))
     return {"label": label, "time": _sum(record, CORE_TIME[tool]), "reason": reason}
 
 
@@ -231,7 +233,7 @@ def _eig(lam):
     return f"{re:.3f} \\pm {abs(im):.3f}j" if abs(im) > 1e-9 else f"{re:.3f}"
 
 
-def render_mas(setting="setting_1"):
+def render_mas(setting="setting_0"):
     """Initial sets and principal eigenvalues of the multi-agent example."""
     bm = load_benchmark("MAS_CON_FIN_REA_BOX")
     bounds = bm.raw["initial_sets"][0]["bounds"]
@@ -290,7 +292,7 @@ def main(argv=None):
     parser.add_argument("--out-dir", default=str(paths.SUMMARY_DIR))
     args = parser.parse_args(argv)
     columns = [tuple(c.split(":")) for c in args.columns]
-    krtb_setting = dict(columns).get("krtb", "setting_1")
+    krtb_setting = dict(columns).get("krtb", "setting_0")
 
     out = Path(args.out_dir)
     out.mkdir(parents=True, exist_ok=True)
