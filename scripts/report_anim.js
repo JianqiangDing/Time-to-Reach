@@ -1,7 +1,7 @@
 (() => {
 const NS = "http://www.w3.org/2000/svg";
-const C = {ink: "#0b0b0b", ink2: "#52514e", muted: "#898781", grid: "#e1e0d9", initial: "#2a78d6",
-           target: "#eb6834", sim: "#1baf7a", miss: "#d03b3b", surface: "#fcfcfb"};
+const C = {ink: "#0b0b0b", ink2: "#52514e", muted: "#8f8f8f", grid: "#e8e8e8", initial: "#3457d5",
+           target: "#b22222", sim: "#ff8c00", miss: "#d03b3b", surface: "#ffffff"};  // the paper's colours
 const FULL_SECONDS = 12;  // one pass through the horizon at speed 1
 
 function el(tag, attrs, parent) {
@@ -64,6 +64,10 @@ function setup(root) {
   el("rect", {x: pm.l, y: pm.t, width: PW - pm.l - pm.r, height: PH - pm.t - pm.b},
      el("clipPath", {id: clip}, el("defs", {}, ph)));
   const plot = el("g", {"clip-path": `url(#${clip})`}, ph);
+  if (d.stream) {  // the vector field, drawn by matplotlib for exactly this extent
+    el("image", {x: pm.l, y: pm.t, width: PW - pm.l - pm.r, height: PH - pm.t - pm.b,
+                 href: "data:image/png;base64," + d.stream, preserveAspectRatio: "none"}, plot);
+  }
   const points = (xs, ys, a, b) => {
     let s = "";
     for (let k = a; k <= b; k++) s += `${sx(xs[k]).toFixed(1)},${sy(ys[k]).toFixed(1)} `;
@@ -76,7 +80,7 @@ function setup(root) {
   for (const sh of d.shapes) {
     const col = sh.role === "initial" ? C.initial : C.target;
     const st = sh.dashed ? {fill: "none", stroke: col, "stroke-width": 1, "stroke-dasharray": "3 3"}
-                         : {fill: col, "fill-opacity": 0.14, stroke: col, "stroke-width": 1.6};
+                         : {fill: col, "fill-opacity": 0.85, stroke: col, "stroke-width": 1.2};
     if (sh.type === "rect") {
       el("rect", Object.assign({x: sx(sh.x0), y: sy(sh.y1), width: Math.max(sx(sh.x1) - sx(sh.x0), 1),
                                 height: Math.max(sy(sh.y0) - sy(sh.y1), 1)}, st), plot);
@@ -152,7 +156,7 @@ function setup(root) {
   const half = (h1 - h0) / Math.max(F - 1, 1) / 2;
   const contains = (r, t) => r.kind === "intervals" ? r.data.some(([a, b]) => t >= a - half && t <= b + half)
                            : r.kind === "point" ? Math.abs(t - r.data) <= 2 * half : false;
-  let frame = 0, playing = false, last = null, pos = 0;
+  let frame = 0, playing = false, last = null, pos = 0, raf = 0;
   function render(k) {
     k = Math.min(F - 1, Math.max(0, k));
     frame = k;
@@ -181,10 +185,11 @@ function setup(root) {
     tnow.textContent = `t = ${t.toFixed(2)}`;
     status.textContent = `${inside} of ${d.paths.length} sampled trajectories inside the target. ` +
       (on.length ? `Reach-time information containing t: ${on.join(", ")}.`
-                 : "No tool's reach-time information contains t.");
+                 : "No reach-time information contains t.");
   }
   function stop() {
     playing = false;
+    cancelAnimationFrame(raf);  // so that a quick stop and play never runs two loops
     btn.textContent = "▶ Play";
     btn.setAttribute("aria-label", "Play");
   }
@@ -199,7 +204,7 @@ function setup(root) {
       return;
     }
     render(Math.floor(pos));
-    requestAnimationFrame(tick);
+    raf = requestAnimationFrame(tick);
   }
   btn.addEventListener("click", () => {
     if (playing) return stop();
@@ -208,7 +213,7 @@ function setup(root) {
     btn.textContent = "❚❚ Pause";
     btn.setAttribute("aria-label", "Pause");
     last = null;
-    requestAnimationFrame(tick);
+    raf = requestAnimationFrame(tick);
   });
   seek.addEventListener("input", () => {
     stop();

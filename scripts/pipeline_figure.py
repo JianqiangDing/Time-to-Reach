@@ -10,10 +10,11 @@ groups (pl-tin, pl-tout, pl-cap) so the animation can move them, and an empty
 group pl-anim takes the place of the band. The band's upper and lower edges,
 sampled along the horizontal axis, and the positions the animation needs go to
 the data-pipeline attribute of the root element. scripts/report_explainer.js
-draws the rest.
+draws the rest. Words in FIXES are respelled with the figure's own glyphs.
 """
 
 import argparse
+import html
 import json
 import re
 import subprocess
@@ -30,6 +31,8 @@ BAR = "rgb(75.294495%, 30.979919%, 8.235168%)"
 CURSOR = "rgb(12.940979%, 37.254333%, 60.392761%)"
 DOT = "rgb(100%, 0%, 0%)"
 SAMPLES = 120
+# typos in the paper's figure, fixed in the report's copy (a no-op once the figure is fixed)
+FIXES = {"Inclusive": "Inconclusive"}
 
 
 def matrix(el):
@@ -96,10 +99,57 @@ def convert(pdf):
     return text.replace('xlink:href="#', 'xlink:href="#pl-').replace("url(#", "url(#pl-")
 
 
+def words(pdf):
+    """[(text, xMin, yMin, xMax, yMax)] of the words in the PDF, in the coordinates of the SVG."""
+    out = subprocess.run(["pdftotext", "-bbox", str(pdf), "-"], capture_output=True, text=True, check=True).stdout
+    pattern = r'<word xMin="([^"]+)" yMin="([^"]+)" xMax="([^"]+)" yMax="([^"]+)">([^<]*)</word>'
+    return [(html.unescape(t), *map(float, box)) for *box, t in re.findall(pattern, out)]
+
+
+def fix_words(root, pdf):
+    """Respell the words in FIXES with glyphs the figure already uses for the same font.
+
+    Text is drawn one <use> of a glyph per character; matching the glyph positions
+    with the words of the PDF gives each glyph's character and advance width.
+    """
+    font = lambda u: u.get(XLINK).rsplit("-", 1)[0]
+    glyphs, spelled = {}, []  # (font, char) -> (glyph, advance); [(group, uses, word)]
+    for g in root.iter(SVG + "g"):
+        uses = [u for u in g.findall(SVG + "use") if u.get("x") is not None]
+        if not uses:
+            continue
+        y = float(uses[0].get("y"))
+        for text, x0, y0, x1, y1 in words(pdf):
+            mine = [u for u in uses if y0 <= y <= y1 and x0 - 0.5 <= float(u.get("x")) < x1]
+            if len(mine) != len(text):
+                continue
+            spelled.append((g, mine, text))
+            ends = [float(u.get("x")) for u in mine[1:]] + [x1]
+            for u, ch, end in zip(mine, text, ends):
+                glyphs.setdefault((font(u), ch), (u.get(XLINK), end - float(u.get("x"))))
+    for g, mine, text in spelled:
+        if text not in FIXES:
+            continue
+        x, y, f = float(mine[0].get("x")), mine[0].get("y"), font(mine[0])
+        missing = [ch for ch in FIXES[text] if (f, ch) not in glyphs]
+        if missing:
+            raise SystemExit(f"cannot respell {text!r}: the figure has no glyph for {missing} in its font")
+        k = list(g).index(mine[0])
+        for u in mine:
+            g.remove(u)
+        for ch in FIXES[text]:
+            glyph, advance = glyphs[(f, ch)]
+            g.insert(k, ET.Element(SVG + "use", {XLINK: glyph, "x": f"{x:.2f}", "y": y}))
+            k += 1
+            x += advance
+        print(f"respelled {text!r} as {FIXES[text]!r}")
+
+
 def build(pdf):
     ET.register_namespace("", "http://www.w3.org/2000/svg")
     ET.register_namespace("xlink", "http://www.w3.org/1999/xlink")
     root = ET.fromstring(convert(pdf))
+    fix_words(root, pdf)
     body = [el for el in root if el.tag != SVG + "defs"]
     paths = [el for el in body if el.tag == SVG + "path"]
 

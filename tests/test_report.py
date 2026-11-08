@@ -1,3 +1,6 @@
+import json
+import re
+
 from scripts.report import STATUS, main, projection_panels, status_of, tex_dynamics, tex_set, time_info
 from tools.common import load_benchmark
 
@@ -30,12 +33,73 @@ def test_writes_a_self_contained_page(tmp_path):
     assert main(["--out", str(out), "--samples", "5", "--benchmarks", "NL_EIG_FIN_BACKWARD_REA_BOX"]) == 0
     page = out.read_text()
     assert 'id="NL_EIG_FIN_BACKWARD_REA_BOX"' in page
-    assert page.count('<img alt="') == 2  # two figures, light theme
+    assert page.count('<img alt="') == 2  # the baseline figure and what HJ computed (the other tools: n/a)
+    # the tool's figure has the size of the paper's phase-plane figures and its caption names tool and verdict
+    import base64
+    import io
+    from PIL import Image
+    from scripts.paper_figures import PHASE_FIGSIZE
+    b64 = re.search(r'<img alt="[^"]*what HJ computed" src="data:image/png;base64,([^"]+)"', page).group(1)
+    assert Image.open(io.BytesIO(base64.b64decode(b64))).size == tuple(round(150 * v) for v in PHASE_FIGSIZE)
+    assert "<th scope='col'>HJ: REA est.</th>" in page and "What each tool computed" in page  # title row of the table
     assert "simulation baseline" in page.lower()
-    assert "katex.min.js" in page and r"\dot{x}_{1} &amp;=" in page  # LaTeX source, HTML-escaped
+    assert r"\dot{x}_{1} &amp;=" in page  # LaTeX source, HTML-escaped
+    # nothing to load: KaTeX and its fonts are embedded
+    assert not re.search(r"""(src|href)=["']https?:|url\(fonts/""", page) and "data:font/woff2;base64," in page
     assert 'id="anim-NL_EIG_FIN_BACKWARD_REA_BOX"' in page and "IntersectionObserver" in page  # animation
     assert "Raw tool output" in page
     assert 'id="explainer"' in page and 'id="pl-anim"' in page and "data-pipeline" in page  # Fig. 1, animated
+    # the legend and its explanation name only the statuses that occur on the page
+    reading = re.search(r"How to read this page.*?</div>", page, re.S).group(0)
+    assert "<i>consistent</i>" in reading and "contradicted" not in reading and "unconfirmed" not in reading
+
+
+def test_krtb_page_shows_only_krtb_and_simulation(tmp_path):
+    out = tmp_path / "krtb.html"
+    assert main(["--krtb-only", "--out", str(out), "--samples", "5",
+                 "--benchmarks", "DUFF_FIN_UNR_BOX", "DUFF_FIN_REA_BOX"]) == 0
+    page = re.sub(r"base64,[A-Za-z0-9+/=]+", "", out.read_text())
+    assert 'id="pl-anim"' in page  # the animated pipeline figure stays
+    assert "Dynamics and sets" in page and "Simulation baseline" in page and "KRTB result" in page
+    assert "KRTB settings" in page
+    # the explanation names only the verdicts that occur: a witness and an inconclusive result, no empty bounds
+    reading = re.search(r"How to read this page.*?</div>", page, re.S).group(0)
+    assert "REA witness" in reading and "inconclusive" in reading and "UNR est." not in reading
+    assert page.count('<img alt="') == 2  # no figure of what other tools computed
+    assert not re.search(r"CORA|JuliaReach|dReach|dReal|SOSBC|SOSTOOLS|Hamilton|hj_reachability|\bHJ\b|flowpipe", page)
+
+    def rows(bid):
+        data = re.search(rf'id="anim-{bid}">(.*?)</script>', page, re.S).group(1)
+        return [r["label"] for r in json.loads(data)["rows"]]
+    # one result per benchmark, under no setting name
+    assert rows("DUFF_FIN_REA_BOX") == rows("DUFF_FIN_UNR_BOX") == ["simulation", "KRTB"]
+    assert "&quot;equations&quot;" in page  # the exact specification is on the page
+    # the page stands alone: nothing to load, no pointers to files, other settings or the paper
+    assert not re.search(r"""(src|href)=["']https?:""", page)
+    visible = re.sub(r"<(script|style)\b.*?</\1>", " ", page, flags=re.S)
+    assert not re.search(r"setting_\d|\bs[01]\b|configs/|results/|scripts[/.]|python -m|\bpaper\b", visible)
+
+
+def test_flowpipe_is_rasterised_in_the_paper_colours():
+    from scripts.report import REGION_FILL, THEME, flowpipe_masks, region_rgba
+    # two 2D segments: [t0, t1, lower..., upper..., code]; the second is narrower than a cell
+    data = {"n": 2, "segments": [[0, 1, 0.0, 0.0, 0.5, 0.25, 0], [1, 2, 0.6, 0.6, 0.6001, 0.6001, 2]]}
+    masks = flowpipe_masks(data, [(0, 1)], ((0.0, 1.0), (0.0, 1.0)), cells=101)  # cell = 0.01, [row y, column x]
+    assert masks[0][:26, :51].all() and not masks[0][26:, :].any() and not masks[0][:, 51:].any()
+    assert masks[2].sum() == 1 and masks[2][60, 60]  # a tiny box still marks one cell
+    assert 1 not in masks
+    grey, orange = region_rgba(THEME, "flowpipe_disjoint"), region_rgba(THEME, "flowpipe_inside")
+    assert tuple(grey[:3]) == tuple(region_rgba(THEME, "barrier")[:3]) and grey[3] == REGION_FILL["flowpipe_disjoint"][1]
+    assert tuple(orange[:3]) == tuple(region_rgba(THEME, "hj")[:3]) and orange[3] == 0.9
+
+
+def test_pipeline_video_timing_and_size():
+    from scripts.pipeline_video import LEAD_SECONDS, frame_size, positions, seconds
+    frames = positions(30, 7, 2.5)
+    assert frames[0] == 0 and frames[-1] == 1 and frames == sorted(frames)
+    assert len(frames) == round((LEAD_SECONDS + 7 + 2.5) * 30) + 1
+    assert frame_size('<svg viewBox="0 0 2769 788">', 1921) == (1920, 546)  # even, as H.264 needs
+    assert seconds("const SWEEP_SECONDS = 7, HOLD_SECONDS = 2.5;", "HOLD_SECONDS") == 2.5
 
 
 def test_latex_of_dynamics_and_sets():
@@ -49,11 +113,12 @@ def test_latex_of_dynamics_and_sets():
     assert level == r"\{x \in [-2, 2] \times [-2, 2] : x_{1}^{2} + x_{2}^{2} - 1 \le 0\}"
 
 
-def test_settings_section_shows_what_a_setting_changes():
+def test_settings_section_shows_the_one_setting_of_a_tool():
     from scripts.report import fmt_value, settings_html
-    page = settings_html([("krtb", "setting_0"), ("krtb", "setting_1")])
-    assert "boundary_samples_initial" in page and ">changed<" in page and "paper tables" in page
-    assert "as setting_0" in page  # benchmarks whose values setting_1 leaves alone
+    page = settings_html([("krtb", "setting_0")])
+    assert "boundary_samples_initial" in page and "vertex_samples_target" in page
+    assert "<th>value</th>" in page and "setting_0" not in page  # one setting: its name is not shown
+    assert ">changed<" not in page
     assert fmt_value([0] * 16) == "0 (all 16 entries)"
     assert fmt_value([[-1.5, 1.5], [-3, 3]]) == "[-1.5, 1.5] × [-3, 3]"
     assert fmt_value(True) == "yes" and fmt_value(1e-12) == "1e-12"

@@ -8,7 +8,7 @@ if (!root) return;
 const svg = root.querySelector("svg");
 const D = JSON.parse(svg.dataset.pipeline);
 const NS = "http://www.w3.org/2000/svg";
-const SWEEP_SECONDS = 7;
+const SWEEP_SECONDS = 7, HOLD_SECONDS = 2.5;  // one sweep, then the result stays before the next one
 const N = D.x.length;
 
 function el(tag, attrs, parent) {
@@ -44,7 +44,8 @@ for (let i = N - 1; i >= 0; i--) full += `L${D.x[i]},${D.bot[i]}`;
 faint.setAttribute("d", full + "Z");
 
 const slider = root.querySelector(".explain-seek"), btn = root.querySelector(".explain-play");
-let s = 0, playing = false, last = null;
+let s = 0, playing = false, last = null, held = 0, frame = 0;
+let wanted = false, visible = false;  // playback is on (button), and the figure is on screen
 
 function render(v) {
   s = Math.min(1, Math.max(0, v));
@@ -78,40 +79,51 @@ function render(v) {
 
 function stop() {
   playing = false;
-  btn.textContent = s >= 1 ? "↺ Replay" : "▶ Play";
+  cancelAnimationFrame(frame);  // so that a quick stop and play never runs two loops
 }
 function tick(ts) {
   if (!playing) return;
-  // time from the first frame on: a frame's timestamp can precede the click that started playback
-  if (last !== null) render(s + Math.max(0, ts - last) / 1000 / SWEEP_SECONDS);
+  // time from the first frame on: a frame's timestamp can precede the click that started playback; and a
+  // hidden tab gets no frames, so one step is at most 0.1 s
+  const dt = last === null ? 0 : Math.min(0.1, Math.max(0, ts - last) / 1000);
   last = ts;
-  if (s >= 1) return stop();
-  requestAnimationFrame(tick);
+  if (s < 1) {
+    render(s + dt / SWEEP_SECONDS);
+  } else if ((held += dt) >= HOLD_SECONDS) {  // loop
+    held = 0;
+    render(0);
+  }
+  frame = requestAnimationFrame(tick);
 }
 function play() {
-  if (s >= 1) render(0);
+  if (playing) return;
   playing = true;
   last = null;
-  btn.textContent = "❚❚ Pause";
-  requestAnimationFrame(tick);
+  frame = requestAnimationFrame(tick);
 }
-btn.addEventListener("click", () => (playing ? stop() : play()));
+// plays in a loop while on screen, unless paused
+function update() {
+  btn.textContent = wanted ? "❚❚ Pause" : "▶ Play";
+  if (wanted && visible) play();
+  else stop();
+}
+btn.addEventListener("click", () => {
+  wanted = !wanted;
+  update();
+});
 slider.addEventListener("input", () => {
-  playing = false;
+  wanted = false;
+  held = 0;
   render(slider.value / 1000);
-  stop();
+  update();
 });
 
 const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 render(reduced ? 1 : 0);
-stop();
-if (!reduced) {  // play once when the figure first comes into view
-  const seen = new IntersectionObserver(entries => {
-    if (entries.some(e => e.isIntersecting)) {
-      seen.disconnect();
-      if (s === 0 && !playing) play();
-    }
-  }, {threshold: 0.5});
-  seen.observe(svg);
-}
+wanted = !reduced;
+update();
+new IntersectionObserver(entries => {
+  visible = entries[entries.length - 1].isIntersecting;
+  update();
+}, {threshold: 0.3}).observe(svg);
 });
