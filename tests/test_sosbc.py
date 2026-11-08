@@ -1,4 +1,4 @@
-"""SOS barrier certificates: preprocessing (no MATLAB) and smoke tests (MATLAB, `-m matlab`)."""
+"""SOS barrier certificates: what is supported (no MATLAB) and smoke tests (MATLAB, `-m matlab`)."""
 
 from unittest import mock
 
@@ -11,17 +11,27 @@ from tools.cora.run import matlab_command
 
 @pytest.mark.parametrize(
     "bid, supported",
-    [("DUFF_FIN_UNR_BOX", True), ("NL_SLC_FIN_UNR_BOX", True), ("NL_EIG_FIN_BACKWARD_UNR_BOX", False),
+    [("DUFF_FIN_UNR_BOX", True), ("NL_SLC_FIN_UNR_BOX", False), ("NL_EIG_FIN_BACKWARD_UNR_BOX", False),
      ("CP_LQR_FIN_UNR_SAFE", False), ("MAS_CON_FIN_UNR_SAFE_0", False)],
 )
-def test_polynomial_preprocessing(bid, supported):
+def test_only_polynomial_dynamics_are_supported(bid, supported):
     bm = load_benchmark(bid)
     if supported:
-        field, denominator, degree = sosbc.polynomial_field(bm)
+        field, degree = sosbc.polynomial_field(bm)
         assert degree == 3 and len(field) == bm.dim
-    else:
+    else:  # trigonometric or exponential terms; NL_SLC is rational and is not multiplied out
         with pytest.raises(sosbc.Unsupported):
             sosbc.polynomial_field(bm)
+        assert sosbc.run(bid)["verdict"] == "unsupported"
+
+
+def test_only_polynomial_level_sets_are_supported():
+    box = [[-1, 1], [-1, 1]]
+    assert sosbc.set_spec({"type": "level_set", "function": "x1^2 + x2^2 - 1", "bounding_box": box}, 2)["kind"] == "poly"
+    with pytest.raises(sosbc.Unsupported):  # not replaced by its bounding box
+        sosbc.set_spec({"type": "level_set", "function": "sin(x1) + x2", "bounding_box": box}, 2)
+    record = sosbc.run("DUFF_FIN_REA_NONCONVEX_LEVEL_SET")
+    assert record["verdict"] == "unsupported" and "non-polynomial level set" in record["detail"]
 
 
 try:

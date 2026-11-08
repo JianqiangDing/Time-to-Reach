@@ -5,22 +5,17 @@ import jax
 import jax.numpy as jnp
 import numpy as np
 import sympy as sp
-from scipy.ndimage import distance_transform_edt
 
 from tools.common import expr
 
 
-def vector_field(system, exclude_ball=None):
-    """x -> f(x) as a JAX function; optionally zero inside a ball around a singularity."""
+def vector_field(system):
+    """x -> f(x) as a JAX function: the vector field of the benchmark, unchanged."""
     xs = expr.state_symbols(system.dim)
     f = sp.lambdify(xs, list(system.exprs), modules="jax")
 
     def F(x):
-        v = jnp.stack([jnp.asarray(c, dtype=x.dtype) * jnp.ones((), x.dtype) for c in f(*x)])
-        if exclude_ball is not None:
-            c = jnp.asarray(exclude_ball["center"], dtype=x.dtype)
-            v = jnp.where(jnp.linalg.norm(x - c) < exclude_ball["radius"], jnp.zeros_like(v), v)
-        return v
+        return jnp.stack([jnp.asarray(c, dtype=x.dtype) * jnp.ones((), x.dtype) for c in f(*x)])
 
     return F
 
@@ -56,8 +51,9 @@ def _box(bounds):
 
 
 def implicit_function(specs, n):
-    """g(x) <= 0 exactly on the union of the sets (same convention as tools.common.sets);
-    exact signed distance for boxes and balls, the function value for level sets."""
+    """g(x) <= 0 exactly on the union of the sets (the membership convention of tools.common.sets):
+    the signed distance of a box or a ball; for a level set {f <= 0} within its bounding box,
+    max(f, signed distance of the box), so that the function is negative inside the set."""
     parts = []
     for spec in specs:
         if spec["type"] == "box":
@@ -68,7 +64,7 @@ def implicit_function(specs, n):
         elif spec["type"] == "level_set":
             f = sp.lambdify(expr.state_symbols(n), expr.parse(spec["function"], n), modules="jax")
             box = _box(spec["bounding_box"])
-            parts.append(lambda x, f=f, box=box: jnp.maximum(f(*x), jnp.maximum(box(x), 0.0)))
+            parts.append(lambda x, f=f, box=box: jnp.maximum(f(*x), box(x)))
         else:
             raise ValueError(f"unknown set type {spec['type']!r}")
     return lambda x: jnp.min(jnp.stack([p(x) for p in parts]))
@@ -80,23 +76,5 @@ def on_grid(g, grid):
 
 
 def target_values(specs, n, grid):
-    """Initial values of the target on the grid, in units of length.
-
-    Unions of boxes and balls use their exact signed distance. With a level set,
-    whose function value has no length scale (a value-based margin would be
-    meaningless), the signed distance to the grid's inside/outside boundary is
-    computed with a Euclidean distance transform (accurate to about half a cell).
-    """
-    g = implicit_function(specs, n)
-    values = on_grid(g, grid)
-    if all(s["type"] in ("box", "ball") for s in specs):
-        return values
-    inside = np.asarray(values <= 0)
-    if not inside.any():
-        raise ValueError("the target set contains no grid node; refine the grid")
-    h = np.asarray(grid.spacings, dtype=float)
-    outside_dist = distance_transform_edt(~inside, sampling=h)  # outside nodes: distance to the set
-    inside_dist = distance_transform_edt(inside, sampling=h)  # inside nodes: distance to the outside
-    half = 0.5 * float(h.min())
-    sdf = np.where(inside, -(inside_dist - half), outside_dist - half)
-    return jnp.asarray(sdf, dtype=values.dtype)
+    """Initial values of the target on the grid: its implicit function at the nodes, as the level-set method takes it."""
+    return on_grid(implicit_function(specs, n), grid)

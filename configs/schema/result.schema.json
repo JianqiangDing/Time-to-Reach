@@ -11,7 +11,7 @@
     "tool": {"enum": ["ground_truth", "krtb", "hj", "cora", "juliareach", "sosbc", "dreach"]},
     "setting": {"type": "string"},
     "verdict": {
-      "description": "unreachable_proven: sound proof that no trajectory reaches the target within the horizon. reachable_proven: sound proof that some trajectory does. reachable_witness: a numerically simulated trajectory reaches the target (numerical evidence, not a formal proof). reachable_possible: a sound over-approximation intersects the target (or delta-sat), so reachability cannot be excluded. reachable_estimated / unreachable_estimated: answer of an approximate method (sampling, grids) without a guarantee. unknown: the method completed but cannot decide. unsupported: the benchmark is outside the tool's problem class. set_explosion: the over-approximation diverged before covering the horizon. timeout / error: the run did not complete.",
+      "description": "unreachable_proven: sound proof that no trajectory reaches the target within the horizon. reachable_proven: sound proof that some trajectory does. reachable_witness: a numerically simulated trajectory reaches the target (numerical evidence, not a formal proof). reachable_possible: a sound over-approximation intersects the target (or delta-sat), so reachability cannot be excluded. reachable_estimated / unreachable_estimated: answer of an approximate method (sampling, grids) without a guarantee. unknown: the method completed but cannot decide. unsupported: the benchmark is outside the tool's problem class. set_explosion: the over-approximation diverged before covering the horizon. out_of_memory: the method needs more memory than the limit of the run. timeout / error: the run did not complete.",
       "enum": [
         "unreachable_proven",
         "reachable_proven",
@@ -22,6 +22,7 @@
         "unknown",
         "unsupported",
         "set_explosion",
+        "out_of_memory",
         "timeout",
         "error"
       ]

@@ -13,10 +13,10 @@ SETTINGS = {"julia": "1.13.1", "abstol": 1e-10, "orderT": 5, "orderQ": 2, "maxst
             "taylorize": True, "timeout_s": 900}
 
 
-def toy(tmp_path, target, direction="forward"):
+def toy(tmp_path, target):
     """x' = -x in 2D from [0.8, 1] x [-0.1, 0.1]; x1(t) = x1(0) exp(-t)."""
     cfg = {
-        "id": "TOY", "description": "toy", "direction": direction,
+        "id": "TOY", "description": "toy", "direction": "forward",
         "system": {"type": "nonlinear", "equations": ["-x1", "-x2"]},
         "domain": [[-0.5, 1.5], [-1, 1]],
         "initial_sets": [{"type": "box", "bounds": [[0.8, 1.0], [-0.1, 0.1]]}],
@@ -30,21 +30,17 @@ def toy(tmp_path, target, direction="forward"):
 
 
 @pytest.mark.parametrize(
-    "target, direction, verdict",
+    "bounds, verdict",
     [
-        ({"type": "box", "bounds": [[0.0, 0.6], [-0.5, 0.5]]}, "forward", "reachable_proven"),
-        ({"type": "box", "bounds": [[-0.4, -0.2], [-0.2, 0.2]]}, "forward", "unreachable_proven"),
-        ({"type": "box", "bounds": [[1.2, 2.0], [-0.5, 0.5]]}, "backward", "reachable_proven"),
-        ({"type": "ball", "center": [0.35, 0.0], "radius": 0.2}, "forward", "reachable_proven"),
-        ({"type": "ball", "center": [-0.3, 0.0], "radius": 0.1}, "forward", "unreachable_proven"),
-        # level sets are decided by interval evaluation on the segment boxes
-        ({"type": "level_set", "function": "x1 - 0.2", "bounding_box": [[-0.5, 1.5], [-1, 1]]}, "forward",
-         "unreachable_proven"),  # x1 <= 0.2 needs t >= ln 4 > 1
-        ({"type": "level_set", "function": "x1 - 0.3", "bounding_box": [[-0.5, 1.5], [-1, 1]]}, "forward",
-         "reachable_possible"),  # only part of the initial box gets there, at t >= 0.98
+        ([[0.0, 0.6], [-0.5, 0.5]], "reachable_proven"),  # x1 <= 0.6 for t >= ln(1/0.6): whole sets inside
+        # x1(1) is in [0.294, 0.368]: the sets only overlap x1 <= 0.3, which proves nothing
+        ([[0.0, 0.3], [-0.5, 0.5]], "reachable_possible"),
+        ([[-0.4, -0.2], [-0.2, 0.2]], "unreachable_proven"),
     ],
 )
-def test_verdicts_flip_with_the_problem(tmp_path, target, direction, verdict):
-    out = execute(toy(tmp_path, target, direction), SETTINGS, tmp_path / "work")
+def test_verdicts_flip_with_the_problem(tmp_path, bounds, verdict):
+    out = execute(toy(tmp_path, {"type": "box", "bounds": bounds}), SETTINGS, tmp_path / "work")
     got, detail = interpret(out)
     assert got == verdict, detail
+    assert (out["num_inside"] > 0) == (verdict == "reachable_proven")
+    assert (out["num_possible"] + out["num_inside"] == 0) == (verdict == "unreachable_proven")

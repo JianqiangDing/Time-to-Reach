@@ -8,8 +8,7 @@ function run_sosbc(problemPath, outPath)
 %    B - 1 - sum s g in SOS    on every target set  (B >= 1)
 %   -L - sum s h     in SOS    on D, L = grad(B) . p  (non-increasing B)
 %    B - 1 - lam*(x_i - b) - sum s h in SOS   on each face of D (B >= 1)
-% where p is the vector field multiplied by a positive common denominator
-% (same sign as f). A trajectory from an initial set then cannot leave
+% where p is the polynomial vector field. A trajectory from an initial set then cannot leave
 % {B <= 0} through the boundary of D nor reach a target: unreachable for all
 % times. Infeasibility at a given degree proves nothing.
 

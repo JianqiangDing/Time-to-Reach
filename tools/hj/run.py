@@ -8,20 +8,30 @@ The backward reachable tube of the target is computed on a grid (the
 states whose trajectory reaches the target within time tau (for backward
 benchmarks the trajectories follow -f). The tube is advanced in steps of
 `time_step_report`; after each step the smallest V over samples of the initial
-set is obtained by multilinear interpolation. With m = that minimum at the end
-of the horizon and a margin of `margin_cells` grid spacings:
-  m <= -margin -> reachable_estimated
-  m >= +margin -> unreachable_estimated
-  otherwise    -> unknown (within the numerical resolution of the grid)
+set is obtained with the grid's own multilinear interpolation. The verdict is
+the sign of the value function as the tool returns it, with no tolerance added.
+With m = the smallest V over the samples of the initial set:
+  m <= 0 -> reachable_estimated    (a sampled initial state is in the tube)
+  m >  0 -> unreachable_estimated
 The first reported tau with a non-positive minimum is recorded as an estimate
 of the earliest reach time; no reach-time bounds are claimed. (Sets of states in
 the target at exactly time tau, without the tube, wash out under numerical
-dissipation on thin reachable subsets such as DUFF_FIN_REA_BOX.) Benchmarks a
-grid cannot handle are configured as not applicable and reported as
-unsupported with the reason.
+dissipation on thin reachable subsets such as DUFF_FIN_REA_BOX.) The target set
+is given to the solver the way the level-set method takes any set: as the
+values of its defining function at the grid nodes (the signed distance of a
+box or a ball, the function itself for a level set within its bounding box).
+
+Memory. A grid over a state space of four or more dimensions can need more
+memory than the machine has. The computation therefore runs in its own process
+under `memory_limit_gb` (tools.common.limits) and is reported as out_of_memory
+  - without being started, if the node coordinates and one value array of the
+    grid alone (float32) are larger than the limit, or
+  - when its memory footprint exceeds the limit, or an allocation is refused.
+It is reported as timeout if it has no result within `timeout_s`.
 """
 
 import argparse
+import math
 import sys
 import time
 import traceback
@@ -32,6 +42,7 @@ import jax.numpy as jnp
 import numpy as np
 
 from tools.common import load_benchmark, make_result, paths, write_result
+from tools.common.limits import GB, ChildFailed, MemoryLimitExceeded, TimeLimitExceeded, run_limited
 from tools.common.settings import configured_benchmarks, load_settings
 
 from .model import Autonomous, target_values, vector_field
@@ -40,17 +51,56 @@ TOOL = "hj"
 PACKAGES = ("numpy", "sympy", "jax", "jaxlib", "hj_reachability")
 
 
+def grid_shape(cfg, n):
+    return tuple([cfg["grid_size"]] * n) if np.isscalar(cfg["grid_size"]) else tuple(cfg["grid_size"])
+
+
+def grid_memory(shape):
+    """(number of nodes, bytes of the node coordinates and one value array in float32): the least a grid needs."""
+    nodes = math.prod(int(k) for k in shape)  # exact: 100^16 does not fit a float mantissa or an int64
+    return nodes, nodes * 4 * (len(shape) + 1)
+
+
+def _analyze_benchmark(benchmark_id, cfg, save_to):
+    """analyze() for a benchmark ID; the entry point of the child process (must be at module level)."""
+    return analyze(load_benchmark(benchmark_id), cfg, save_to=save_to)
+
+
 def run(benchmark_id, setting="setting_0"):
     t_start = time.perf_counter()
     bm = load_benchmark(benchmark_id)
     cfg = load_settings(TOOL, setting, benchmark_id)
-    if not cfg.get("applicable", True):
-        return make_result(bm, TOOL, setting, "unsupported", {"total": time.perf_counter() - t_start}, cfg,
-                           detail=cfg["reason"], packages=PACKAGES)
-    verdict, detail, runtime, extra = analyze(bm, cfg, save_to=paths.RAW_DIR / TOOL / benchmark_id / setting)
-    runtime["total"] = time.perf_counter() - t_start
-    return make_result(bm, TOOL, setting, verdict, runtime, cfg, detail=detail, horizon_covered=True,
-                       extra=extra, packages=PACKAGES)
+
+    def result(verdict, detail, runtime=None, **kw):
+        runtime = {**(runtime or {}), "total": time.perf_counter() - t_start}
+        return make_result(bm, TOOL, setting, verdict, runtime, cfg, detail=detail, packages=PACKAGES, **kw)
+
+    limit = cfg["memory_limit_gb"] * GB
+    shape = grid_shape(cfg, bm.dim)
+    nodes, least = grid_memory(shape)
+    grid_text = (f"{shape[0]}^{len(shape)}" if len(set(shape)) == 1 else " x ".join(map(str, shape))) + \
+        f" = {float(nodes):.3g} nodes"
+    memory = {"memory_limit_gb": cfg["memory_limit_gb"], "grid_nodes": float(nodes), "grid_memory_gb": least / GB}
+    if least > limit:
+        return result("out_of_memory", f"the grid of {grid_text} needs {least / GB:.3g} GB for its node coordinates "
+                      f"and one value array, above the memory limit of {cfg['memory_limit_gb']:g} GB (not started)",
+                      extra={**memory, "started": False})
+    try:
+        (verdict, detail, runtime, extra), peak = run_limited(
+            _analyze_benchmark, (benchmark_id, cfg, paths.RAW_DIR / TOOL / benchmark_id / setting),
+            memory_limit=limit, timeout=cfg["timeout_s"])
+    except MemoryLimitExceeded as exc:
+        how = (f"an allocation was refused ({exc.note})" if exc.note else
+               f"memory use reached {exc.used / GB:.3g} GB after {exc.elapsed:.3g} s")
+        return result("out_of_memory", f"grid of {grid_text}: {how}, above the memory limit of "
+                      f"{cfg['memory_limit_gb']:g} GB", extra={**memory, "started": True, "peak_memory_gb": exc.used / GB})
+    except TimeLimitExceeded:
+        return result("timeout", f"no result within {cfg['timeout_s']} s (grid of {grid_text})",
+                      extra={**memory, "started": True})
+    except ChildFailed as exc:
+        return result("error", str(exc).strip().splitlines()[-1], extra={**memory, "started": True})
+    return result(verdict, detail, runtime, horizon_covered=True,
+                  extra={**extra, **memory, "peak_memory_gb": peak / GB})
 
 
 def save_values(folder, grid, V, bm, taus, minima):
@@ -81,11 +131,11 @@ def analyze(bm, cfg, save_to=None):
     t_start = time.perf_counter()
     n = bm.dim
     bounds = np.asarray(cfg.get("grid_domain", bm.domain.bounds.tolist()), dtype=float)
-    shape = tuple([cfg["grid_size"]] * n) if np.isscalar(cfg["grid_size"]) else tuple(cfg["grid_size"])
+    shape = grid_shape(cfg, n)
     grid = hj.Grid.from_lattice_parameters_and_boundary_conditions(
         hj.sets.Box(jnp.asarray(bounds[:, 0]), jnp.asarray(bounds[:, 1])), shape,
         periodic_dims=tuple(cfg.get("periodic_dims", ())))
-    dynamics = Autonomous(vector_field(bm.problem_system, cfg.get("exclude_ball")), n)
+    dynamics = Autonomous(vector_field(bm.problem_system), n)
     values = target_values(bm.raw["target_sets"], n, grid)
 
     rng = np.random.default_rng(cfg["seed"])
@@ -114,15 +164,11 @@ def analyze(bm, cfg, save_to=None):
     minima = np.asarray(minima)
     if np.any(np.isnan(minima)):
         raise RuntimeError("NaN in the value function (initial set outside the grid or singular dynamics)")
-    spacing = float(max(grid.spacings))
-    margin = cfg["margin_cells"] * spacing
     m = float(minima.min())
-    if m <= -margin:
-        verdict, detail = "reachable_estimated", f"min V over the initial set {m:.3g} <= -{margin:.3g}"
-    elif m >= margin:
-        verdict, detail = "unreachable_estimated", f"min V over the initial set {m:.3g} >= {margin:.3g}"
+    if m <= 0:
+        verdict, detail = "reachable_estimated", f"min V over the initial set {m:.3g} <= 0"
     else:
-        verdict, detail = "unknown", f"min V over the initial set {m:.3g} within the grid margin +-{margin:.3g}"
+        verdict, detail = "unreachable_estimated", f"min V over the initial set {m:.3g} > 0"
     reached = np.flatnonzero(minima <= 0)
     if save_to is not None:
         save_values(save_to, grid, np.asarray(values), bm, taus, minima)
@@ -136,7 +182,6 @@ def analyze(bm, cfg, save_to=None):
         "direction": bm.direction,
         "grid_shape": list(shape),
         "grid_spacing": [float(s) for s in grid.spacings],
-        "margin": margin,
         "min_value_over_initial": m,
         "first_reach_time_estimate": float(taus[reached[0]]) if len(reached) else None,
         "num_initial_samples": int(X0.shape[0]),
@@ -167,7 +212,7 @@ def main(argv=None):
         if not args.no_write:
             write_result(record)
         rt = record["runtime_s"]
-        first = record["extra"].get("first_reach_time_estimate")
+        first = (record.get("extra") or {}).get("first_reach_time_estimate")
         first = "-" if first is None else f"{first:.4g}"
         print(f"{bid:34s} expected={record['expected_result']:11s} {record['verdict']:22s} first_reach~{first:8s} "
               f"total={rt['total']:.1f}s  {record['detail']}")

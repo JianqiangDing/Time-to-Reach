@@ -21,6 +21,7 @@ VERDICTS = (
     "unknown",
     "unsupported",
     "set_explosion",
+    "out_of_memory",
     "timeout",
     "error",
 )

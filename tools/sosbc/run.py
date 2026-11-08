@@ -6,12 +6,10 @@
 A barrier certificate proves that no trajectory from the initial sets ever
 reaches a target set (unbounded time), so the only conclusive verdict is
 unreachable_proven; everything else is unknown (infeasibility at a degree
-proves nothing). Preprocessing here:
-  - the vector field (negated for backward benchmarks) must be polynomial after
-    multiplying by a common denominator that is positive on the domain
-    (NL_SLC); trigonometric/exponential dynamics are unsupported,
-  - polynomial level sets are used exactly, other level sets by their bounding
-    box (an over-approximation, sound for unreachability).
+proves nothing). SOS programming needs polynomials, and nothing is transformed
+here to get them: a benchmark whose vector field (negated for backward
+benchmarks) has trigonometric, exponential or rational terms, or one of whose
+sets is a non-polynomial level set, is reported as unsupported.
 A certificate is accepted only if the solver reports success and it satisfies
 every condition on dense samples (initial sets, target sets, domain, boundary).
 """
@@ -41,38 +39,23 @@ def _poly_str(e):
 
 
 def polynomial_field(bm):
-    """The problem's vector field times a positive common denominator, as polynomials."""
+    """The problem's vector field as polynomials, and its degree."""
     xs = expr.state_symbols(bm.dim)
-    if any(e.atoms(sp.Function) for e in bm.problem_system.exprs):  # sin, exp, tanh, ...
-        raise Unsupported("non-polynomial dynamics (trigonometric/exponential terms); SOS programming needs "
-                          "polynomial dynamics")
-    nums, dens = zip(*(sp.fraction(sp.together(e)) for e in bm.problem_system.exprs))
-    L = sp.lcm_list(list(dens))
-    field = [sp.expand(num * sp.cancel(L / den)) for num, den in zip(nums, dens)]
-    for p in field + [L]:
-        if not p.is_polynomial(*xs):
-            raise Unsupported("non-polynomial dynamics (trigonometric/exponential terms); SOS programming needs "
-                              "polynomial dynamics")
-    Lf = sp.lambdify(xs, L, "numpy")
-    vals = np.broadcast_to(Lf(*bm.domain.sample(20000, np.random.default_rng(0)).T), (20000,))
-    if np.all(vals < 0):
-        field, L = [-p for p in field], -L
-    elif not np.all(vals > 0):
-        raise Unsupported("the common denominator of the vector field changes sign on the domain")
-    degree = max(sp.Poly(p, *xs).total_degree() for p in field)
-    return field, L, degree
+    field = [sp.expand(sp.together(e)) for e in bm.problem_system.exprs]
+    if any(e.atoms(sp.Function) or not e.is_polynomial(*xs) for e in field):  # sin, exp, tanh, quotients, ...
+        raise Unsupported("non-polynomial dynamics (trigonometric, exponential or rational terms); SOS programming "
+                          "needs polynomial dynamics")
+    return field, max(sp.Poly(p, *xs).total_degree() for p in field)
 
 
 def set_spec(spec, n):
-    """A set for the SOS program; returns (spec, over-approximated?)."""
+    """A set for the SOS program: a box, a ball or a polynomial level set."""
     if spec["type"] in ("box", "ball"):
-        out = {"kind": spec["type"], **{k: v for k, v in spec.items() if k != "type"}}
-        return out, False
-    xs = expr.state_symbols(n)
+        return {"kind": spec["type"], **{k: v for k, v in spec.items() if k != "type"}}
     f = expr.parse(spec["function"], n)
-    if f.is_polynomial(*xs):
-        return {"kind": "poly", "poly": _poly_str(-f), "bounding_box": spec["bounding_box"]}, False
-    return {"kind": "box", "bounds": spec["bounding_box"]}, True
+    if not f.is_polynomial(*expr.state_symbols(n)):
+        raise Unsupported("non-polynomial level set; SOS programming needs polynomial sets")
+    return {"kind": "poly", "poly": _poly_str(-f), "bounding_box": spec["bounding_box"]}
 
 
 def barrier_function(out, n):
@@ -114,17 +97,16 @@ def run(benchmark_id, setting="setting_0"):
     bm = load_benchmark(benchmark_id)
     cfg = load_settings(TOOL, setting, benchmark_id)
     try:
-        field, denominator, degree = polynomial_field(bm)
+        field, degree = polynomial_field(bm)
+        sets0 = [set_spec(s, bm.dim) for s in bm.raw["initial_sets"]]
+        setsF = [set_spec(s, bm.dim) for s in bm.raw["target_sets"]]
     except Unsupported as exc:
         return make_result(bm, TOOL, setting, "unsupported", {"total": time.perf_counter() - t_start}, cfg,
                            detail=str(exc), packages=("sympy",))
-
-    sets0 = [set_spec(s, bm.dim) for s in bm.raw["initial_sets"]]
-    setsF = [set_spec(s, bm.dim) for s in bm.raw["target_sets"]]
     problem = {
         "n": bm.dim, "deg_B": cfg["deg_B"], "deg_field": degree,
         "vector_field": [_poly_str(p) for p in field],
-        "initial": [s for s, _ in sets0], "target": [s for s, _ in setsF],
+        "initial": sets0, "target": setsF,
         "domain": bm.domain.bounds.tolist(), "boundary_condition": cfg["boundary_condition"],
     }
     work = paths.RAW_DIR / TOOL / benchmark_id / setting
@@ -158,14 +140,10 @@ def run(benchmark_id, setting="setting_0"):
                   f"numerr={out['numerr']}, feasratio={feas})")
     else:
         verdict, detail = "unknown", "solver returned a certificate that fails validation: " + "; ".join(problems)
-    over = [s for s, o in sets0 + setsF if o]
-    if over:
-        detail += " (non-polynomial level sets replaced by their bounding boxes)"
 
     times = out["times"]
     runtime = {"total": time.perf_counter() - t_start, "setup": times["setup"], "solve": times["solve"]}
-    params = {**cfg, "versions": out["versions"], "field_degree": degree,
-              "denominator": sp.sstr(denominator)}
+    params = {**cfg, "versions": out["versions"], "field_degree": degree}
     extra = {"solver": {k: out[k] for k in ("pinf", "dinf", "numerr", "feasratio")}, "validation": problems}
     return make_result(bm, TOOL, setting, verdict, runtime, params, detail=detail, horizon_covered=True,
                        extra=extra, packages=("sympy",))

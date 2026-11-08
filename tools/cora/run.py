@@ -4,10 +4,13 @@
     python -m tools.cora.run --all
 
 Calls tools/cora/run_cora.m through `matlab -batch` and records the result.
+CORA is run on what it handles itself: a forward problem from one initial box to
+one target box (tools.common.support); every other benchmark is unsupported.
 Verdicts as for JuliaReach:
-  some reachable set inside the target          -> reachable_proven
+  some reachable set lies inside the target     -> reachable_proven
   horizon covered, every set disjoint           -> unreachable_proven
-  horizon covered, some set may intersect       -> reachable_possible
+  horizon covered, some set may intersect       -> reachable_possible (no proof:
+                                                   the sets are over-approximations)
   reachable set stops before the horizon ends   -> set_explosion
   no result within timeout_s                    -> timeout
 MATLAB is found through $MATLAB_BIN, /Applications/MATLAB_<release>.app on
@@ -25,6 +28,7 @@ from pathlib import Path
 
 from tools.common import jsonio, load_benchmark, make_result, paths, write_result
 from tools.common.settings import configured_benchmarks, load_settings
+from tools.common.support import box_to_box_reason
 
 TOOL = "cora"
 HERE = paths.REPO_ROOT / "tools" / "cora"
@@ -75,15 +79,15 @@ def interpret(out):
     verdict = out["verdict"]
     if verdict == "incomplete":
         verdict = "set_explosion"
-        detail = f"reachable set stops at t = {out['reachable_set_end_time']:.4g} before the end of the horizon"
+        t_end = out["reachable_set_end_time"]
+        detail = (f"reachable set stops at t = {t_end:.4g} before the end of the horizon" if t_end is not None
+                  else "reachable set explosion at the first step")
     elif verdict == "reachable_proven":
         detail = f"{out['num_inside']} reachable sets lie inside the target"
     elif verdict == "unreachable_proven":
         detail = f"all {out['num_segments']} reachable sets are disjoint from the target"
     else:
         detail = f"{out['num_possible']} of {out['num_segments']} reachable sets may intersect the target"
-    if out["initial_set_overapproximated"]:
-        detail += f" (initial set over-approximated by {out['num_initial_boxes']} boxes)"
     return verdict, detail
 
 
@@ -98,9 +102,10 @@ def run(benchmark_id, setting="setting_0"):
     t_start = time.perf_counter()
     bm = load_benchmark(benchmark_id)
     cfg = load_settings(TOOL, setting, benchmark_id)
-    if not cfg.get("applicable", True):
+    reason = box_to_box_reason(bm)
+    if reason is not None:
         return make_result(bm, TOOL, setting, "unsupported", {"total": time.perf_counter() - t_start}, cfg,
-                           detail=cfg["reason"], packages=())
+                           detail=reason, packages=())
     try:
         out = execute(bm, cfg, paths.RAW_DIR / TOOL / benchmark_id / setting)
     except subprocess.TimeoutExpired:
@@ -115,8 +120,7 @@ def run(benchmark_id, setting="setting_0"):
                "check": times["check"]}
     params = {**cfg, "versions": out["versions"]}
     bounds = _bounds(out["reach_time_bounds"]) if out["horizon_covered"] else None
-    extra = {k: out[k] for k in ("horizon_covered", "reachable_set_end_time", "num_segments", "num_possible",
-                                 "num_inside", "initial_set_overapproximated", "num_initial_boxes")}
+    extra = {k: out[k] for k in ("horizon_covered", "reachable_set_end_time", "num_segments", "num_possible", "num_inside")}
     return make_result(bm, TOOL, setting, verdict, runtime, params, detail=detail,
                        horizon_covered=out["horizon_covered"], reach_time_bounds=bounds, extra=extra, packages=())
 

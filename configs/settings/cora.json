@@ -2,7 +2,7 @@
   "tool": "cora",
   "settings": {
     "setting_0": {
-      "description": "CORA v2026.1.0 (submodule tools/cora/CORA), nonlinearSys with the conservative linearization algorithm 'lin', parameters of the original runners (which did not exist for every benchmark): taylorTerms 4, zonotopeOrder 50, tensorOrder 2, timeStep 0.01 (DUFF_FIN_REA_BOX 0.005; CP_LQR taylorTerms 3, timeStep 0.05).",
+      "description": "CORA v2026.1.0 (submodule tools/cora/CORA), nonlinearSys with the conservative linearization algorithm 'lin' and one initial zonotope, parameters of the original runners: taylorTerms 4, zonotopeOrder 50, tensorOrder 2, timeStep 0.01 (DUFF_FIN_REA_BOX 0.005; CP_LQR taylorTerms 3, timeStep 0.05). Benchmarks that are not a forward problem from one initial box to one target box are reported as unsupported and their parameters are not used.",
       "defaults": {
         "matlab_release": "R2025a",
         "alg": "lin",
@@ -10,22 +10,12 @@
         "taylorTerms": 4,
         "zonotopeOrder": 50,
         "timeStep": 0.01,
-        "initial_splits": 1,
         "timeout_s": 1800
       },
       "benchmarks": {
-        "CP_LQR_FIN_REA_CONVERGE": {
-          "taylorTerms": 3,
-          "timeStep": 0.05
-        },
-        "CP_LQR_FIN_REA_UNSAFE": {
-          "taylorTerms": 3,
-          "timeStep": 0.05
-        },
-        "CP_LQR_FIN_UNR_SAFE": {
-          "taylorTerms": 3,
-          "timeStep": 0.05
-        },
+        "CP_LQR_FIN_REA_CONVERGE": {},
+        "CP_LQR_FIN_REA_UNSAFE": {},
+        "CP_LQR_FIN_UNR_SAFE": {},
         "DUFF_FIN_REA_BALL": {},
         "DUFF_FIN_REA_BOX": {
           "timeStep": 0.005
@@ -41,47 +31,6 @@
         "NL_EIG_FIN_BACKWARD_UNR_BOX": {},
         "NL_SLC_FIN_REA_BOX": {},
         "NL_SLC_FIN_UNR_BOX": {}
-      }
-    },
-    "setting_1": {
-      "inherits": "setting_0",
-      "description": "setting_0 with 2D initial sets split into 8 x 8 boxes (as for JuliaReach setting_1) and timeStep 0.002 for NL_EIG. Without splitting, NL_EIG exploded at t = 0.08 and NL_SLC at t = 1.7; tried on NL_EIG_FIN_BACKWARD_REA_BOX: splitting alone explodes at t = 0.69, timeStep 0.002 alone at t = 0.12, both together prove reachability; on NL_SLC_FIN_REA_BOX splitting alone proves it.",
-      "defaults": {
-        "timeout_s": 3600
-      },
-      "benchmarks": {
-        "DUFF_FIN_REA_BALL": {
-          "initial_splits": 8
-        },
-        "DUFF_FIN_REA_BOX": {
-          "initial_splits": 8
-        },
-        "DUFF_FIN_REA_DISJOINT_BOX": {
-          "initial_splits": 8
-        },
-        "DUFF_FIN_REA_NONCONVEX_LEVEL_SET": {
-          "initial_splits": 8
-        },
-        "DUFF_FIN_UNR_BALL": {
-          "initial_splits": 8
-        },
-        "DUFF_FIN_UNR_BOX": {
-          "initial_splits": 8
-        },
-        "NL_EIG_FIN_BACKWARD_REA_BOX": {
-          "initial_splits": 8,
-          "timeStep": 0.002
-        },
-        "NL_EIG_FIN_BACKWARD_UNR_BOX": {
-          "initial_splits": 8,
-          "timeStep": 0.002
-        },
-        "NL_SLC_FIN_REA_BOX": {
-          "initial_splits": 8
-        },
-        "NL_SLC_FIN_UNR_BOX": {
-          "initial_splits": 8
-        }
       }
     }
   }

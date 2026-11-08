@@ -4,10 +4,13 @@
     python -m tools.juliareach.run --all
 
 Calls tools/juliareach/run.jl in the pinned Julia project (Project.toml and
-Manifest.toml next to it) and records the result. Verdicts:
-  some flowpipe segment inside the target        -> reachable_proven
+Manifest.toml next to it) and records the result. JuliaReach is run on what it
+handles itself: a forward problem from one initial box to one target box
+(tools.common.support); every other benchmark is unsupported. Verdicts:
+  some flowpipe segment lies inside the target   -> reachable_proven
   horizon covered, every segment disjoint        -> unreachable_proven
-  horizon covered, some segment may intersect    -> reachable_possible
+  horizon covered, some segment may intersect    -> reachable_possible (no proof:
+                                                     the segments are over-approximations)
   flowpipe stopped before the end of the horizon -> set_explosion (TMJets stops
                                                      at maxsteps or when a step
                                                      cannot be validated)
@@ -24,6 +27,7 @@ import time
 
 from tools.common import jsonio, load_benchmark, make_result, paths, write_result
 from tools.common.settings import configured_benchmarks, load_settings
+from tools.common.support import box_to_box_reason
 
 TOOL = "juliareach"
 PROJECT = paths.REPO_ROOT / "tools" / "juliareach"
@@ -40,9 +44,10 @@ def run(benchmark_id, setting="setting_0"):
     t_start = time.perf_counter()
     bm = load_benchmark(benchmark_id)
     cfg = load_settings(TOOL, setting, benchmark_id)
-    if not cfg.get("applicable", True):
+    reason = box_to_box_reason(bm)
+    if reason is not None:
         return make_result(bm, TOOL, setting, "unsupported", {"total": time.perf_counter() - t_start}, cfg,
-                           detail=cfg["reason"], packages=())
+                           detail=reason, packages=())
 
     work = paths.RAW_DIR / TOOL / benchmark_id / setting
     try:
@@ -60,8 +65,7 @@ def run(benchmark_id, setting="setting_0"):
                "check": times["check"]}
     params = {**cfg, "versions": out["versions"]}
     bounds = out["reach_time_bounds"] if out["horizon_covered"] else None
-    extra = {k: out[k] for k in ("horizon_covered", "flowpipe_end_time", "num_segments", "num_possible",
-                                 "num_inside", "initial_set_overapproximated", "num_initial_boxes")}
+    extra = {k: out[k] for k in ("horizon_covered", "flowpipe_end_time", "num_segments", "num_possible", "num_inside")}
     return make_result(bm, TOOL, setting, verdict, runtime, params, detail=detail,
                        horizon_covered=out["horizon_covered"], reach_time_bounds=bounds, extra=extra, packages=())
 
@@ -93,8 +97,6 @@ def interpret(out):
         detail = f"all {out['num_segments']} flowpipe segments are disjoint from the target"
     else:
         detail = f"{out['num_possible']} of {out['num_segments']} flowpipe segments may intersect the target"
-    if out["initial_set_overapproximated"]:
-        detail += f" (initial set over-approximated by {out['num_initial_boxes']} boxes)"
     return verdict, detail
 
 

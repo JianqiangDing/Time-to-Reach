@@ -1,15 +1,18 @@
 function run_cora(configPath, settingsPath, outPath)
 % RUN_CORA - CORA reachability on one benchmark; called by tools/cora/run.py.
 %
-% The vector field is generated from the config's equation strings (-f for
-% backward benchmarks). Every time-interval reachable set is compared with
-% each target: 'disjoint' (certainly outside), 'inside' (certainly inside) or
-% 'possible'. Box targets use CORA's exact zonotope/interval tests, balls the
-% interval hull of the set, level sets interval arithmetic on the hull. Initial
-% balls and level sets are covered by boxes (optionally split); 'inside' proves
-% reachability only for boxes that certainly meet the initial set. A reachable
-% set that does not cover the horizon (CORA stops on set explosion) is reported
-% as such.
+% The benchmark is a forward problem from one initial box to one target box;
+% tools/cora/run.py reports every other benchmark as unsupported. The vector
+% field is generated from the config's equation strings. Every time-interval
+% reachable set is compared with the target box:
+%   disjoint  no intersection (CORA's isIntersecting)
+%   inside    the interval hull of the set lies in the target (CORA's contains)
+%   possible  otherwise
+% A set inside the target proves that the target is reached: the reachable
+% sets are over-approximations, so every trajectory is then in the target. No
+% intersection at all proves that the target is not reached. An intersection
+% alone proves nothing. A reachable set that does not cover the horizon (CORA
+% stops on set explosion) is reported as such.
 
 here = fileparts(mfilename('fullpath'));
 addpath(genpath(fullfile(here, 'CORA')));
@@ -21,12 +24,7 @@ end
 
 eqs = cellstr(cfg.system.equations);
 n = numel(eqs);
-backward = isfield(cfg, 'direction') && strcmp(cfg.direction, 'backward');
-sgn = '';
-if backward
-    sgn = '-';
-end
-body = strjoin(cellfun(@(e) [sgn '(' aux_matlab(e) ')'], eqs, 'UniformOutput', false), '; ');
+body = strjoin(cellfun(@(e) ['(' aux_matlab(e) ')'], eqs, 'UniformOutput', false), '; ');
 f = str2func(['@(x,u) [' body ']']);
 sys = nonlinearSys(['ttr_' lower(cfg.id)], f, n, 1);
 
@@ -34,84 +32,65 @@ options = struct('timeStep', st.timeStep, 'taylorTerms', st.taylorTerms, ...
     'zonotopeOrder', st.zonotopeOrder, 'alg', st.alg, 'tensorOrder', st.tensorOrder);
 t0 = cfg.time_horizon(1);
 t1 = cfg.time_horizon(2);
-
-% initial boxes (with a flag: certainly meets the initial set)
-splits = 1;
-if isfield(st, 'initial_splits')
-    splits = st.initial_splits;
-end
-boxes = {};
-meets = [];
-overInit = false;
-initSets = aux_sets(cfg.initial_sets);
-for k = 1:numel(initSets)
-    [b, m] = aux_initial_boxes(initSets{k}, n, splits);
-    boxes = [boxes, b]; %#ok<AGROW>
-    meets = [meets, m]; %#ok<AGROW>
-    overInit = overInit || ~strcmp(initSets{k}.type, 'box');
-end
-targetSets = aux_sets(cfg.target_sets);
+R0 = zonotope(aux_box(cfg.initial_sets));
+T = aux_box(cfg.target_sets);
 
 % warm-up: derivative generation and first calls are not part of the timed reach
-params = struct('tStart', t0, 'tFinal', t0 + 2 * st.timeStep, 'R0', zonotope(boxes{1}), 'U', zonotope(0));
+params = struct('tStart', t0, 'tFinal', t0 + 2 * st.timeStep, 'R0', R0, 'U', zonotope(0));
 tw = tic;
 reach(sys, params, options);
 warmup = toc(tw);
 
-statuses = {};
-segments = zeros(0, 2);
-codes = {'disjoint', 'possible', 'inside'};
-flow = zeros(1024, 2 + 2 * n + 1);  % per segment: t0, t1, box lower bounds, upper bounds, status code
-m = 0;
-covered = true;
-reachedUntil = Inf;
-provenInside = false;
-reachTime = 0;
-checkTime = 0;
-for b = 1:numel(boxes)
-    params = struct('tStart', t0, 'tFinal', t1, 'R0', zonotope(boxes{b}), 'U', zonotope(0));
-    tr = tic;
-    R = reach(sys, params, options);
-    reachTime = reachTime + toc(tr);
+params.tFinal = t1;
+tr = tic;
+R = reach(sys, params, options);
+reachTime = toc(tr);
 
-    tc = tic;
-    tEnd = -Inf;
-    for r = 1:numel(R)
-        if isempty(R(r).timeInterval)
-            continue
+tc = tic;
+segments = zeros(0, 2);
+flow = zeros(1024, 2 + 2 * n + 1);  % per segment: t0, t1, box lower bounds, upper bounds, status (0 disjoint, 1 possible, 2 inside)
+m = 0;
+numPossible = 0;
+numInside = 0;
+tEnd = -Inf;
+for r = 1:numel(R)
+    if isempty(R(r).timeInterval)
+        continue
+    end
+    for i = 1:numel(R(r).timeInterval.set)
+        S = R(r).timeInterval.set{i};
+        I = R(r).timeInterval.time{i};
+        a = infimum(I);
+        e = supremum(I);
+        tEnd = max(tEnd, e);
+        H = interval(S);
+        if ~isIntersecting(S, T)
+            status = 0;
+        elseif contains(T, H)
+            status = 2;
+        else
+            status = 1;
         end
-        for i = 1:numel(R(r).timeInterval.set)
-            S = R(r).timeInterval.set{i};
-            T = R(r).timeInterval.time{i};
-            a = infimum(T);
-            e = supremum(T);
-            tEnd = max(tEnd, e);
-            [s, H] = aux_check(S, targetSets, n);
-            if strcmp(s, 'inside') && ~meets(b)
-                s = 'possible';
-            end
-            m = m + 1;
-            if m > size(flow, 1)
-                flow = [flow; zeros(size(flow))]; %#ok<AGROW>
-            end
-            flow(m, :) = [a, e, infimum(H)', supremum(H)', find(strcmp(s, codes)) - 1];
-            provenInside = provenInside || strcmp(s, 'inside');
-            statuses{end + 1} = s; %#ok<AGROW>
-            if ~strcmp(s, 'disjoint')
-                segments(end + 1, :) = [max(a, t0), min(e, t1)]; %#ok<AGROW>
-            end
+        m = m + 1;
+        if m > size(flow, 1)
+            flow = [flow; zeros(size(flow))]; %#ok<AGROW>
+        end
+        flow(m, :) = [a, e, infimum(H)', supremum(H)', status];
+        numPossible = numPossible + (status == 1);
+        numInside = numInside + (status == 2);
+        if status > 0
+            segments(end + 1, :) = [max(a, t0), min(e, t1)]; %#ok<AGROW>
         end
     end
-    checkTime = checkTime + toc(tc);
-    reachedUntil = min(reachedUntil, tEnd);
-    covered = covered && tEnd >= t1 - 1e-9;
 end
+checkTime = toc(tc);
+covered = tEnd >= t1 - 1e-9;
 
-if provenInside
+if numInside > 0
     verdict = 'reachable_proven';
 elseif ~covered
     verdict = 'incomplete';
-elseif all(strcmp(statuses, 'disjoint'))
+elseif numPossible == 0
     verdict = 'unreachable_proven';
 else
     verdict = 'reachable_possible';
@@ -120,13 +99,11 @@ end
 out = struct();
 out.verdict = verdict;
 out.horizon_covered = covered;
-out.reachable_set_end_time = reachedUntil;
-out.num_segments = numel(statuses);
-out.num_possible = sum(strcmp(statuses, 'possible'));
-out.num_inside = sum(strcmp(statuses, 'inside'));
+out.reachable_set_end_time = tEnd;
+out.num_segments = m;
+out.num_possible = numPossible;
+out.num_inside = numInside;
 out.reach_time_bounds = aux_merge(segments);
-out.initial_set_overapproximated = overInit;
-out.num_initial_boxes = numel(boxes);
 out.times = struct('warmup', warmup, 'reach', reachTime, 'check', checkTime);
 out.versions = struct('matlab', version, 'cora', CORAVERSION());
 fid = fopen(outPath, 'w');
@@ -134,7 +111,7 @@ fprintf(fid, '%s', jsonencode(out));
 fclose(fid);
 
 % the interval hulls of the reachable sets behind the verdict, for plotting (scripts/report.py)
-fp = struct('n', n, 'status_codes', {codes}, 'segments', round(flow(1:m, :), 6, 'significant'));
+fp = struct('n', n, 'status_codes', {{'disjoint', 'possible', 'inside'}}, 'segments', round(flow(1:m, :), 6, 'significant'));
 fid = fopen(fullfile(fileparts(outPath), 'flowpipe.json'), 'w');
 fprintf(fid, '%s', jsonencode(fp));
 fclose(fid);
@@ -148,122 +125,18 @@ function s = aux_matlab(e)
 s = regexprep(strrep(char(e), '**', '^'), '\<x(\d+)\>', 'x($1)');
 end
 
-function sets = aux_sets(raw)
-% jsondecode gives a struct array for identical fields, else a cell array
+function I = aux_box(raw)
+% the one box of a list of sets (jsondecode gives a struct for a list with one element)
 if iscell(raw)
-    sets = raw;
-else
-    sets = num2cell(raw);
-end
-end
-
-function I = aux_box(bounds)
-I = interval(bounds(:, 1), bounds(:, 2));
-end
-
-function [boxes, meets] = aux_initial_boxes(s, n, k)
-switch s.type
-    case 'box'
-        bb = aux_box(s.bounds);
-    case 'ball'
-        bb = interval(s.center - s.radius, s.center + s.radius);
-    case 'level_set'
-        bb = aux_box(s.bounding_box);
-end
-lo = infimum(bb);
-hi = supremum(bb);
-counts = ones(n, 1);
-counts(hi > lo) = k;
-boxes = {};
-meets = [];
-idx = ones(n, 1);
-while true
-    blo = lo + (idx - 1) .* (hi - lo) ./ counts;
-    bhi = lo + idx .* (hi - lo) ./ counts;
-    B = interval(blo, bhi);
-    switch s.type
-        case 'box'
-            boxes{end + 1} = B; %#ok<AGROW>
-            meets(end + 1) = true; %#ok<AGROW>
-        case 'ball'
-            c = s.center(:);
-            if norm(max(max(blo - c, 0), c - bhi)) <= s.radius
-                boxes{end + 1} = B; %#ok<AGROW>
-                meets(end + 1) = true; %#ok<AGROW>
-            end
-        case 'level_set'
-            g = str2func(['@(x) ' aux_matlab(s.function)]);
-            v = g(B);
-            if infimum(v) <= 0
-                boxes{end + 1} = B; %#ok<AGROW>
-                meets(end + 1) = supremum(v) <= 0; %#ok<AGROW>
-            end
+    if numel(raw) ~= 1
+        error('run_cora:unsupported', 'one box is expected, got %d sets', numel(raw));
     end
-    % next multi-index
-    d = 1;
-    while d <= n && idx(d) == counts(d)
-        idx(d) = 1;
-        d = d + 1;
-    end
-    if d > n
-        break
-    end
-    idx(d) = idx(d) + 1;
+    raw = raw{1};
 end
+if numel(raw) ~= 1 || ~strcmp(raw.type, 'box')
+    error('run_cora:unsupported', 'one box is expected');
 end
-
-function [s, H] = aux_check(S, targets, n)
-statuses = cell(1, numel(targets));
-H = interval(S);
-for k = 1:numel(targets)
-    t = targets{k};
-    switch t.type
-        case 'box'
-            T = aux_box(t.bounds);
-            if ~isIntersecting(S, T)
-                statuses{k} = 'disjoint';
-            elseif contains(T, H)
-                statuses{k} = 'inside';
-            else
-                statuses{k} = 'possible';
-            end
-        case 'ball'
-            c = t.center(:);
-            lo = infimum(H);
-            hi = supremum(H);
-            nearest = norm(max(max(lo - c, 0), c - hi));
-            farthest = norm(max(abs(lo - c), abs(hi - c)));
-            if nearest > t.radius
-                statuses{k} = 'disjoint';
-            elseif farthest <= t.radius
-                statuses{k} = 'inside';
-            else
-                statuses{k} = 'possible';
-            end
-        case 'level_set'
-            bb = aux_box(t.bounding_box);
-            if ~isIntersecting(H, bb)
-                statuses{k} = 'disjoint';
-                continue
-            end
-            g = str2func(['@(x) ' aux_matlab(t.function)]);
-            v = g(and(H, bb));
-            if infimum(v) > 0
-                statuses{k} = 'disjoint';
-            elseif supremum(v) <= 0 && contains(bb, H)
-                statuses{k} = 'inside';
-            else
-                statuses{k} = 'possible';
-            end
-    end
-end
-if any(strcmp(statuses, 'inside'))
-    s = 'inside';
-elseif all(strcmp(statuses, 'disjoint'))
-    s = 'disjoint';
-else
-    s = 'possible';
-end
+I = interval(raw.bounds(:, 1), raw.bounds(:, 2));
 end
 
 function m = aux_merge(seg)
