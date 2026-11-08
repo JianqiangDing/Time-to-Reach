@@ -4,7 +4,7 @@ import jsonschema
 import numpy as np
 import pytest
 
-from tools.common import expr, jsonio, list_benchmarks, load_benchmark
+from tools.common import jsonio, list_benchmarks, load_benchmark
 from tools.common.spec import benchmark_path
 
 BENCHMARKS = list_benchmarks()
@@ -74,24 +74,18 @@ def test_invalid_configs_are_rejected(tmp_path, mutate):
         load_benchmark(path)
 
 
-# The cart-pole model as it was written inline before the control law got its own definition.
-CART_POLE_INLINE = [
-    "x2",
-    "(-3.16227766016837*x1 - 6.69810360685677*x2 - 5.02657663490373*x3 - 1.6165296244068*x4"
-    " + 2*(x4^2 - 9.8065*cos(x3))*sin(x3))/(2*sin(x3)^2 + 3)",
-    "x4",
-    "(2*x4^2*sin(x3)*cos(x3) + (-3.16227766016837*x1 - 6.69810360685677*x2 - 5.02657663490373*x3"
-    " - 1.6165296244068*x4)*cos(x3) - 49.0325*sin(x3))/(2*sin(x3)^2 + 3)",
-]
-
-
 @pytest.mark.parametrize("bid", ["CP_LQR_FIN_REA_CONVERGE", "CP_LQR_FIN_REA_UNSAFE", "CP_LQR_FIN_UNR_SAFE"])
-def test_cart_pole_parameters_reproduce_the_inline_model(bid):
+def test_cart_pole_configs_are_tedrakes_model_with_the_designed_lqr(bid):
+    """The three cart-pole configs carry Tedrake's cart-pole (hanging equilibrium at the origin) with the paper's
+    parameters and the LQR gain designed by scripts/cartpole_lqr.py (see its docstring)."""
+    from scripts.cartpole_lqr import X0, check_model, linearisation, lqr, DEFAULT_Q, DEFAULT_R
+    K, _ = lqr(*linearisation(), DEFAULT_Q, DEFAULT_R)
+    check = check_model(K)["configs"][bid]
+    assert check["parameters_equal"] and check["equations_equal"] and check["gains_equal"]
     bm = load_benchmark(bid)
     assert "u" in bm.raw["system"]["definitions"]
-    inline = expr.vectorize(expr.parse_all(CART_POLE_INLINE, 4), 4)
-    X = np.random.default_rng(0).uniform([-5, -5, -3.2, -10], [5, 5, 3.2, 10], (20000, 4))
-    np.testing.assert_allclose(bm.system.rhs(X), inline(X), rtol=1e-12, atol=1e-12)
+    np.testing.assert_allclose(bm.initial_set.bounds[:, 0], X0, atol=1e-6)  # the initial set is the point x0
+    np.testing.assert_allclose(bm.initial_set.bounds[:, 1], X0, atol=1e-6)
     assert bm.solver_config()["system"] == {"type": "nonlinear", "equations": bm.system.equations}
 
 
