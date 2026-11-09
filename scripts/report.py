@@ -146,7 +146,9 @@ def time_info(tool, record):
     bounds = record.get("reach_time_bounds")
     if tool == "krtb":
         return "reach-time bounds", bounds or []
-    if tool in ("cora", "juliareach") and record["verdict"] not in ("unsupported", "error", "timeout"):
+    # a computation that stopped (set explosion, memory, time) has no flowpipe over the horizon: no row
+    stopped = ("unsupported", "error", "timeout", "set_explosion", "out_of_memory")
+    if tool in ("cora", "juliareach") and record["verdict"] not in stopped:
         return "times of segments that may meet the target", bounds or []
     return None, None
 

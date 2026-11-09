@@ -17,7 +17,9 @@ def test_time_information_per_tool():
         ("reach-time bounds", [])
     assert time_info("hj", {"verdict": "unknown", "extra": {"first_reach_time_estimate": 1.5}}) == \
         ("first reach estimate", 1.5)
-    assert time_info("cora", {"verdict": "set_explosion", "reach_time_bounds": None})[1] == []
+    assert time_info("cora", {"verdict": "reachable_possible", "reach_time_bounds": []})[1] == []
+    # a flowpipe that stopped early (set explosion) says nothing about the rest of the horizon: no row
+    assert time_info("cora", {"verdict": "set_explosion", "reach_time_bounds": None}) == (None, None)
     assert time_info("sosbc", {"verdict": "unknown", "reach_time_bounds": None}) == (None, None)
 
 
