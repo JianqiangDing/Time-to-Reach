@@ -1,12 +1,14 @@
-"""Render the animated pipeline figure at the top of the report as a video.
+"""Render the animated pipeline figure at the top of the report as a video or a GIF.
 
     python -m scripts.pipeline_video [--out results/report/time-to-reach-pipeline.mp4] [--width 1920] [--fps 30]
+    python -m scripts.pipeline_video --out docs/pipeline.gif --width 1600 --fps 20
 
 One pass of the animation of scripts/report_explainer.js, with its timing: the sweep
 along the observable axis, then the result held. Every frame is a screenshot of
 scripts/report_pipeline.svg at one position of the sweep (headless Chrome), so no frame
-depends on how fast the machine is; ffmpeg encodes them as H.264 in an MP4 file that
-QuickTime, browsers and PowerPoint can play.
+depends on how fast the machine is. ffmpeg encodes them as H.264 in an MP4 file that
+QuickTime, browsers and PowerPoint can play, or, for an --out ending in .gif, as a
+looping GIF with one palette for all frames (the animation at the top of README.md).
 """
 
 import argparse
@@ -100,11 +102,17 @@ def main(argv=None):
         screenshots(page, list(shots.items()), size, args.chrome, work)
         for k, s in enumerate(frames):
             (work / f"frame{k:05d}.png").hardlink_to(shots[s])
-        subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-framerate", f"{args.fps:g}",
-                        "-i", str(work / "frame%05d.png"), "-c:v", "libx264", "-crf", "16", "-preset", "slow",
-                        "-vf", "scale=out_color_matrix=bt709:out_range=tv,format=yuv420p",
-                        "-colorspace", "bt709", "-color_primaries", "bt709", "-color_trc", "bt709",
-                        "-movflags", "+faststart", str(out)], check=True)
+        frames_in = ["-framerate", f"{args.fps:g}", "-i", str(work / "frame%05d.png")]
+        if out.suffix.lower() == ".gif":
+            # one palette from all frames; each frame stores only the rectangle that changed
+            encode = ["-vf", "split[a][b];[a]palettegen=max_colors=256[p];"
+                             "[b][p]paletteuse=dither=sierra2_4a:diff_mode=rectangle", "-loop", "0"]
+        else:
+            encode = ["-c:v", "libx264", "-crf", "16", "-preset", "slow",
+                      "-vf", "scale=out_color_matrix=bt709:out_range=tv,format=yuv420p",
+                      "-colorspace", "bt709", "-color_primaries", "bt709", "-color_trc", "bt709",
+                      "-movflags", "+faststart"]
+        subprocess.run(["ffmpeg", "-y", "-loglevel", "error", *frames_in, *encode, str(out)], check=True)
     print(f"wrote {out}: {size[0]}x{size[1]}, {len(frames)} frames, {len(frames) / args.fps:.1f} s, "
           f"{out.stat().st_size / 1e6:.2f} MB")
     return 0
