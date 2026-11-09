@@ -46,7 +46,7 @@ from scripts.evaluate_results import evaluate  # noqa: E402
 from scripts.paper_figures import FONT, STYLE, finish_phase_axes, phase_figure  # noqa: E402
 from scripts.paper_figures import draw_streamlines as paper_streamlines  # noqa: E402
 from tools.common import expr, jsonio, list_benchmarks, load_benchmark, paths  # noqa: E402
-from tools.common.sets import Ball, Box, LevelSet, Union  # noqa: E402
+from tools.common.sets import Ball, Box, BoxShell, LevelSet, Union  # noqa: E402
 from tools.common.settings import resolved, setting_names  # noqa: E402
 from tools.common.simulate import simulate  # noqa: E402
 
@@ -243,6 +243,13 @@ def draw_set(ax, s, i, j, color, edge, extent, n):
         elif isinstance(m, Ball):
             ax.add_patch(Circle((m.center[i], m.center[j]), m.radius, facecolor=color, edgecolor=edge, lw=1.2,
                                 zorder=6))
+        elif isinstance(m, BoxShell):  # the outer box: in a plane of a shell of dimension > 2 its exact projection
+            (a, b), (c, d) = m.outer.bounds[i], m.outer.bounds[j]
+            ax.add_patch(Rectangle((a, c), b - a, d - c, facecolor=color, edgecolor=edge, lw=1.2, zorder=6))
+            if n == 2:  # the hole
+                r = m.inner_radius
+                ax.add_patch(Rectangle((m.center[i] - r, m.center[j] - r), 2 * r, 2 * r, facecolor="white",
+                                       edgecolor=edge, lw=0.6, zorder=6))
         elif isinstance(m, LevelSet) and set(level_set_dims(m, n)) <= {i, j}:
             (x0, x1), (y0, y1) = extent
             gx, gy = np.meshgrid(np.linspace(x0, x1, 400), np.linspace(y0, y1, 400))
@@ -699,6 +706,9 @@ def shapes_of(s, i, j, ex, n):
                        {"type": "rect", "x0": a, "x1": b, "y0": c, "y1": d})
         elif isinstance(m, Ball):
             out.append({"type": "circle", "cx": m.center[i], "cy": m.center[j], "r": m.radius})
+        elif isinstance(m, BoxShell):  # the outer box (its hole is drawn by draw_set only)
+            (a, b), (c, d) = m.outer.bounds[i], m.outer.bounds[j]
+            out.append({"type": "rect", "x0": a, "x1": b, "y0": c, "y1": d})
         elif isinstance(m, LevelSet) and set(level_set_dims(m, n)) <= {i, j}:
             gx, gy = np.meshgrid(np.linspace(*ex[0], 300), np.linspace(*ex[1], 300))
             P = np.tile(m.box.mean(axis=1), (gx.size, 1))
@@ -915,7 +925,13 @@ def tex(source, display=False):
 
 
 def tex_num(v):
-    return f"{float(v):g}"
+    """A number as %g writes it, with an exponent as a power of ten (1e-30 -> 10^{-30})."""
+    text = f"{float(v):g}"
+    if "e" not in text:
+        return text
+    mantissa, exponent = text.split("e")
+    power = f"10^{{{int(exponent)}}}"
+    return power if mantissa == "1" else f"{mantissa} \\times {power}"
 
 
 def tex_box(bounds):
@@ -938,6 +954,11 @@ def tex_set(spec, n):
     if kind == "ball":
         center = ", ".join(tex_num(v) for v in spec["center"])
         return rf"\{{x : \lVert x - ({center}) \rVert_2 \le {tex_num(spec['radius'])}\}}"
+    if kind == "box_shell":
+        c = spec["center"]
+        dev = "x" if not any(c) else "x - (" + ", ".join(tex_num(v) for v in c) + ")"
+        return (rf"\{{x : {tex_num(spec['inner_radius'])} \le \lVert {dev} \rVert_\infty \le "
+                rf"{tex_num(spec['outer_radius'])}\}}")
     return rf"\{{x \in {tex_box(spec['bounding_box'])} : {tex_expr(expr.parse(spec['function'], n))} \le 0\}}"
 
 

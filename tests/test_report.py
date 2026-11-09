@@ -109,6 +109,8 @@ def test_latex_of_dynamics_and_sets():
     assert tex_dynamics(bm).startswith(r"\begin{aligned}\dot{x}_{1} &= x_{2} \\ \dot{x}_{2} &= ")
     assert tex_set({"type": "box", "bounds": [[0.8, 0.8], [0.3, 0.3]]}, 2) == r"\{(0.8, 0.3)\}"  # a point
     assert tex_set({"type": "box", "bounds": [[0, 1], [-1, 2]]}, 2) == r"[0, 1] \times [-1, 2]"
+    assert tex_set({"type": "box_shell", "center": [0, 0], "inner_radius": 1e-30, "outer_radius": 0.001}, 2) == \
+        r"\{x : 10^{-30} \le \lVert x \rVert_\infty \le 0.001\}"
     assert tex_set({"type": "ball", "center": [1, 0], "radius": 0.5}, 2) == \
         r"\{x : \lVert x - (1, 0) \rVert_2 \le 0.5\}"
     level = tex_set({"type": "level_set", "function": "x1^2 + x2^2 - 1", "bounding_box": [[-2, 2], [-2, 2]]}, 2)
